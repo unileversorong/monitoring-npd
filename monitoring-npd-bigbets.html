@@ -813,7 +813,7 @@ const NPD_HISTORY_UNTIL = "2026-09-13";
 // Periode aktif app (bulan konfirmasi NPD yang sedang berjalan). TIDAK ikut tanggal HP —
 // pindah bulan hanya lewat rilis versi baru dari file update AASM (keputusan user 14 Sept 2026).
 const ACTIVE_PERIOD = "2026-09";
-const APP_BUILD = "v54";  // label versi, tampil kecil di header — naikkan tiap publish
+const APP_BUILD = "v55";  // label versi, tampil kecil di header — naikkan tiap publish
 const COTC_SKUS = [
   {id:"C01", name:"BANGO SOY/OYSTER/FISH KCP MNS PCH 580ML", bu:"FOODS"},
   {id:"C02", name:"BUAVITA FRT JCS GUAVA TP 245ML", bu:"FOODS"},
@@ -1217,10 +1217,11 @@ document.getElementById("skuPanelHead").addEventListener("click", ()=>{
 const GAS_URL = "https://script.google.com/macros/s/AKfycbw-aIHUr3qh4ujEdcF8KlZZ42TICN_Lzpb_a46rkR51yxATT0rVGFrCdXGWmGgKqLnY/exec"; // hasil Deploy → Web app (berakhiran /exec)
 const SYNC_INTERVAL_MS = 3 * 60 * 1000;
 const RETRY_INTERVAL_MS = 30 * 1000;
-const API_TIMEOUT_MS = 25 * 1000;
+const API_TIMEOUT_MS = 20 * 1000;
+const PATCH_TRIES = 2;            // kiriman centang idempoten (merge), boleh langsung diulang sekali kalau menggantung
 const PENDING_KEY = "pjpNpdPending_v1";
 const CACHE_KEY = "pjpNpdCache_v1";   // salinan bacaan server terakhir, supaya saat buka tanpa sinyal data tidak kosong
-const dbState = { ready:false, syncing:false, flushing:false, lastSyncAt:null, lastError:null, pending:[], acked:[], syncTimer:null, retryTimer:null };
+const dbState = { ready:false, syncing:false, flushing:false, lastSyncAt:null, lastError:null, pending:[], acked:[], syncTimer:null, retryTimer:null, inflight:new Set(), flushGen:0 };
 
 function gasConfigured(){ return /^https?:\/\/\S+\/exec$/.test(GAS_URL) && !GAS_URL.includes("PASTE_"); }
 function showDbBanner(text, btnLabel){
@@ -1245,10 +1246,11 @@ function refreshDbStatus(){
   }
   if(el) el.textContent = dbState.lastSyncAt ? "Sinkron " + fmtClock(dbState.lastSyncAt) : "Belum sinkron";
 }
-async function api(payload){
+async function api(payload, opts){
   if(!gasConfigured()) throw new Error("GAS_URL belum diisi");
   const ctrl = new AbortController();
-  const t = setTimeout(()=>ctrl.abort(), API_TIMEOUT_MS);
+  dbState.inflight.add(ctrl);
+  const t = setTimeout(()=>ctrl.abort(), (opts && opts.timeoutMs) || API_TIMEOUT_MS);
   try{
     // text/plain = "simple request" → tanpa preflight CORS; Apps Script menjawab lewat redirect 302 yang diikuti fetch.
     const res = await fetch(GAS_URL, {method:"POST", headers:{"Content-Type":"text/plain;charset=utf-8"}, body: JSON.stringify(payload), redirect:"follow", signal: ctrl.signal});
@@ -1256,8 +1258,10 @@ async function api(payload){
     const data = await res.json();
     if(!data || data.ok !== true) throw new Error((data && data.error) || "jawaban tidak valid");
     return data;
-  }finally{ clearTimeout(t); }
+  }finally{ clearTimeout(t); dbState.inflight.delete(ctrl); }
 }
+// Batalkan semua permintaan yang sedang menggantung (dipakai tombol "Kirim sekarang").
+function abortInflight(){ dbState.inflight.forEach(c=>{ try{ c.abort(); }catch(e){} }); dbState.inflight.clear(); }
 function errText(e){
   if(e && e.name === "AbortError") return "waktu habis";
   if(e && e.name === "TypeError") return "tidak ada koneksi";
@@ -1323,7 +1327,15 @@ function scheduleSync(){
 document.addEventListener("visibilitychange", ()=>{ if(document.visibilityState === "visible"){ syncNow(); flushPending(); } });
 window.addEventListener("focus", ()=>{ syncNow(); flushPending(); });
 window.addEventListener("online", ()=>{ syncNow(); flushPending(); });
-document.getElementById("dbRetryBtn").addEventListener("click", ()=>{ dbState.lastError = null; refreshDbStatus(); flushPending().then(()=>syncNow()); });
+document.getElementById("dbRetryBtn").addEventListener("click", async ()=>{
+  const btn = document.getElementById("dbRetryBtn");
+  btn.disabled = true; btn.textContent = "Mengirim…";
+  abortInflight();
+  dbState.flushing = false; dbState.syncing = false; dbState.lastError = null;
+  dbState.pending.forEach(p=>{ p.inflight = false; });
+  showIdentityToast(dbState.pending.length ? "Mengirim ulang " + dbState.pending.length + " centang…" : "Menyambung ulang…");
+  try{ await flushPending(); await syncNow(); }finally{ btn.disabled = false; refreshDbStatus(); }
+});
 
 // ---- antrean centang (localStorage) ----
 function loadPending(){
@@ -1347,6 +1359,7 @@ function enqueuePatch(period, split, patchOutlets){
 async function flushPending(){
   if(dbState.flushing) return;
   dbState.flushing = true;
+  const gen = ++dbState.flushGen; // kalau "Kirim sekarang" memulai flush baru, loop lama berhenti diam-diam
   clearTimeout(dbState.retryTimer);
   let failed = false;
   try{
@@ -1354,7 +1367,13 @@ async function flushPending(){
       const p = dbState.pending[0];
       p.inflight = true;
       try{
-        await api({action:"patch", period:p.period, split:p.split, salesman:p.salesman, patch:p.patch});
+        let lastErr = null, ok = false;
+        for(let attempt=1; attempt<=PATCH_TRIES && !ok; attempt++){
+          try{ await api({action:"patch", period:p.period, split:p.split, salesman:p.salesman, patch:p.patch}); ok = true; }
+          catch(e){ lastErr = e; if(gen !== dbState.flushGen) return; if(e && e.name === "AbortError") continue; break; }
+        }
+        if(gen !== dbState.flushGen) return;
+        if(!ok) throw lastErr;
         dbState.pending.shift();
         dbState.acked.push({period:p.period, split:p.split, patch:p.patch, at: Date.now()});
         dbState.lastError = null;
@@ -1367,11 +1386,13 @@ async function flushPending(){
       }
     }
   }finally{
-    dbState.flushing = false;
-    refreshDbStatus();
-    if(failed || dbState.pending.length){
-      dbState.retryTimer = setTimeout(flushPending, RETRY_INTERVAL_MS);
-      if(failed) showIdentityToast("Belum terkirim — disimpan di HP, dicoba lagi otomatis");
+    if(gen === dbState.flushGen){
+      dbState.flushing = false;
+      refreshDbStatus();
+      if(failed || dbState.pending.length){
+        dbState.retryTimer = setTimeout(flushPending, RETRY_INTERVAL_MS);
+        if(failed) showIdentityToast("Belum terkirim — disimpan di HP, dicoba lagi otomatis");
+      }
     }
   }
 }
