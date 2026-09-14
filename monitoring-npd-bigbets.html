@@ -20,6 +20,9 @@
   --danger:#B5442E;
   --danger-soft:#F6DFD7;
   --bigbets:#7C3AED;
+  --guest:#0E8A7B;
+  --guest-soft:#D6F3EE;
+  --guest-ink:#FFFFFF;
   --bigbets-soft:#EEE6FC;
   --strip-bg:#FFE860;
   --strip-ink:#3A2E00;
@@ -37,6 +40,9 @@
     --brand:#5B9CF2;
     --brand-ink:#0B1930;
     --brand-soft:#1E3457;
+    --guest:#3ED4BF;
+    --guest-soft:#123D38;
+    --guest-ink:#04201C;
     --success:#5FC583;
     --success-ink:#0B1F14;
     --success-soft:#193828;
@@ -62,6 +68,9 @@
   --brand:#5B9CF2;
   --brand-ink:#0B1930;
   --brand-soft:#1E3457;
+  --guest:#3ED4BF;
+  --guest-soft:#123D38;
+  --guest-ink:#04201C;
   --success:#5FC583;
   --success-ink:#0B1F14;
   --success-soft:#193828;
@@ -293,12 +302,28 @@ h1,h2,h3{
 .identity-strip b{font-weight:700;}
 .db-banner{display:flex;align-items:center;justify-content:space-between;gap:8px;background:var(--danger-soft);color:var(--danger);border:1px solid var(--danger);border-radius:9px;padding:6px 10px;font-size:11.5px;font-weight:600;line-height:1.35;}
 .db-banner button{flex-shrink:0;border:1.5px solid var(--danger);background:var(--surface);color:var(--danger);font-family:inherit;font-size:11px;font-weight:800;padding:4px 9px;border-radius:99px;cursor:pointer;}
-.identity-strip.view-only{background:var(--brand-soft);color:var(--brand);}
-.viewonly-row{display:flex;gap:10px;align-items:flex-start;background:var(--surface-2);border:1px solid var(--border);border-radius:10px;padding:9px 11px;margin-bottom:12px;font-size:12px;color:var(--ink-muted);line-height:1.4;cursor:pointer;}
-.viewonly-row input{margin:3px 0 0;width:16px;height:16px;flex-shrink:0;accent-color:var(--brand);}
-.viewonly-row b{color:var(--ink);}
-.viewonly-row.on{background:var(--brand-soft);border-color:var(--brand);color:var(--brand);}
-.viewonly-row.on b{color:var(--brand);}
+.identity-strip.view-only{background:var(--guest);color:var(--guest-ink);}
+.identity-strip.view-only .identity-change-btn{border-color:var(--guest-ink);color:var(--guest-ink);background:transparent;}
+/* pilih mode di gate: Tamu (bawaan, mencolok) vs Salesman (mengisi, perlu PIN) */
+.mode-switch{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px;}
+.mode-btn{border:2px solid var(--border);background:var(--surface);color:var(--ink-muted);font-family:inherit;text-align:left;padding:10px 11px;border-radius:12px;cursor:pointer;line-height:1.25;}
+.mode-btn b{display:block;font-size:13px;letter-spacing:.04em;color:var(--ink);}
+.mode-btn small{display:block;font-size:11px;margin-top:3px;}
+.mode-btn.guest.active{background:var(--guest);border-color:var(--guest);color:var(--guest-ink);}
+.mode-btn.guest.active b,.mode-btn.guest.active small{color:var(--guest-ink);}
+.mode-btn.fill.active{background:var(--strip-bg);border-color:var(--strip-btn);color:var(--strip-ink);}
+.mode-btn.fill.active b{color:var(--strip-btn);}
+.mode-btn.fill.active small{color:var(--strip-ink);}
+.pin-row{display:flex;flex-direction:column;gap:6px;background:var(--surface-2);border:1.5px solid var(--strip-btn);border-radius:12px;padding:10px 12px;margin-bottom:12px;}
+.pin-row label{font-size:12px;font-weight:700;color:var(--ink);}
+.pin-row input{font-family:inherit;font-size:20px;letter-spacing:.35em;font-weight:700;padding:8px 10px;border:1.5px solid var(--border);border-radius:9px;background:var(--surface);color:var(--ink);width:100%;}
+.pin-row input:focus{outline:2px solid var(--strip-btn);}
+.pin-row .pin-hint{font-size:11px;color:var(--ink-muted);line-height:1.4;}
+.pin-modal{position:fixed;inset:0;background:rgba(15,25,45,.55);display:flex;align-items:center;justify-content:center;z-index:150;padding:20px;}
+.pin-modal .identity-card{max-width:360px;}
+.pin-modal .actions{display:flex;gap:8px;justify-content:flex-end;margin-top:10px;}
+.pin-modal button{font-family:inherit;font-weight:800;font-size:13px;padding:9px 14px;border-radius:99px;cursor:pointer;border:1.5px solid var(--border);background:var(--surface);color:var(--ink);}
+.pin-modal button.primary{background:var(--strip-btn);border-color:var(--strip-btn);color:#fff;}
 /* mode lihat saja: semua kontrol centang non-aktif secara visual */
 body.view-only .sku-row-toggle, body.view-only .toggle-btn{pointer-events:none;opacity:.55;}
 body.view-only .select-all-btn{display:none;}
@@ -533,9 +558,25 @@ details.info .info-body ul{margin:4px 0 0;padding-left:16px;}
       <div class="identity-dist-tag" id="gateDistTag"></div>
       <h2 id="gateSalesTitle">Anda salesman yang mana?</h2>
       <p class="identity-sub" id="gateSalesSub">Pilih nama Anda supaya konfirmasi ECO tercatat atas nama yang benar — bukan nama salesman lain.</p>
-      <label class="viewonly-row" id="viewOnlyRow"><input type="checkbox" id="viewOnlyChk"><span><b>Lihat saja (AASM)</b><br><span id="viewOnlyHint">Centang ini dulu, lalu ketuk nama salesman yang ingin dipantau — semua tombol centang akan dimatikan.</span></span></label>
+      <div class="mode-switch" id="modeSwitch">
+        <button type="button" class="mode-btn guest active" id="modeGuestBtn" data-mode="guest"><b>MODE TAMU</b><small>Lihat saja · tanpa PIN · tidak bisa mencentang</small></button>
+        <button type="button" class="mode-btn fill" id="modeFillBtn" data-mode="fill"><b>SAYA SALESMAN</b><small>Mengisi centang · perlu PIN distributor</small></button>
+      </div>
+      <div class="pin-row" id="pinRow" hidden>
+        <label for="pinInput">PIN distributor <span id="pinDistName"></span></label>
+        <input id="pinInput" inputmode="numeric" autocomplete="one-time-code" maxlength="8" placeholder="••••••">
+        <span class="pin-hint">Minta PIN ke AASM. Cukup dimasukkan sekali di HP ini. Tanpa PIN, centang tidak akan diterima server.</span>
+      </div>
       <div id="identityList"></div>
     </div>
+  </div>
+</div>
+<div class="pin-modal" id="pinModal" hidden>
+  <div class="identity-card">
+    <h2>Masukkan PIN baru</h2>
+    <p class="identity-sub" id="pinModalSub">PIN yang tersimpan di HP ini ditolak server (mungkin PIN sudah diganti AASM). Centang Anda tetap tersimpan di HP dan akan dikirim setelah PIN benar.</p>
+    <div class="pin-row"><label for="pinModalInput">PIN distributor <span id="pinModalDist"></span></label><input id="pinModalInput" inputmode="numeric" autocomplete="one-time-code" maxlength="8" placeholder="••••••"></div>
+    <div class="actions"><button type="button" id="pinModalCancel">Nanti</button><button type="button" class="primary" id="pinModalOk">Simpan &amp; kirim</button></div>
   </div>
 </div>
 <div class="identity-toast" id="identityToast"></div>
@@ -813,7 +854,7 @@ const NPD_HISTORY_UNTIL = "2026-09-13";
 // Periode aktif app (bulan konfirmasi NPD yang sedang berjalan). TIDAK ikut tanggal HP —
 // pindah bulan hanya lewat rilis versi baru dari file update AASM (keputusan user 14 Sept 2026).
 const ACTIVE_PERIOD = "2026-09";
-const APP_BUILD = "v55";  // label versi, tampil kecil di header — naikkan tiap publish
+const APP_BUILD = "v56";  // label versi, tampil kecil di header — naikkan tiap publish
 const COTC_SKUS = [
   {id:"C01", name:"BANGO SOY/OYSTER/FISH KCP MNS PCH 580ML", bu:"FOODS"},
   {id:"C02", name:"BUAVITA FRT JCS GUAVA TP 245ML", bu:"FOODS"},
@@ -875,7 +916,9 @@ const state = {
   skuPanelOpen: false,
   identityConfirmed: false,
   dist: null,           // distributor yang dipilih di gate (NABIRE/SORONG/KAIMANA)
-  viewOnly: false,      // mode AASM: hanya memantau, semua tombol centang dimatikan
+  viewOnly: false,      // Mode Tamu: hanya melihat, semua tombol centang dimatikan (bawaan saat link dibuka)
+  pin: "",              // PIN distributor untuk mode mengisi — diperiksa server (Apps Script) di tiap kiriman
+  gateMode: "guest",    // pilihan di gate: "guest" (Mode Tamu) / "fill" (Saya salesman)
   gateStep: "dist",     // "dist" -> pilih distributor, "sales" -> pilih salesman
   searchQuery: "",
   cotcExpanded: new Set(),
@@ -990,15 +1033,25 @@ function loadIdentity(){
 }
 function saveIdentity(split, id){
   const s = salesmanById(id);
-  try{ localStorage.setItem(WHOAMI_KEY, JSON.stringify({split, id, dist: s ? s.dist : null, viewOnly: !!state.viewOnly})); }catch(e){}
+  try{ localStorage.setItem(WHOAMI_KEY, JSON.stringify({split, id, dist: s ? s.dist : null, viewOnly: !!state.viewOnly, pin: state.pin || ""})); }catch(e){}
 }
 function isValidIdentity(split, id){
   return !!(SPLITS[split] && SPLITS[split].salesmen.some(s=>s.id===id));
 }
-function chooseIdentity(splitKey, id, label){
+async function chooseIdentity(splitKey, id, label){
   const s = salesmanById(id);
-  const chk = document.getElementById("viewOnlyChk");
-  state.viewOnly = !!(chk && chk.checked);
+  const fill = state.gateMode === "fill";
+  if(fill){
+    const pin = (document.getElementById("pinInput").value || "").trim();
+    if(!pin){ showIdentityToast("Masukkan PIN distributor dulu"); document.getElementById("pinInput").focus(); return; }
+    // verifikasi ke server dulu; kalau server tidak terjangkau, tetap lanjut — PIN dicek lagi saat mengirim
+    let verdict = null;
+    try{ const r = await api({action:"checkpin", dist: state.dist, pin}, {timeoutMs: 12000}); verdict = !!r.valid; }catch(e){ verdict = null; }
+    if(verdict === false){ showIdentityToast("PIN salah untuk distributor " + (distById(state.dist)||{}).area); document.getElementById("pinInput").select(); return; }
+    state.pin = pin;
+    if(verdict === null) showIdentityToast("PIN belum bisa diverifikasi (tidak ada koneksi) — akan dicek saat mengirim");
+  }
+  state.viewOnly = !fill;
   document.body.classList.toggle("view-only", state.viewOnly);
   state.split = splitKey;
   state.salesman = id;
@@ -1019,12 +1072,17 @@ function chooseIdentity(splitKey, id, label){
   saveIdentity(splitKey, id);
   renderIdentityGate();
   renderAll(); renderSummary(); renderCotcDayChips(); renderCotcList(); renderPsDayChips(); renderPsList();
-  showIdentityToast(state.viewOnly ? `Mode lihat saja — memantau ${label}` : `Sekarang mengisi sebagai ${label}`);
+  if(fill) showIdentityToast(`Sekarang mengisi sebagai ${label}`);
+  else showIdentityToast(`Mode Tamu — melihat progres ${label}`);
   state.dayDocs = {}; loadCache(); applyPendingLocally(); rerenderAllViews();
+  dbState.pinRejected = false;
+  if(dbState.pending.length) flushPending();
   syncNow();
 }
 function openIdentityGate(){
   state.identityConfirmed = false;
+  state.gateMode = (state.pin && !state.viewOnly) ? "fill" : "guest";
+  document.getElementById("pinInput").value = state.pin || "";
   // kalau distributor sudah diketahui, langsung ke daftar salesman-nya (bisa mundur ke pilih distributor)
   state.gateStep = state.dist ? "sales" : "dist";
   renderIdentityGate();
@@ -1053,8 +1111,7 @@ function renderIdentityGate(){
   }
   const d = distById(state.dist);
   document.getElementById("gateDistTag").textContent = "Distributor: " + d.area + " · " + d.name;
-  document.getElementById("viewOnlyChk").checked = !!state.viewOnly;
-  renderViewOnlyHint();
+  renderModeSwitch();
   const list = document.getElementById("identityList");
   list.innerHTML = "";
   Object.keys(SPLITS).forEach(splitKey=>{
@@ -1078,19 +1135,44 @@ function renderIdentityGate(){
   });
 }
 document.getElementById("gateBackBtn").addEventListener("click", ()=>{ state.gateStep = "dist"; renderIdentityGate(); });
-// Umpan balik langsung saat kotak "Lihat saja (AASM)" diubah: judul & petunjuk gate ikut berganti
-function renderViewOnlyHint(){
-  const on = document.getElementById("viewOnlyChk").checked;
-  document.getElementById("viewOnlyRow").classList.toggle("on", on);
-  document.getElementById("gateSalesTitle").textContent = on ? "Pantau salesman yang mana?" : "Anda salesman yang mana?";
-  document.getElementById("gateSalesSub").textContent = on
-    ? "Mode lihat saja AKTIF. Ketuk nama salesman di bawah untuk melihat progresnya — tidak ada yang bisa dicentang."
-    : "Pilih nama Anda supaya konfirmasi ECO tercatat atas nama yang benar — bukan nama salesman lain.";
-  document.getElementById("viewOnlyHint").textContent = on
-    ? "Aktif — sekarang ketuk nama salesman yang ingin dipantau."
-    : "Centang ini dulu, lalu ketuk nama salesman yang ingin dipantau — semua tombol centang akan dimatikan.";
+// Pilihan mode di gate. Bawaan = Mode Tamu (aman untuk siapa pun yang membuka link);
+// "Saya salesman" membuka kolom PIN — PIN diperiksa server pada tiap kiriman centang.
+function renderModeSwitch(){
+  const fill = state.gateMode === "fill";
+  document.getElementById("modeGuestBtn").classList.toggle("active", !fill);
+  document.getElementById("modeFillBtn").classList.toggle("active", fill);
+  const pinRow = document.getElementById("pinRow");
+  pinRow.hidden = !fill;
+  const d = distById(state.dist);
+  document.getElementById("pinDistName").textContent = d ? d.area : "";
+  if(fill && !document.getElementById("pinInput").value) document.getElementById("pinInput").value = state.pin || "";
+  document.getElementById("gateSalesTitle").textContent = fill ? "Anda salesman yang mana?" : "Lihat progres salesman yang mana?";
+  document.getElementById("gateSalesSub").textContent = fill
+    ? "Pilih nama Anda supaya konfirmasi ECO tercatat atas nama yang benar — bukan nama salesman lain."
+    : "Mode Tamu AKTIF: hanya melihat, tidak ada yang bisa dicentang. Salesman yang mau mengisi, ketuk SAYA SALESMAN.";
 }
-document.getElementById("viewOnlyChk").addEventListener("change", renderViewOnlyHint);
+document.getElementById("modeGuestBtn").addEventListener("click", ()=>{ state.gateMode = "guest"; renderModeSwitch(); });
+document.getElementById("modeFillBtn").addEventListener("click", ()=>{ state.gateMode = "fill"; renderModeSwitch(); setTimeout(()=>{ const i=document.getElementById("pinInput"); if(!i.value) i.focus(); }, 50); });
+document.getElementById("pinInput").addEventListener("keydown", e=>{ if(e.key==="Enter") e.preventDefault(); });
+// Modal PIN baru (dipakai saat server menolak PIN yang tersimpan)
+function openPinModal(){
+  const d = distById(state.dist);
+  document.getElementById("pinModalDist").textContent = d ? d.area : "";
+  document.getElementById("pinModalInput").value = "";
+  document.getElementById("pinModal").hidden = false;
+  setTimeout(()=>document.getElementById("pinModalInput").focus(), 50);
+}
+document.getElementById("pinModalCancel").addEventListener("click", ()=>{ document.getElementById("pinModal").hidden = true; });
+document.getElementById("pinModalOk").addEventListener("click", ()=>{
+  const pin = (document.getElementById("pinModalInput").value || "").trim();
+  if(!pin){ showIdentityToast("PIN masih kosong"); return; }
+  state.pin = pin; saveIdentity(state.split, state.salesman);
+  document.getElementById("pinModal").hidden = true;
+  dbState.pinRejected = false; dbState.lastError = null;
+  dbState.pending.forEach(p=>{ p.inflight = false; });
+  showIdentityToast("Mengirim ulang dengan PIN baru…");
+  flushPending();
+});
 function renderIdentityStrip(){
   const sp = currentSplit();
   const s = sp.salesmen.find(x=>x.id===state.salesman);
@@ -1100,7 +1182,7 @@ function renderIdentityStrip(){
     : "belum dipilih";
   const strip = document.getElementById("identityStrip");
   strip.classList.toggle("view-only", !!state.viewOnly);
-  document.getElementById("identityPrefix").textContent = state.viewOnly ? "LIHAT SAJA (AASM) — memantau " : "Mengisi sebagai ";
+  document.getElementById("identityPrefix").textContent = state.viewOnly ? "MODE TAMU — melihat " : "Mengisi sebagai ";
 }
 function showIdentityToast(msg){
   const t = document.getElementById("identityToast");
@@ -1118,6 +1200,7 @@ document.getElementById("identityChangeBtn").addEventListener("click", openIdent
     const s = salesmanById(saved.id);
     state.dist = s ? s.dist : null;
     state.viewOnly = !!saved.viewOnly;
+    state.pin = saved.pin || "";
     document.body.classList.toggle("view-only", state.viewOnly);
     state.identityConfirmed = true;
   }
@@ -1221,7 +1304,7 @@ const API_TIMEOUT_MS = 20 * 1000;
 const PATCH_TRIES = 2;            // kiriman centang idempoten (merge), boleh langsung diulang sekali kalau menggantung
 const PENDING_KEY = "pjpNpdPending_v1";
 const CACHE_KEY = "pjpNpdCache_v1";   // salinan bacaan server terakhir, supaya saat buka tanpa sinyal data tidak kosong
-const dbState = { ready:false, syncing:false, flushing:false, lastSyncAt:null, lastError:null, pending:[], acked:[], syncTimer:null, retryTimer:null, inflight:new Set(), flushGen:0 };
+const dbState = { ready:false, syncing:false, flushing:false, lastSyncAt:null, lastError:null, pending:[], acked:[], syncTimer:null, retryTimer:null, inflight:new Set(), flushGen:0, pinRejected:false };
 
 function gasConfigured(){ return /^https?:\/\/\S+\/exec$/.test(GAS_URL) && !GAS_URL.includes("PASTE_"); }
 function showDbBanner(text, btnLabel){
@@ -1235,7 +1318,9 @@ function fmtClock(iso){ const d = new Date(iso); return d.toLocaleTimeString("id
 function refreshDbStatus(){
   const n = dbState.pending.length;
   const el = document.getElementById("syncLabel");
-  if(n){
+  if(n && dbState.pinRejected){
+    showDbBanner(`${n} centang ditolak server: PIN salah / sudah diganti. Centang tetap tersimpan di HP ini — masukkan PIN yang benar.`, "Masukkan PIN");
+  } else if(n){
     showDbBanner(`${n} centang belum terkirim ke database` + (dbState.lastError ? ` (${dbState.lastError})` : "") + " — tersimpan di HP ini, akan dikirim ulang otomatis.", "Kirim sekarang");
   } else if(dbState.lastError){
     showDbBanner("Tidak bisa terhubung ke database (" + dbState.lastError + ") — data yang tampil mungkin belum terbaru. Centang tetap disimpan di HP dan dikirim saat tersambung.", "Coba lagi");
@@ -1256,7 +1341,7 @@ async function api(payload, opts){
     const res = await fetch(GAS_URL, {method:"POST", headers:{"Content-Type":"text/plain;charset=utf-8"}, body: JSON.stringify(payload), redirect:"follow", signal: ctrl.signal});
     if(!res.ok) throw new Error("HTTP " + res.status);
     const data = await res.json();
-    if(!data || data.ok !== true) throw new Error((data && data.error) || "jawaban tidak valid");
+    if(!data || data.ok !== true){ const err = new Error((data && data.error) || "jawaban tidak valid"); err.code = data && data.code; throw err; }
     return data;
   }finally{ clearTimeout(t); dbState.inflight.delete(ctrl); }
 }
@@ -1328,6 +1413,7 @@ document.addEventListener("visibilitychange", ()=>{ if(document.visibilityState 
 window.addEventListener("focus", ()=>{ syncNow(); flushPending(); });
 window.addEventListener("online", ()=>{ syncNow(); flushPending(); });
 document.getElementById("dbRetryBtn").addEventListener("click", async ()=>{
+  if(dbState.pinRejected && dbState.pending.length){ openPinModal(); return; }
   const btn = document.getElementById("dbRetryBtn");
   btn.disabled = true; btn.textContent = "Mengirim…";
   abortInflight();
@@ -1343,7 +1429,7 @@ function loadPending(){
   dbState.pending.forEach(p=>{ p.inflight = false; });
 }
 function savePending(){
-  try{ localStorage.setItem(PENDING_KEY, JSON.stringify(dbState.pending.map(p=>({id:p.id, period:p.period, split:p.split, salesman:p.salesman, patch:p.patch, ts:p.ts})))); }catch(e){}
+  try{ localStorage.setItem(PENDING_KEY, JSON.stringify(dbState.pending.map(p=>({id:p.id, period:p.period, split:p.split, salesman:p.salesman, dist:p.dist, pin:p.pin, patch:p.patch, ts:p.ts})))); }catch(e){}
 }
 function enqueuePatch(period, split, patchOutlets){
   const last = dbState.pending[dbState.pending.length-1];
@@ -1352,7 +1438,7 @@ function enqueuePatch(period, split, patchOutlets){
     last.patch = mergePatchInto({outlets:last.patch}, patchOutlets).outlets;
     last.ts = new Date().toISOString();
   } else {
-    dbState.pending.push({id: Date.now().toString(36)+Math.random().toString(36).slice(2,6), period, split, salesman: state.salesman, patch: patchOutlets, ts: new Date().toISOString(), inflight:false});
+    dbState.pending.push({id: Date.now().toString(36)+Math.random().toString(36).slice(2,6), period, split, salesman: state.salesman, dist: state.dist, pin: state.pin, patch: patchOutlets, ts: new Date().toISOString(), inflight:false});
   }
   savePending();
 }
@@ -1369,7 +1455,8 @@ async function flushPending(){
       try{
         let lastErr = null, ok = false;
         for(let attempt=1; attempt<=PATCH_TRIES && !ok; attempt++){
-          try{ await api({action:"patch", period:p.period, split:p.split, salesman:p.salesman, patch:p.patch}); ok = true; }
+          const pin = (p.dist === state.dist && state.pin) ? state.pin : (p.pin || ""); // PIN terbaru di HP ini menang
+          try{ await api({action:"patch", period:p.period, split:p.split, salesman:p.salesman, dist:p.dist, pin, patch:p.patch}); ok = true; }
           catch(e){ lastErr = e; if(gen !== dbState.flushGen) return; if(e && e.name === "AbortError") continue; break; }
         }
         if(gen !== dbState.flushGen) return;
@@ -1381,6 +1468,7 @@ async function flushPending(){
       }catch(e){
         p.inflight = false;
         dbState.lastError = errText(e);
+        if(e && e.code === "PIN"){ dbState.pinRejected = true; }
         failed = true;
         break;
       }
@@ -1389,7 +1477,8 @@ async function flushPending(){
     if(gen === dbState.flushGen){
       dbState.flushing = false;
       refreshDbStatus();
-      if(failed || dbState.pending.length){
+      if(dbState.pinRejected){ showIdentityToast("PIN ditolak server — masukkan PIN yang benar"); }
+      else if(failed || dbState.pending.length){
         dbState.retryTimer = setTimeout(flushPending, RETRY_INTERVAL_MS);
         if(failed) showIdentityToast("Belum terkirim — disimpan di HP, dicoba lagi otomatis");
       }
@@ -1430,7 +1519,7 @@ function initDb(){
   syncNow();
 }
 async function toggleSku(kode, skuCode){
-  if(state.viewOnly){ showIdentityToast("Mode lihat saja — tidak bisa mencentang"); return; }
+  if(state.viewOnly){ showIdentityToast("Mode Tamu — hanya melihat. Untuk mengisi, ketuk GANTI lalu SAYA SALESMAN"); return; }
   if(baselineFor(outletBaseline(kode), skuCode, currentPeriod())) return; // riwayat, terkunci
   const key = docKey(currentPeriod(), state.split);
   const cur = getDoc(currentPeriod(), state.split);
@@ -1447,7 +1536,7 @@ async function toggleSku(kode, skuCode){
   await persistConfirmation(key, next, {[kode]: {[skuCode]: outletSkus[skuCode]}});
 }
 async function toggleAllSkus(kode, skus, allDone){
-  if(state.viewOnly){ showIdentityToast("Mode lihat saja — tidak bisa mencentang"); return; }
+  if(state.viewOnly){ showIdentityToast("Mode Tamu — hanya melihat. Untuk mengisi, ketuk GANTI lalu SAYA SALESMAN"); return; }
   const key = docKey(currentPeriod(), state.split);
   const cur = getDoc(currentPeriod(), state.split);
   const outlets = {...(cur.outlets||{})};
@@ -1674,7 +1763,7 @@ function cotcDoneCount(outlet, docRec){
   return cotcScopeSkus(outlet).filter(s=>cotcAchieved(outlet, docRec, s.id)).length;
 }
 async function toggleCotcSku(kode, skuId){
-  if(state.viewOnly){ showIdentityToast("Mode lihat saja — tidak bisa mencentang"); return; }
+  if(state.viewOnly){ showIdentityToast("Mode Tamu — hanya melihat. Untuk mengisi, ketuk GANTI lalu SAYA SALESMAN"); return; }
   const outlet = COTC_OUTLETS.find(o=>o.kode===kode && o.salesmanId===state.salesman);
   if(outlet && outlet.baseline && outlet.baseline[skuId]) return; // riwayat, tidak bisa diubah
   const key = docKey(currentPeriod(), "COTC");
@@ -1692,7 +1781,7 @@ async function toggleCotcSku(kode, skuId){
   await persistConfirmation(key, next, {[kode]: {[skuId]: outletSkus[skuId]}});
 }
 async function toggleAllCotcSkus(kode, outlet, allDone){
-  if(state.viewOnly){ showIdentityToast("Mode lihat saja — tidak bisa mencentang"); return; }
+  if(state.viewOnly){ showIdentityToast("Mode Tamu — hanya melihat. Untuk mengisi, ketuk GANTI lalu SAYA SALESMAN"); return; }
   const key = docKey(currentPeriod(), "COTC");
   const cur = getDoc(currentPeriod(), "COTC");
   const outlets = {...(cur.outlets||{})};
@@ -1911,7 +2000,7 @@ function psDoneCount(outlet, docRec){
 // dual-coverage = 1 record BERSAMA milik NEW & THEO, bukan 2 record terpisah
 // seperti Top 12 COTC. "by" tetap dicatat siapa yang menandai, untuk audit.
 async function togglePsItem(kode, key){
-  if(state.viewOnly){ showIdentityToast("Mode lihat saja — tidak bisa mencentang"); return; }
+  if(state.viewOnly){ showIdentityToast("Mode Tamu — hanya melihat. Untuk mengisi, ketuk GANTI lalu SAYA SALESMAN"); return; }
   const outlet = PERFECT_STORE_OUTLETS.find(o=>o.kode===kode);
   if(outlet && psIsLocked(outlet, key)) return; // riwayat / V memang tidak bisa diubah manual
   const dkey = docKey(currentPeriod(), "PS");
@@ -1929,7 +2018,7 @@ async function togglePsItem(kode, key){
   await persistConfirmation(dkey, next, {[kode]: {[key]: outletItems[key]}});
 }
 async function toggleAllPsItems(kode, outlet, allDone){
-  if(state.viewOnly){ showIdentityToast("Mode lihat saja — tidak bisa mencentang"); return; }
+  if(state.viewOnly){ showIdentityToast("Mode Tamu — hanya melihat. Untuk mengisi, ketuk GANTI lalu SAYA SALESMAN"); return; }
   const dkey = docKey(currentPeriod(), "PS");
   const cur = getDoc(currentPeriod(), "PS");
   const outlets = {...(cur.outlets||{})};
