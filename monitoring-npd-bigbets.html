@@ -859,7 +859,7 @@ const NPD_HISTORY_UNTIL = "2026-09-13";
 // Periode aktif app (bulan konfirmasi NPD yang sedang berjalan). TIDAK ikut tanggal HP —
 // pindah bulan hanya lewat rilis versi baru dari file update AASM (keputusan user 14 Sept 2026).
 const ACTIVE_PERIOD = "2026-09";
-const APP_BUILD = "v57";  // label versi, tampil kecil di header — naikkan tiap publish
+const APP_BUILD = "v58";  // label versi, tampil kecil di header — naikkan tiap publish
 const COTC_SKUS = [
   {id:"C01", name:"BANGO SOY/OYSTER/FISH KCP MNS PCH 580ML", bu:"FOODS"},
   {id:"C02", name:"BUAVITA FRT JCS GUAVA TP 245ML", bu:"FOODS"},
@@ -1306,7 +1306,10 @@ const GAS_URL = "https://script.google.com/macros/s/AKfycbw-aIHUr3qh4ujEdcF8KlZZ
 const SYNC_INTERVAL_MS = 3 * 60 * 1000;
 const RETRY_INTERVAL_MS = 30 * 1000;
 const API_TIMEOUT_MS = 20 * 1000;
-const PATCH_TRIES = 2;            // kiriman centang idempoten (merge), boleh langsung diulang sekali kalau menggantung
+const PATCH_TRIES = 2;
+const SYNC_TRIES = 2;             // tarik data: diulang sekali diam-diam kalau menggantung
+const SYNC_TIMEOUT_MS = 30 * 1000;
+const STALE_MS = 15 * 60 * 1000;  // data terakhir lebih lama dari ini + gagal tarik → banner merah            // kiriman centang idempoten (merge), boleh langsung diulang sekali kalau menggantung
 const PENDING_KEY = "pjpNpdPending_v1";
 const CACHE_KEY = "pjpNpdCache_v1";   // salinan bacaan server terakhir, supaya saat buka tanpa sinyal data tidak kosong
 const dbState = { ready:false, syncing:false, flushing:false, lastSyncAt:null, lastError:null, pending:[], acked:[], syncTimer:null, retryTimer:null, inflight:new Set(), flushGen:0, pinRejected:false };
@@ -1327,14 +1330,14 @@ function refreshDbStatus(){
     showDbBanner(`${n} centang ditolak server: PIN salah / sudah diganti. Centang tetap tersimpan di HP ini — masukkan PIN yang benar.`, "Masukkan PIN");
   } else if(n){
     showDbBanner(`${n} centang belum terkirim ke database` + (dbState.lastError ? ` (${dbState.lastError})` : "") + " — tersimpan di HP ini, akan dikirim ulang otomatis.", "Kirim sekarang");
-  } else if(dbState.lastError){
+  } else if(dbState.lastError && syncWorrying()){
     showDbBanner("Tidak bisa terhubung ke database (" + dbState.lastError + ") — data yang tampil mungkin belum terbaru. Centang tetap disimpan di HP dan dikirim saat tersambung.", "Coba lagi");
   } else if(!gasConfigured()){
     showDbBanner("Alamat database belum diisi (GAS_URL) — centang hanya tersimpan di HP ini.", "Coba lagi");
   } else {
     hideDbBanner();
   }
-  if(el) el.textContent = dbState.lastSyncAt ? "Sinkron " + fmtClock(dbState.lastSyncAt) : "Belum sinkron";
+  if(el) el.textContent = (dbState.lastSyncAt ? "Sinkron " + fmtClock(dbState.lastSyncAt) : "Belum sinkron") + (dbState.lastError && !n ? " · gagal memperbarui" : "");
 }
 async function api(payload, opts){
   if(!gasConfigured()) throw new Error("GAS_URL belum diisi");
@@ -1388,7 +1391,14 @@ async function syncNow(opts){
       {split: "PS", kodes: k.ps},
     ];
     if(state.summaryMonth && state.summaryMonth !== period) docs.push({split: state.split, period: state.summaryMonth, kodes: k.npd});
-    const data = await api({action:"sync", period, docs});
+    // tarikan yang menggantung diulang sekali diam-diam (gangguan sesaat di jalur balik Google cukup sering)
+    let data = null, lastErr = null;
+    for(let attempt=1; attempt<=SYNC_TRIES && !data; attempt++){
+      try{ data = await api({action:"sync", period, docs}, {timeoutMs: SYNC_TIMEOUT_MS}); }
+      catch(e){ lastErr = e; if(!(e && e.name === "AbortError")) break; }
+    }
+    if(!data) throw lastErr;
+    dbState.syncFails = 0;
     const now = Date.now();
     dbState.acked = dbState.acked.filter(a=>now - a.at < 2*60*1000);
     Object.keys(data.docs||{}).forEach(key=>{
@@ -1403,12 +1413,21 @@ async function syncNow(opts){
     saveCache();
     rerenderAllViews();
   }catch(e){
+    dbState.syncFails = (dbState.syncFails || 0) + 1;
     dbState.lastError = errText(e);
   }finally{
     dbState.syncing = false;
     refreshDbStatus();
     scheduleSync();
   }
+}
+// Banner merah untuk gagal-tarik hanya kalau memang sudah mengkhawatirkan: 2x berturut-turut
+// gagal, atau data terakhir sudah lama (> STALE_MS). Gagal sekali cukup ditandai di label header.
+function syncWorrying(){
+  if(!dbState.lastError) return false;
+  if((dbState.syncFails || 0) >= 2) return true;
+  if(!dbState.lastSyncAt) return true;
+  return Date.now() - new Date(dbState.lastSyncAt).getTime() > STALE_MS;
 }
 function scheduleSync(){
   clearTimeout(dbState.syncTimer);
