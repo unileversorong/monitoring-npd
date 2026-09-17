@@ -1631,8 +1631,53 @@ const ECO_DATA_UNTIL = "2026-09-16"; // "Update Data Sampai Dengan Tanggal" di s
 // (bukan per-identity spt sync NPD/COTC/PS), jadi disimpan terpisah dari `state`/`dbState`.
 // rows null = belum pernah berhasil dapat data (live ATAU cache) -> pakai ECO_RAW statis bawaan
 // app sbg fallback (spy Mode Tamu / demo / offline tetap ada isinya, bukan kosong melompong).
-const ECO_CACHE_KEY = "pjpNpdEcoCache_v1";
-const ecoLive = { rows: null, dataUntil: null, loading: false, error: null, loadedAt: null };
+const ECO_CACHE_KEY = "pjpNpdEcoCache_v2"; // v2 (v118): ikut menyimpan riwayat NPD & total distributor
+const ecoLive = { rows: null, dataUntil: null, loading: false, error: null, loadedAt: null,
+  npdBaseline: null,   // v118: {"sid|kode": {skuCode: "YYYY-MM-DD"}} hasil hitung server dari eco_raw (aturan sama pipeline HTML)
+  npdDataUntil: null,  // tanggal transaksi terakhir yg jadi dasar riwayat NPD live
+  dist: null };        // {DistName: {B,P,H,F}} total GSV per distributor (Jasper Tematik)
+// v118: simpan salinan riwayat NPD BAWAAN HTML (o[4]) supaya bisa dipulihkan kalau live tidak dipakai.
+const NPD_EMBEDDED_BASELINE = {};
+Object.keys(SPLITS).forEach(sk=>SPLITS[sk].outlets.forEach(o=>{ NPD_EMBEDDED_BASELINE[sk+"|"+o[2]+"|"+o[0]] = o[4] ? JSON.parse(JSON.stringify(o[4])) : null; }));
+// Terapkan riwayat NPD (live atau bawaan) ke SPLITS.outlets[i][4] — SEMUA pembaca (checklist NPD,
+// Ringkasan, Insentif, gambar share) membaca o[4] langsung, jadi cukup ganti di satu tempat ini.
+// Riwayat live disaring per split (HCNUT hanya SKU HC/Foods, dst.) persis seperti pipeline HTML.
+function applyNpdBaseline(){
+  const live = ecoLive.npdBaseline;
+  Object.keys(SPLITS).forEach(sk=>{
+    const allowed = new Set(SPLITS[sk].skus.map(x=>x.code));
+    SPLITS[sk].outlets.forEach(o=>{
+      let bl = null;
+      if(live){
+        const b = live[o[2]+"|"+o[0]];
+        if(b){ bl = {}; Object.keys(b).sort().forEach(c=>{ if(allowed.has(c)) bl[c] = b[c]; }); if(!Object.keys(bl).length) bl = null; }
+      } else {
+        bl = NPD_EMBEDDED_BASELINE[sk+"|"+o[2]+"|"+o[0]];
+      }
+      if(bl) o[4] = bl; else if(o.length > 4) o.length = 4;
+    });
+  });
+}
+function npdHistoryUntil(){ return (ecoLive.npdBaseline && ecoLive.npdDataUntil) || NPD_HISTORY_UNTIL; }
+// Konfigurasi yg dikirim ke server utk hitung riwayat NPD: basepack+MOQ tiap SKU target (dari
+// SPLITS.NONSPLIT.skus = superset semua split) & pemetaan "DSR Name (Hygiene)" -> id salesman.
+function npdLiveConfig(){
+  const targets = {};
+  SPLITS.NONSPLIT.skus.forEach(x=>{ const bp = NPD_BASEPACK_CODE[x.code]; if(bp) targets[bp] = {code: x.code, moq: x.moq}; });
+  const names = {};
+  Object.keys(SPLITS).forEach(sk=>SPLITS[sk].salesmen.forEach(x=>{ names[x.full || x.label] = x.id; }));
+  Object.keys(NPD_DSR_ALIASES).forEach(k=>{ names[k] = NPD_DSR_ALIASES[k]; });
+  return {targets, names};
+}
+// Jasper Tematik: actual = total GSV PERSONAL CARE distributor itu dari extract live (rumus SUMIFS
+// di sheet NPD TEMATIK), target tetap dari HTML. Tanpa data live -> angka bawaan HTML.
+function tematikActual(distId){
+  const d = NPD_TEMATIK_JASPER[distId];
+  if(!d) return null;
+  const dist = distById(distId);
+  if(ecoLive.dist && dist && ecoLive.dist[dist.name] && typeof ecoLive.dist[dist.name].P === "number") return ecoLive.dist[dist.name].P;
+  return d.actual;
+}
 function ecoActiveRawRows(){
   // rows!==null (bukan cek .length) supaya sheet eco_raw yg MEMANG kosong (0 baris, misal admin
   // lupa isi bulan ini) dihormati apa adanya stlh live fetch sukses -- bukan diam2 balik ke data
@@ -1642,7 +1687,7 @@ function ecoActiveRawRows(){
 }
 function ecoActiveDataUntil(){ return ecoLive.dataUntil || ECO_DATA_UNTIL; }
 function saveEcoCache(){
-  try{ localStorage.setItem(ECO_CACHE_KEY, JSON.stringify({rows: ecoLive.rows, dataUntil: ecoLive.dataUntil, loadedAt: ecoLive.loadedAt})); }catch(e){}
+  try{ localStorage.setItem(ECO_CACHE_KEY, JSON.stringify({rows: ecoLive.rows, dataUntil: ecoLive.dataUntil, loadedAt: ecoLive.loadedAt, npdBaseline: ecoLive.npdBaseline, npdDataUntil: ecoLive.npdDataUntil, dist: ecoLive.dist})); }catch(e){}
 }
 function loadEcoCache(){
   try{
@@ -1651,6 +1696,9 @@ function loadEcoCache(){
     ecoLive.rows = c.rows;
     ecoLive.dataUntil = c.dataUntil || null;
     ecoLive.loadedAt = c.loadedAt || null;
+    if(c.npdBaseline && typeof c.npdBaseline === "object"){ ecoLive.npdBaseline = c.npdBaseline; ecoLive.npdDataUntil = c.npdDataUntil || null; }
+    if(c.dist && typeof c.dist === "object") ecoLive.dist = c.dist;
+    applyNpdBaseline(); renderNpdUpdateNotes();
   }catch(e){}
 }
 // Render ulang HANYA bagian ECO yg sedang kelihatan di layar (dipanggil stlh fetch live sukses,
@@ -1668,7 +1716,7 @@ async function fetchEcoLive(){
   if(!gasConfigured() || ecoLive.loading) return;
   ecoLive.loading = true;
   try{
-    const data = await api({action:"getEco"}, {timeoutMs: SYNC_TIMEOUT_MS});
+    const data = await api({action:"getEco", npd: npdLiveConfig()}, {timeoutMs: ECO_TIMEOUT_MS});
     const rows = Array.isArray(data.rows) ? data.rows.filter(r=>r && typeof r.kode==="string" && r.kode) : [];
     // v116 (temuan simulasi deploy): tab "eco_raw" yang masih KOSONG (Code.gs baru di-deploy
     // tapi data belum di-paste), atau server memberi `warning` (mis. kolom Outlet terbaca
@@ -1684,8 +1732,22 @@ async function fetchEcoLive(){
     ecoLive.dataUntil = data.dataUntil || null;
     ecoLive.error = null;
     ecoLive.loadedAt = new Date().toISOString();
+    // v118: riwayat NPD & total distributor ikut dari jawaban yg sama. Dipakai HANYA kalau server
+    // benar2 menghitungnya (kolom lengkap); kalau tidak (Code.gs lama / kolom kurang) riwayat
+    // tetap dari HTML — tidak pernah "kosong mendadak".
+    let npdChanged = false;
+    if(data.npd && data.npd.baseline && typeof data.npd.baseline === "object"){
+      const before = JSON.stringify(ecoLive.npdBaseline);
+      ecoLive.npdBaseline = data.npd.baseline;
+      ecoLive.npdDataUntil = data.npd.dataUntil || data.dataUntil || null;
+      npdChanged = before !== JSON.stringify(ecoLive.npdBaseline);
+    } else if(data.npdWarning && typeof console !== "undefined"){ console.warn("[NPD] riwayat live tidak tersedia:", data.npdWarning); }
+    let distChanged = false;
+    if(data.dist && typeof data.dist === "object"){ distChanged = JSON.stringify(ecoLive.dist) !== JSON.stringify(data.dist); ecoLive.dist = data.dist; }
     saveEcoCache();
     rerenderEcoViews();
+    applyNpdBaseline(); renderNpdUpdateNotes();
+    if(npdChanged || distChanged) rerenderAllViews(); // checklist NPD (Riwayat), Ringkasan, Insentif & Jasper ikut segar
   }catch(e){
     ecoLive.error = errText(e); // ecoActiveRawRows() otomatis tetap pakai cache/data statis terakhir
   }finally{
@@ -1722,6 +1784,13 @@ const NPD_TEMATIK_SKUS = new Set(["65688439","65732570","65688482","65444780","6
 // SKU target — dipakai utk tampilan checklist NPD & tab Insentif, MENGIKUTI KONVENSI
 // TOP 12 COTC (nama basepack, bukan nama SKU fisik per kode) supaya keduanya sinkron
 // (permintaan user 15 Sept 2026, poin 2 & 3). Fallback ke s.name kalau kode tak ada di sini.
+// v118: kode basepack per SKU target (kolom "Basepack Target Code" sheet NPD & BB GT (UPDATE)) —
+// dikirim ke Apps Script bersama MOQ & pemetaan nama DSR supaya riwayat NPD dihitung LIVE dari
+// tab eco_raw (sheet EXTRACT yg sama dgn ECO). Daftar SKU/MOQ/basepack tetap di sini (sumber
+// kebenaran tunggal); server hanya menghitung. Kalau sheet NPD & BB GT berubah -> rilis HTML baru.
+const NPD_BASEPACK_CODE = {"65741798":"6A42A178194466602","65620604":"443538036VR2ME850","65620592":"443538088VR2G5L35","65684863":"6A42A499495021807","65684869":"6A42A499495021808","65688439":"443538088VR2K6114","65732570":"441845040D3011946","65688482":"443538036VR2H0550","65444780":"441948A79E6340801","65080341":"7H3439022B244A903","65643592":"441948A79E6340501"};
+// Nama di kolom "DSR Name (Hygiene)" extract yg berbeda dari label `full` salesman di SPLITS.
+const NPD_DSR_ALIASES = {"THEO-DSR BWPC":"THEO"};
 const NPD_BASEPACK_NAME = {
   "65741798": "SUNLIGHT HDW STD LIQUD TROPICAL PCH 250G",
   "65620604": "LIFEBUOY SHOWER TOTAL 10 PCH 180G",
@@ -1808,11 +1877,12 @@ const NPD_TEMATIK_JASPER = {
 function npdTematikJasperInfo(distId){
   const d = NPD_TEMATIK_JASPER[distId];
   if(!d) return null;
-  const pct = d.target > 0 ? d.actual / d.target : 0;
+  const actual = tematikActual(distId); // v118: live dari eco_raw kalau tersedia
+  const pct = d.target > 0 ? actual / d.target : 0;
   const achieved = pct >= 1;
-  const remaining = achieved ? 0 : Math.max(0, d.target - d.actual);
+  const remaining = achieved ? 0 : Math.max(0, d.target - actual);
   const jasper = achieved ? 500000 : 0;
-  return {target: d.target, actual: d.actual, category: d.category, pct, achieved, remaining, jasper};
+  return {target: d.target, actual, category: d.category, pct, achieved, remaining, jasper};
 }
 // Hitung insentif NPD periode aktif utk salesman yg sedang login. roster =
 // SEMUA outlet PJP-nya (lintas hari) dlm bucket dia — dipakai jg sbg
@@ -1961,7 +2031,7 @@ function getKalkState(){
 // Periode aktif app (bulan konfirmasi NPD yang sedang berjalan). TIDAK ikut tanggal HP —
 // pindah bulan hanya lewat rilis versi baru dari file update AASM (keputusan user 14 Sept 2026).
 const ACTIVE_PERIOD = "2026-09";
-const APP_BUILD = "v117";  // label versi, tampil kecil di header — naikkan tiap publish
+const APP_BUILD = "v118";  // label versi, tampil kecil di header — naikkan tiap publish
 // Logo header gambar share WA (v109, 17 Sept 2026, permintaan user) — PNG asli
 // di-crop otomatis (buang padding transparan) + diperkecil tinggi 160px lewat
 // Pillow supaya ukuran base64 kecil (SONIK ~44KB, Unilever ~53KB teks base64).
@@ -2094,14 +2164,20 @@ document.getElementById("psUpdateNote").textContent = "📋 Data Sentral Perfect
 document.getElementById("psUpdateNote").title = "Assortment & kriteria A/V/D/SE riwayat DARI DATA PUSAT (bukan centang manual Anda) pada Perfect Store sudah diperbarui sampai dengan " + fmtDateLong(PS_HISTORY_UNTIL) + ". Perkembangan sesudah tanggal ini menyusul di rilis update berikutnya.";
 document.getElementById("cotcUpdateNote").textContent = "📋 Data Sentral Top 12 COTC update s.d. " + new Date(...COTC_HISTORY_UNTIL.split("-").map((v,i)=>i===1?Number(v)-1:Number(v))).toLocaleDateString("id-ID",{day:"numeric",month:"short",year:"numeric"});
 document.getElementById("cotcUpdateNote").title = "Baseline riwayat transaksi 12 SKU Top 12 COTC DARI DATA PUSAT (bukan centang manual Anda) sudah diperbarui sampai dengan " + fmtDateLong(COTC_HISTORY_UNTIL) + ". Perkembangan sesudah tanggal ini menyusul di rilis update berikutnya.";
-document.getElementById("npdUpdateNote").textContent = "📋 Data Sentral NPD & BIG BETS update s.d. " + new Date(...NPD_HISTORY_UNTIL.split("-").map((v,i)=>i===1?Number(v)-1:Number(v))).toLocaleDateString("id-ID",{day:"numeric",month:"short",year:"numeric"});
-document.getElementById("npdUpdateNote").title = "Riwayat transaksi NPD & BIG BETS (lolos MOQ per nota) DARI DATA PUSAT (bukan centang manual Anda) sudah diperbarui sampai dengan " + fmtDateLong(NPD_HISTORY_UNTIL) + ". Perkembangan sesudah tanggal ini menyusul di rilis update berikutnya.";
+// v118: dibungkus fungsi krn tanggalnya sekarang bisa berubah saat riwayat NPD live datang dari eco_raw.
+function renderNpdUpdateNotes(){
+  const until = npdHistoryUntil();
+  const short = new Date(...until.split("-").map((v,i)=>i===1?Number(v)-1:Number(v))).toLocaleDateString("id-ID",{day:"numeric",month:"short",year:"numeric"});
+  document.getElementById("npdUpdateNote").textContent = "📋 Data Sentral NPD & BIG BETS update s.d. " + short;
+  document.getElementById("npdUpdateNote").title = "Riwayat transaksi NPD & BIG BETS (lolos MOQ per nota) DARI DATA PUSAT (bukan centang manual Anda) sudah diperbarui sampai dengan " + fmtDateLong(until) + ". Perkembangan sesudah tanggal ini menyusul begitu extract berikutnya diunggah admin.";
+  document.getElementById("insentifUpdateNote").textContent = "📋 Data Sentral Insentif NPD update s.d. " + short;
+  document.getElementById("insentifUpdateNote").title = "Capaian ECO per SKU & Jasa Perantara NPD Tematik DARI DATA PUSAT (bukan centang manual Anda) sudah diperbarui sampai dengan " + fmtDateLong(until) + ". Perkembangan sesudah tanggal ini menyusul begitu extract berikutnya diunggah admin.";
+}
+renderNpdUpdateNotes();
 // Insentif (termasuk Jasa Perantara NPD Tematik) pakai sumber data yg SAMA persis dgn
 // tab NPD (sheet "EXTRACT UTK NPD (UPDATE)") — jadi tanggal update-nya ikut NPD_HISTORY_UNTIL,
 // BUKAN tanggal terpisah baru (evaluasi user 16 Sept 2026: nilai Tematik penting utk tahu
 // data pusatnya update sampai kapan, krn beda dari filter Hari-ini/Sisa-KPI yg statis).
-document.getElementById("insentifUpdateNote").textContent = "📋 Data Sentral Insentif NPD update s.d. " + new Date(...NPD_HISTORY_UNTIL.split("-").map((v,i)=>i===1?Number(v)-1:Number(v))).toLocaleDateString("id-ID",{day:"numeric",month:"short",year:"numeric"});
-document.getElementById("insentifUpdateNote").title = "Capaian ECO per SKU & Jasa Perantara NPD Tematik DARI DATA PUSAT (bukan centang manual Anda) sudah diperbarui sampai dengan " + fmtDateLong(NPD_HISTORY_UNTIL) + ". Perkembangan sesudah tanggal ini menyusul di rilis update berikutnya.";
 // Baris chip: roda mouse/trackpad vertikal digeser jadi horizontal, dan penanda pudar
 // di tepi kanan muncul selama masih ada chip yang belum kelihatan.
 document.querySelectorAll(".selector-row .chipwrap").forEach(wrap=>{
@@ -2570,6 +2646,8 @@ const API_TIMEOUT_MS = 20 * 1000;
 const PATCH_TRIES = 2;
 const SYNC_TRIES = 2;             // tarik data: diulang sekali diam-diam kalau menggantung
 const SYNC_TIMEOUT_MS = 30 * 1000;
+const ECO_TIMEOUT_MS = 75 * 1000;  // v118.1: tarikan ECO+riwayat NPD pertama (belum di-cache server) bisa >30 dtk
+                                   // krn Apps Script membaca ±22 rb baris; tarikan berikutnya dari cache (<2 dtk).
 const STALE_MS = 15 * 60 * 1000;  // data terakhir lebih lama dari ini + gagal tarik → banner merah            // kiriman centang idempoten (merge), boleh langsung diulang sekali kalau menggantung
 const PENDING_KEY = "pjpNpdPending_v1";
 const CACHE_KEY = "pjpNpdCache_v1";   // salinan bacaan server terakhir, supaya saat buka tanpa sinyal data tidak kosong
@@ -3011,7 +3089,7 @@ function renderOutletList(){
   document.getElementById("hintText").textContent = (skus.length===1
     ? "Ketuk outlet setelah transaksi NPD tercatat (ECO). Bisa diubah lagi kalau salah pencet. "
     : "Ketuk outlet untuk buka daftar SKU-nya, lalu tandai satu per satu setelah tercatat (ECO). ")
-    + `Item "Riwayat" = transaksi yang sudah tercatat di data distributor s.d. ${fmtDateLong(NPD_HISTORY_UNTIL)} (lolos MOQ) dan tidak bisa diubah.`;
+    + `Item "Riwayat" = transaksi yang sudah tercatat di data distributor s.d. ${fmtDateLong(npdHistoryUntil())} (lolos MOQ) dan tidak bisa diubah.`;
 }
 function renderAll(){
   renderIdentityStrip();
