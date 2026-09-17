@@ -535,6 +535,16 @@ h1,h2,h3{
 .sku-row-toggle.locked{cursor:default;}
 .sku-row-toggle.locked.done{background:var(--brand);border-color:var(--brand);color:var(--brand-ink);}
 .sku-row-toggle.locked:not(.done){opacity:.6;}
+.sku-row-toggle.unproven,.sku-row-toggle.locked.unproven:not(.done){background:var(--danger-soft,#fdecec);border-color:var(--danger,#c0392b);color:var(--danger,#c0392b);opacity:1;font-weight:800;}
+.toggle-btn.unproven{background:var(--danger-soft,#fdecec);border-color:var(--danger,#c0392b);color:var(--danger,#c0392b);opacity:1;}
+.tag-badge.tag-unproven{background:var(--danger-soft,#fdecec);color:var(--danger,#c0392b);border:1px solid var(--danger,#c0392b);}
+.pill-unproven{display:inline-block;margin-left:4px;padding:0 5px;border-radius:999px;background:var(--danger,#c0392b);color:#fff;font-size:10.5px;font-weight:800;line-height:16px;}
+.npd-unproven-banner{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:8px 0 4px;padding:9px 12px;border-radius:12px;background:var(--danger-soft,#fdecec);border:1px solid var(--danger,#c0392b);color:var(--danger,#c0392b);font-size:12px;line-height:1.35;}
+.npd-unproven-banner[hidden]{display:none;}
+.npd-unproven-btn{flex:none;min-height:34px;padding:6px 10px;border-radius:10px;border:1px solid var(--danger,#c0392b);background:var(--surface,#fff);color:var(--danger,#c0392b);font:inherit;font-size:12px;font-weight:700;cursor:pointer;}
+.npd-unproven-btn.active{background:var(--danger,#c0392b);color:#fff;}
+.summary-unproven{display:flex;justify-content:space-between;gap:8px;margin-top:8px;padding:8px 10px;border-radius:10px;background:var(--danger-soft,#fdecec);color:var(--danger,#c0392b);font-size:12px;font-weight:600;}
+.summary-unproven[hidden]{display:none;}
 .sku-row-toggle.auto:not(.done){background:var(--strip-bg);border-color:var(--strip-btn);color:var(--strip-ink);opacity:1;font-size:10.5px;}
 .sku-row-moq .moq-badge{white-space:normal;line-height:1.35;}
 .ps-kpi-group{margin-top:8px;border-radius:10px;padding:6px 10px 2px;}
@@ -1155,6 +1165,7 @@ details.info .info-body ul{margin:4px 0 0;padding-left:16px;}
         <input type="text" class="search-input" id="outletSearch" placeholder="Cari outlet: nama atau kode…">
         <button class="search-clear" id="outletSearchClear" hidden>×</button>
       </div>
+      <div class="npd-unproven-banner" id="npdUnprovenBanner" hidden></div>
       <div class="filter-reset-row" id="npdFilterResetRow" hidden><button class="filter-reset-btn" id="npdFilterReset">↺ Reset Filter</button></div>
 
       <div class="outlet-list" id="outletList"></div>
@@ -1320,6 +1331,7 @@ details.info .info-body ul{margin:4px 0 0;padding-left:16px;}
         <span class="lbl" id="totalLbl">Total outlet ECO</span>
         <span class="val" id="totalVal">0 <span class="of">/ 0</span></span>
       </div>
+      <div class="summary-unproven" id="npdUnprovenStat" hidden></div>
     </div>
 
     <div class="summary-card">
@@ -1737,10 +1749,12 @@ async function fetchEcoLive(){
     // tetap dari HTML — tidak pernah "kosong mendadak".
     let npdChanged = false;
     if(data.npd && data.npd.baseline && typeof data.npd.baseline === "object"){
-      const before = JSON.stringify(ecoLive.npdBaseline);
+      const before = JSON.stringify(ecoLive.npdBaseline) + "|" + ecoLive.npdDataUntil;
       ecoLive.npdBaseline = data.npd.baseline;
       ecoLive.npdDataUntil = data.npd.dataUntil || data.dataUntil || null;
-      npdChanged = before !== JSON.stringify(ecoLive.npdBaseline);
+      // v119: tanggal data (npdDataUntil) ikut dibandingkan — penilaian "tidak terbukti" bergantung
+      // padanya, jadi hari tanpa transaksi NPD baru pun harus memicu render ulang.
+      npdChanged = before !== JSON.stringify(ecoLive.npdBaseline) + "|" + ecoLive.npdDataUntil;
     } else if(data.npdWarning && typeof console !== "undefined"){ console.warn("[NPD] riwayat live tidak tersedia:", data.npdWarning); }
     let distChanged = false;
     if(data.dist && typeof data.dist === "object"){ distChanged = JSON.stringify(ecoLive.dist) !== JSON.stringify(data.dist); ecoLive.dist = data.dist; }
@@ -1923,6 +1937,7 @@ function npdIncentiveInfo(){
     // langsung"), tanpa perlu pindah ke tab NPD. Outlet baseline TIDAK masuk sini
     // krn memang tidak bisa dibatalkan (fakta transaksi data pusat, sama spt NPD).
     const manualDone = [];
+    const unproven = []; // v119: centang manual yg sudah dinilai extract & tidak ada notanya
     let achieved = 0;
     roster.forEach(([kode, nama, sales, day, baseline])=>{
       const isBaseline = !!baselineFor(baseline, s.code, period);
@@ -1931,10 +1946,12 @@ function npdIncentiveInfo(){
         if(!isBaseline) manualDone.push({kode, nama, day});
       } else {
         notYet.push({kode, nama, day});
+        if(skuUnproven(dayDoc, kode, s.code, baseline, period)) unproven.push({kode, nama, day});
       }
     });
     notYet.sort((a,b)=>a.nama.localeCompare(b.nama, "id"));
     manualDone.sort((a,b)=>a.nama.localeCompare(b.nama, "id"));
+    unproven.sort((a,b)=>a.nama.localeCompare(b.nama, "id"));
     const pct = total ? achieved/total : 0;
     let eligible = true, shortfall = 0, minNeeded = 0;
     if(info.minEco){
@@ -1947,7 +1964,7 @@ function npdIncentiveInfo(){
     // Nama basepack (bukan nama SKU fisik per kode) — sinkron dgn tampilan checklist
     // NPD (poin 3, permintaan user 15 Sept 2026: "kalo pada menu NPD sudah pakai Nama
     // Basepack, di menu insentif NPD juga harus sesuai biar sinkron").
-    return {code:s.code, name: NPD_BASEPACK_NAME[s.code] || s.name, tag:s.tag, value:info.value, minEco:info.minEco, minNeeded, achieved, total, pct, eligible, shortfall, amount, notYet, manualDone};
+    return {code:s.code, name: NPD_BASEPACK_NAME[s.code] || s.name, tag:s.tag, value:info.value, minEco:info.minEco, minNeeded, achieved, total, pct, eligible, shortfall, amount, notYet, manualDone, unproven};
   }).filter(Boolean);
   // Jasa Perantara NPD Tematik (16 Sept 2026, dikonfirmasi user: "digabung dengan
   // insentif distribusi NPD Reguler, Big Bets") — utk role SD/ELITE/MIXED, Jasper
@@ -2031,7 +2048,7 @@ function getKalkState(){
 // Periode aktif app (bulan konfirmasi NPD yang sedang berjalan). TIDAK ikut tanggal HP —
 // pindah bulan hanya lewat rilis versi baru dari file update AASM (keputusan user 14 Sept 2026).
 const ACTIVE_PERIOD = "2026-09";
-const APP_BUILD = "v118";  // label versi, tampil kecil di header — naikkan tiap publish
+const APP_BUILD = "v120";  // label versi, tampil kecil di header — naikkan tiap publish
 // Logo header gambar share WA (v109, 17 Sept 2026, permintaan user) — PNG asli
 // di-crop otomatis (buang padding transparan) + diperkecil tinggi 160px lewat
 // Pillow supaya ukuran base64 kecil (SONIK ~44KB, Unilever ~53KB teks base64).
@@ -2096,6 +2113,7 @@ const state = {
   summaryMonth: ACTIVE_PERIOD,
   dayDocs: {},        // "YYYY-MM_split" -> {outlets:{kode:{skuCode:{confirmed,by,ts}}}}
   expanded: new Set(),
+  npdUnprovenOnly: false, // v119: filter tab NPD "hanya centang tidak terbukti"
   npdViewMode: "outlet", // "outlet"|"sku" — toggle tampilan tab NPD (v101: pintu centang per-SKU dipindah kesini dari tab Insentif)
   npdSkuExpanded: new Set(), // key "<kode outlet>::<sku code>" -> daftar varian SKU basepack NPD sedang dibuka
   skuPanelOpen: false,
@@ -2528,6 +2546,10 @@ function outletsFor(salesman, day){
 // SEMUA hari milik salesman ini (bukan cuma hari yang lagi dipilih) — supaya
 // outlet yang transaksi di luar hari PJP-nya tetap gampang ditemukan.
 function visibleOutlets(){
+  if(state.npdUnprovenOnly && !state.searchQuery){ // v119: hanya outlet dgn centang tidak terbukti
+    const dayDoc = getDoc(currentPeriod(), state.split); const skus = currentSplit().skus; const p = currentPeriod();
+    return outletsFor(state.salesman, null).filter(([kode,,,,baseline])=>outletUnprovenCount(dayDoc, kode, skus, baseline, p)>0);
+  }
   if(state.searchQuery){
     const q = state.searchQuery;
     return currentSplit().outlets
@@ -2910,7 +2932,12 @@ async function toggleSku(kode, skuCode){
   const cur = getDoc(currentPeriod(), state.split);
   const outlets = {...(cur.outlets||{})};
   const outletSkus = {...(outlets[kode]||{})};
-  const wasConfirmed = !!(outletSkus[skuCode] && outletSkus[skuCode].confirmed);
+  // v119b (17 Sept 2026, keputusan user: "extract sebagai hygiene/validator saja"): centang yang
+  // sudah dinilai tidak terbukti BUKAN dikunci — dianggap kosong lagi ("kembali ke tombol awal") dan
+  // boleh dicentang ulang. Jadi utk keperluan toggle di sini, record lama yg unproven dianggap BELUM
+  // confirmed (ketukan berikutnya menulis klaim baru yg segar, timpa bekas klaim lama).
+  const prevRec = outletSkus[skuCode];
+  const wasConfirmed = !!(prevRec && prevRec.confirmed) && !tickUnproven(prevRec, currentPeriod());
   outletSkus[skuCode] = wasConfirmed
     ? {confirmed:false}
     : {confirmed:true, by: state.salesman, ts: new Date().toISOString()};
@@ -2937,6 +2964,8 @@ async function toggleAllSkus(kode, skus, allDone){
   const patch = {};
   skus.forEach(s=>{
     if(baselineFor(baseline, s.code, currentPeriod())) return; // riwayat, jangan disentuh
+    // v119b: item unproven dianggap kosong ("tombol awal") — ikut ditimpa spt item kosong lainnya,
+    // BUKAN dikunci/dilewati.
     outletSkus[s.code] = nextConfirmed
       ? {confirmed:true, by: state.salesman, ts}
       : {confirmed:false};
@@ -2975,10 +3004,55 @@ function baselineFor(baseline, skuCode, period){
   if(!baseline || !baseline[skuCode]) return null;
   return baseline[skuCode].slice(0,7) === period ? baseline[skuCode] : null;
 }
+// ---------- v119: centang manual diuji terhadap extract ----------
+// Keputusan user 17 Sept 2026 ("kalo sudah ada update extract ya ini mutlak sebagai data
+// utama"): centang manual NPD hanya berlaku SEMENTARA. Begitu extract (eco_raw, via
+// npdHistoryUntil()) sudah mencakup TANGGAL centang itu, yang menentukan hanya extract:
+//   - ada nota lolos MOQ  -> sudah jadi Riwayat (baselineFor), centang tak dipakai lagi;
+//   - tidak ada           -> centang "TIDAK TERBUKTI": tidak dihitung di progress, Pencapaian,
+//                            insentif, kalkulator, gambar share; tidak dihapus (jejak utk AASM);
+//                            tidak bisa dicentang ulang — hanya extract yg bisa memulihkan.
+// Tidak dinilai (dibiarkan spt semula) kalau extract yg dipegang app bulan lain dari periode
+// dokumen (mis. lihat bulan lalu setelah eco_raw diganti data bulan baru), atau tanggal centang
+// masih lebih baru dari data extract ("menunggu").
+// Tanggal centang = tanggal LOKAL (WIT) dari rec.ts (ISO UTC). Ini juga memperbaiki bug lama
+// "Pencapaian Hari Ini" yg membandingkan rec.ts.slice(0,10) (UTC) dgn state.today (lokal):
+// centang jam 00.00–08.59 WIT dulu terhitung "kemarin".
+function tickLocalDate(rec){
+  if(!rec || typeof rec.ts !== "string") return null;
+  const d = new Date(rec.ts);
+  return isNaN(d.getTime()) ? rec.ts.slice(0,10) : todayStr(d);
+}
+function tickUnproven(rec, period){
+  if(!rec || !rec.confirmed) return false;
+  const until = npdHistoryUntil();
+  if(!until || until.slice(0,7) !== (period || currentPeriod())) return false;
+  const td = tickLocalDate(rec);
+  return !!td && td <= until;
+}
 function skuAchieved(dayDoc, kode, skuCode, baseline, period){
   if(baselineFor(baseline, skuCode, period)) return true;
   const rec = dayDoc.outlets && dayDoc.outlets[kode] && dayDoc.outlets[kode][skuCode];
-  return !!(rec && rec.confirmed);
+  return !!(rec && rec.confirmed && !tickUnproven(rec, period));
+}
+function skuUnproven(dayDoc, kode, skuCode, baseline, period){
+  if(baselineFor(baseline, skuCode, period)) return false;
+  const rec = dayDoc.outlets && dayDoc.outlets[kode] && dayDoc.outlets[kode][skuCode];
+  return tickUnproven(rec, period);
+}
+function outletUnprovenCount(dayDoc, kode, skus, baseline, period){
+  const p = period || currentPeriod();
+  return skus.filter(s=>skuUnproven(dayDoc, kode, s.code, baseline, p)).length;
+}
+// Rekap utk kartu Ringkasan / banner tab NPD: {marks, outlets, kodes:Set}
+function npdUnprovenSummary(dayDoc, list, skus, period){
+  const p = period || currentPeriod();
+  let marks = 0; const kodes = new Set();
+  list.forEach(([kode,,,,baseline])=>{
+    const n = outletUnprovenCount(dayDoc, kode, skus, baseline, p);
+    if(n){ marks += n; kodes.add(kode); }
+  });
+  return {marks, outlets: kodes.size, kodes};
 }
 function outletDoneCount(dayDoc, kode, skus, baseline, period){
   const p = period || currentPeriod();
@@ -2993,16 +3067,42 @@ function renderOutletList(){
   const skus = sp.skus;
   const list = visibleOutlets();
   const dayDoc = getDoc(currentPeriod(), state.split);
+  const period = currentPeriod();
+  // v120 (17 Sept 2026, revisi keputusan user): sempat dicoba HANYA terlihat sbg jejak bagi AASM
+  // (mode Tamu), tapi user putuskan Mode Tamu sebaiknya MURNI MIRRORING dari yg dilihat salesman
+  // (view-only, tanpa info tambahan apa pun) — jadi badge/banner/rekap "tidak terbukti" TIDAK
+  // ditampilkan sama sekali, di mode mana pun. Penilaian "tidak dihitung di progress/insentif"
+  // (skuAchieved/skuUnproven) TETAP jalan seperti biasa — yang hilang cuma tampilan/jejaknya, item
+  // ini tetap kembali polos ("tombol awal") & bisa dicentang ulang bebas spt item kosong lainnya.
+  const showUnprovenUI = false;
+  // basis roster PENUH salesman, bukan hasil filter
+  const unpSum = npdUnprovenSummary(dayDoc, outletsFor(state.salesman, null), skus, period);
+  const banner = document.getElementById("npdUnprovenBanner");
+  if(banner){
+    if(showUnprovenUI && unpSum.marks){
+      banner.hidden = false;
+      banner.innerHTML = `<span class="npd-unproven-text">✗ <b>${unpSum.marks}</b> centang di <b>${unpSum.outlets}</b> outlet tidak terbukti di extract (data s.d. ${fmtDateLong(npdHistoryUntil())}) — tidak dihitung.</span><button class="npd-unproven-btn ${state.npdUnprovenOnly?"active":""}" id="npdUnprovenToggle">${state.npdUnprovenOnly?"Tampilkan semua":"Lihat daftarnya"}</button>`;
+      banner.querySelector("#npdUnprovenToggle").addEventListener("click", ()=>{
+        state.npdUnprovenOnly = !state.npdUnprovenOnly;
+        if(state.npdUnprovenOnly){ state.day = null; resetSearchUI(); renderDayChips(); unpSum.kodes.forEach(k=>state.expanded.add(k)); }
+        renderOutletList();
+      });
+    } else {
+      banner.hidden = true; banner.innerHTML = "";
+      state.npdUnprovenOnly = false;
+    }
+  }
+  if(!showUnprovenUI) state.npdUnprovenOnly = false;
   const resetRow = document.getElementById("npdFilterResetRow");
-  if(resetRow) resetRow.hidden = !(state.day || state.searchQuery);
+  if(resetRow) resetRow.hidden = !(state.day || state.searchQuery || state.npdUnprovenOnly);
   const container = document.getElementById("outletList");
   container.innerHTML = "";
   if(list.length===0){
     container.innerHTML = state.searchQuery
       ? `<div class="empty-note">Outlet tidak ditemukan untuk "${escapeHtml(state.searchQuery)}".</div>`
-      : `<div class="empty-note">Tidak ada outlet PJP${state.day ? " " + state.day : ""} untuk salesman ini.</div>`;
+      : (state.npdUnprovenOnly ? `<div class="empty-note">Tidak ada centang yang tidak terbukti.</div>`
+      : `<div class="empty-note">Tidak ada outlet PJP${state.day ? " " + state.day : ""} untuk salesman ini.</div>`);
   }
-  const period = currentPeriod();
   list.forEach(([kode, nama, sales, day, baseline], idx)=>{
     const done = outletDoneCount(dayDoc, kode, skus, baseline, period);
     const total = skus.length;
@@ -3013,27 +3113,32 @@ function renderOutletList(){
     if(total === 1){
       const hist = baselineFor(baseline, skus[0].code, period);
       const isDone = skuAchieved(dayDoc, kode, skus[0].code, baseline, period);
+      const unpRaw = skuUnproven(dayDoc, kode, skus[0].code, baseline, period);
+      const unp = unpRaw && showUnprovenUI; // hanya tampil sbg tanda kalau dilihat AASM (Tamu)
+      const locked = hist || unp; // salesman sendiri: unproven TIDAK mengunci, dianggap kosong biasa
       card.innerHTML = `
         <div class="outlet-row">
           <div class="outlet-info">
             <div class="outlet-name">${numLabel}${escapeHtml(nama)}</div>
-            <div class="outlet-meta mono">${kode}</div>
+            <div class="outlet-meta mono">${kode}${unp?` <span class="tag-badge tag-unproven" title="${escapeHtml(npdUnprovenTitle())}">Tidak terbukti</span>`:""}</div>
           </div>
-          <button class="toggle-btn ${isDone?"done":""}" ${hist?"disabled":""} title="${hist?"Riwayat transaksi "+fmtShortDate(hist):""}">${isDone?(hist?"✓ Riwayat":"✓ ECO"):"Belum ECO"}</button>
+          <button class="toggle-btn ${isDone?"done":""} ${unp?"unproven":""}" ${locked?"disabled":""} title="${hist?"Riwayat transaksi "+fmtShortDate(hist):(unp?escapeHtml(npdUnprovenTitle()):"")}">${isDone?(hist?"✓ Riwayat":"✓ ECO"):(unp?"✗ Tidak terbukti":"Belum ECO")}</button>
         </div>`;
-      if(!hist) card.querySelector(".toggle-btn").addEventListener("click", ()=>toggleSku(kode, skus[0].code));
+      if(!locked) card.querySelector(".toggle-btn").addEventListener("click", ()=>toggleSku(kode, skus[0].code));
     } else {
       const isOpen = state.expanded.has(kode);
       const statusClass = done===0 ? "zero" : (done===total ? "full" : "partial");
       const allDone = done===total;
-      const openSkus = skus.filter(s=>!baselineFor(baseline, s.code, period));
+      const unpCount = showUnprovenUI ? outletUnprovenCount(dayDoc, kode, skus, baseline, period) : 0;
+      // salesman sendiri: item unproven dianggap kosong biasa, tetap boleh disentuh via "Tandai sisanya"
+      const openSkus = skus.filter(s=>!baselineFor(baseline, s.code, period) && (showUnprovenUI ? !skuUnproven(dayDoc, kode, s.code, baseline, period) : true));
       card.innerHTML = `
         <div class="outlet-row">
           <div class="outlet-info">
             <div class="outlet-name">${numLabel}${escapeHtml(nama)}</div>
             <div class="outlet-meta mono">${kode}</div>
           </div>
-          <button class="status-pill ${statusClass} ${isOpen?"open":""}">${done}/${total} ECO <span class="chev">▾</span></button>
+          <button class="status-pill ${statusClass} ${isOpen?"open":""}">${done}/${total} ECO${unpCount?` <span class="pill-unproven" title="${escapeHtml(npdUnprovenTitle())}">✗${unpCount}</span>`:""} <span class="chev">▾</span></button>
         </div>
         <div class="sku-checklist ${isOpen?"open":""}">
           <div class="sku-checklist-actions">
@@ -3042,7 +3147,10 @@ function renderOutletList(){
           ${orderedSkus(skus).map(s=>{
             const hist = baselineFor(baseline, s.code, period);
             const isDone = skuAchieved(dayDoc, kode, s.code, baseline, period);
-            const cls = "sku-row-toggle" + (isDone ? " done" : "") + (hist ? " locked" : "");
+            const unpRaw = skuUnproven(dayDoc, kode, s.code, baseline, period);
+            const unp = unpRaw && showUnprovenUI;
+            const rowLocked = hist || unp;
+            const cls = "sku-row-toggle" + (isDone ? " done" : "") + (hist ? " locked" : "") + (unp ? " locked unproven" : "");
             const bpName = NPD_BASEPACK_NAME[s.code] || s.name;
             const children = NPD_SKU_CHILDREN[s.code] || [];
             const childKey = kode + "::" + s.code;
@@ -3056,10 +3164,10 @@ function renderOutletList(){
               <div class="sku-row">
                 <div class="sku-row-info">
                   <div class="sku-row-name">${escapeHtml(bpName)} ${children.length<=1?`<span class="mono" style="color:var(--ink-muted);font-size:11px;font-weight:400;">${s.code}</span>`:""}</div>
-                  <div class="sku-row-moq"><span class="row-badges"><span class="moq-badge">MOQ ${s.moq}</span>${s.tag?`<span class="tag-badge ${tagClass(s.tag)}">${s.tag}</span>`:""}${hist?`<span class="tag-badge tag-regular" title="Transaksi tercatat ${hist}">Riwayat ${fmtShortDate(hist)}</span>`:""}</span></div>
+                  <div class="sku-row-moq"><span class="row-badges"><span class="moq-badge">MOQ ${s.moq}</span>${s.tag?`<span class="tag-badge ${tagClass(s.tag)}">${s.tag}</span>`:""}${hist?`<span class="tag-badge tag-regular" title="Transaksi tercatat ${hist}">Riwayat ${fmtShortDate(hist)}</span>`:""}${unp?`<span class="tag-badge tag-unproven" title="${escapeHtml(npdUnprovenTitle())}">Tidak terbukti di extract</span>`:""}</span></div>
                   ${childrenBlock}
                 </div>
-                <button class="${cls}" data-sku="${s.code}" ${hist?"disabled":""}>${isDone?"✓":"–"}</button>
+                <button class="${cls}" data-sku="${s.code}" ${rowLocked?"disabled":""} ${unp?`title="${escapeHtml(npdUnprovenTitle())}"`:""}>${isDone?"✓":(unp?"✗":"–")}</button>
               </div>`;
           }).join("")}
         </div>`;
@@ -3089,7 +3197,11 @@ function renderOutletList(){
   document.getElementById("hintText").textContent = (skus.length===1
     ? "Ketuk outlet setelah transaksi NPD tercatat (ECO). Bisa diubah lagi kalau salah pencet. "
     : "Ketuk outlet untuk buka daftar SKU-nya, lalu tandai satu per satu setelah tercatat (ECO). ")
-    + `Item "Riwayat" = transaksi yang sudah tercatat di data distributor s.d. ${fmtDateLong(npdHistoryUntil())} (lolos MOQ) dan tidak bisa diubah.`;
+    + `Item "Riwayat" = transaksi yang sudah tercatat di data distributor s.d. ${fmtDateLong(npdHistoryUntil())} (lolos MOQ) dan tidak bisa diubah. `
+    + `Centang manual yang tanggalnya sudah tercakup data tersebut tapi tidak ada notanya (lolos MOQ) otomatis jadi "Tidak terbukti" dan tidak dihitung.`;
+}
+function npdUnprovenTitle(){
+  return `Dicentang manual, tapi di data extract s.d. ${fmtDateLong(npdHistoryUntil())} tidak ada nota yang lolos MOQ untuk outlet+SKU ini. Tidak dihitung; pulih otomatis jadi Riwayat kalau notanya muncul di update extract berikutnya.`;
 }
 function renderAll(){
   renderIdentityStrip();
@@ -3152,6 +3264,7 @@ document.getElementById("outletSearchClear").addEventListener("click", ()=>{
 // pencarian sekaligus dlm 1 ketukan (dulu harus 2 langkah terpisah).
 document.getElementById("npdFilterReset").addEventListener("click", ()=>{
   state.day = null;
+  state.npdUnprovenOnly = false;
   resetSearchUI();
   renderDayChips();
   renderOutletList();
@@ -3618,6 +3731,7 @@ function renderNpdSkuList(){
       <div class="sku-checklist ${isOpen?"open":""}">
         ${renderNotYetBlock(row)}
         ${renderManualDoneBlock(row)}
+        ${renderUnprovenBlock(row)}
       </div>`;
     card.querySelector(".status-pill").addEventListener("click", ()=>toggleInsentifExpand(row.code));
     card.querySelectorAll(".sku-children-toggle").forEach(btn=>{
@@ -3662,33 +3776,43 @@ function notYetItemHtml(o, code){
 // renderInsentifList, class ".notyet-check" generik utk kedua list), jadi batalkan
 // dari sini otomatis sinkron balik ke checklist tab NPD juga. Tidak difilter hari
 // (beda dari renderNotYetBlock) krn biasanya cuma sedikit outlet yg perlu dibatalkan.
+// v119: outlet yg dicentang manual tapi extract (s.d. npdHistoryUntil) tidak punya notanya —
+// tidak dihitung, tidak bisa diubah dari sini (hanya extract yg memulihkan).
+// v120: blok jejak ini DIMATIKAN total (Mode Tamu murni mirroring dari tampilan salesman, tanpa
+// info tambahan) — penilaian "tidak dihitung"-nya sendiri TETAP jalan, cuma tidak lagi ditampilkan.
+function renderUnprovenBlock(row){
+  return ""; // v120: lihat catatan di atas
+}
 function renderManualDoneBlock(row){
   if(!row.manualDone.length) return "";
   return `<div class="hint" style="margin-top:14px;">Sudah Anda centang manual (ketuk ✓ utk batalkan):</div>
     <ul class="notyet-list">${row.manualDone.map(o=>`<li><div class="notyet-row"><span class="notyet-name">${escapeHtml(o.nama)}</span><button class="sku-row-toggle done notyet-check" data-kode="${escapeHtml(o.kode)}">✓</button></div></li>`).join("")}</ul>`;
 }
 function renderNotYetBlock(row){
-  if(!row.notYet.length) return `<div class="hint" style="margin-top:6px;">Semua outlet sudah ECO SKU ini. 🎉</div>`;
+  // v120: outlet "tidak terbukti" TIDAK dipisah ke blok sendiri lagi (renderUnprovenBlock kini
+  // selalu kosong) — tampil di sini spt outlet belum-ECO biasa, sama di mode salesman maupun Tamu.
+  const notYet = row.notYet;
+  if(!notYet.length) return `<div class="hint" style="margin-top:6px;">Semua outlet sudah ECO SKU ini. 🎉</div>`;
   const showAll = state.insentifShowAllDays.has(row.code);
-  const todayList = row.notYet.filter(o=>o.day===todayDow);
+  const todayList = notYet.filter(o=>o.day===todayDow);
   if(showAll){
     const byDay = {};
-    row.notYet.forEach(o=>{ (byDay[o.day] = byDay[o.day] || []).push(o); });
+    notYet.forEach(o=>{ (byDay[o.day] = byDay[o.day] || []).push(o); });
     const dayOrder = DAY_ORDER.filter(d=>byDay[d]);
     const groups = dayOrder.map(d=>`
       <div class="notyet-daygroup-label">${d} (${byDay[d].length})</div>
       <ul class="notyet-list">${byDay[d].map(o=>notYetItemHtml(o, row.code)).join("")}</ul>`).join("");
-    return `<div class="hint" style="margin-top:6px;">Outlet belum ECO SKU ini, semua hari (${row.notYet.length}):</div>
+    return `<div class="hint" style="margin-top:6px;">Outlet belum ECO SKU ini, semua hari (${notYet.length}):</div>
       ${groups}
       <button class="notyet-daytoggle">↑ Tampilkan hari ini saja (${todayDow})</button>`;
   }
   if(!todayList.length){
-    return `<div class="hint" style="margin-top:6px;">Tidak ada outlet hari ${todayDow} yang belum ECO SKU ini. Ada ${row.notYet.length} outlet di hari lain.</div>
-      <button class="notyet-daytoggle">Lihat semua hari (${row.notYet.length}) ›</button>`;
+    return `<div class="hint" style="margin-top:6px;">Tidak ada outlet hari ${todayDow} yang belum ECO SKU ini. Ada ${notYet.length} outlet di hari lain.</div>
+      <button class="notyet-daytoggle">Lihat semua hari (${notYet.length}) ›</button>`;
   }
   return `<div class="hint" style="margin-top:6px;">Outlet belum ECO SKU di Hari ini:</div>
     <ol class="notyet-list">${todayList.map(o=>notYetItemHtml(o, row.code)).join("")}</ol>
-    ${row.notYet.length>todayList.length ? `<button class="notyet-daytoggle">Lihat semua hari (${row.notYet.length}) ›</button>` : ""}`;
+    ${notYet.length>todayList.length ? `<button class="notyet-daytoggle">Lihat semua hari (${notYet.length}) ›</button>` : ""}`;
 }
 
 // ---------- render Top 12 COTC view ----------
@@ -4904,14 +5028,15 @@ function mySkuBreakdown(monthDoc, list, skus, period){
 // "Pencapaian Hari Ini" dihitung sebagai OUTLET UNIK yang punya minimal 1 tanda
 // hari ini (bukan jumlah tanda) — supaya 1 outlet yang ditandai 2 SKU/2 kriteria
 // tidak terhitung 2. Jumlah tandanya (outlet x SKU) tetap dikembalikan utk keterangan.
-function myTodayCount(monthDoc, list, skus){
+function myTodayCount(monthDoc, list, skus, period){
+  const p = period || currentPeriod();
   let outletsN = 0, marks = 0;
   list.forEach(([kode])=>{
     const rec = monthDoc.outlets && monthDoc.outlets[kode];
     if(!rec) return;
     const n = skus.filter(s=>{
       const r = rec[s.code];
-      return r && r.confirmed && typeof r.ts === "string" && r.ts.slice(0,10) === state.today;
+      return r && r.confirmed && tickLocalDate(r) === state.today && !tickUnproven(r, p);
     }).length;
     if(n){ outletsN++; marks += n; }
   });
@@ -4921,11 +5046,12 @@ function myTodayCount(monthDoc, list, skus){
 // sebulan) — hitung berapa outlet yang dikonfirmasi HARI INI saja per SKU.
 // Ini angka mentah (jumlah outlet), bukan persen, karena tidak ada target
 // harian per SKU untuk dijadikan penyebut.
-function myTodayBreakdown(monthDoc, list, skus){
+function myTodayBreakdown(monthDoc, list, skus, period){
+  const p = period || currentPeriod();
   return skus.map(s=>{
     const count = list.filter(([kode])=>{
       const rec = monthDoc.outlets && monthDoc.outlets[kode] && monthDoc.outlets[kode][s.code];
-      return rec && rec.confirmed && typeof rec.ts === "string" && rec.ts.slice(0,10) === state.today;
+      return rec && rec.confirmed && tickLocalDate(rec) === state.today && !tickUnproven(rec, p);
     }).length;
     return {sku:s, count};
   });
@@ -5288,7 +5414,7 @@ function renderSummary(){
   const monthDoc = getDoc(monthStr, state.split);
   const list = sp.outlets.filter(o=>o[2]===state.salesman);
 
-  document.getElementById("todayStatVal").innerHTML = todayValHtml(myTodayCount(monthDoc, list, skus), "SKU ECO");
+  document.getElementById("todayStatVal").innerHTML = todayValHtml(myTodayCount(monthDoc, list, skus, monthStr), "SKU ECO");
   document.getElementById("todayStatDate").textContent = fmtDateLong(state.today);
 
   // "Cakupan Rute Hari Ini" (16 Sept 2026, usulan diminta user) — BEDA dari
@@ -5302,14 +5428,14 @@ function renderSummary(){
   const routeToday = list.filter(o=>o[3]===todayDow);
   const routeWrap = document.getElementById("todayRouteStat");
   if(routeToday.length){
-    const routeInfo = myTodayCount(monthDoc, routeToday, skus);
+    const routeInfo = myTodayCount(monthDoc, routeToday, skus, monthStr);
     routeWrap.innerHTML = `<span class="lbl">Cakupan Rute Hari Ini</span><span class="val">${routeInfo.outlets}/${routeToday.length} outlet</span>`;
   } else {
     routeWrap.innerHTML = `<span class="lbl">Cakupan Rute Hari Ini</span><span class="val">Tidak ada rute terjadwal hari ini</span>`;
   }
 
   const todayWrap = document.getElementById("todayBreakdown");
-  const todayGroups = groupSkuRows(myTodayBreakdown(monthDoc, list, skus).filter(r=>r.count>0));
+  const todayGroups = groupSkuRows(myTodayBreakdown(monthDoc, list, skus, monthStr).filter(r=>r.count>0));
   if(todayGroups.length){
     todayWrap.innerHTML = todayGroups.map(g=>`
       <div class="today-stat-group ${tagClass(g.tag)}">${g.label}</div>
@@ -5344,6 +5470,14 @@ function renderSummary(){
   const doneAll = list.reduce((sum,[kode,,,,baseline])=>sum + outletDoneCount(monthDoc, kode, skus, baseline, monthStr), 0);
   const totalPct = totalAll ? (doneAll/totalAll*100) : 0;
   document.getElementById("totalVal").innerHTML = `${doneAll} <span class="of">/ ${totalAll}</span><span class="total-pct">${totalPct.toFixed(1)}%</span>`;
+  // v120: rekap centang manual yg tidak terbukti DIMATIKAN total (Mode Tamu murni mirroring, tanpa
+  // info tambahan dari sisi salesman) — item ini sudah kembali polos & tidak dihitung di angka di
+  // atas, cuma tidak ada lagi jejak yg ditampilkan sama sekali, di mode mana pun.
+  const unpStat = document.getElementById("npdUnprovenStat");
+  if(unpStat){
+    unpStat.hidden = true;
+    unpStat.innerHTML = "";
+  }
 
   renderCotcSummary();
   renderPsSummary();
@@ -5369,7 +5503,7 @@ function cotcTodayCount(docObj, outlets, skus){
     if(!rec) return;
     const n = skus.filter(s=>{
       const r = rec[s.id];
-      return r && r.confirmed && typeof r.ts === "string" && r.ts.slice(0,10) === state.today;
+      return r && r.confirmed && tickLocalDate(r) === state.today;
     }).length;
     if(n){ outletsN++; marks += n; }
   });
@@ -5379,7 +5513,7 @@ function cotcTodayBreakdown(docObj, outlets, skus){
   return skus.map(s=>{
     const count = outlets.filter(o=>{
       const rec = docObj.outlets && docObj.outlets[o.kode] && docObj.outlets[o.kode][s.id];
-      return rec && rec.confirmed && typeof rec.ts === "string" && rec.ts.slice(0,10) === state.today;
+      return rec && rec.confirmed && tickLocalDate(rec) === state.today;
     }).length;
     return {sku:s, count};
   });
@@ -5465,7 +5599,7 @@ function psTodayCount(docObj, outlets, items){
     if(!rec) return;
     const n = items.filter(it=>{
       const r = rec[it.key];
-      return r && r.confirmed && typeof r.ts === "string" && r.ts.slice(0,10) === state.today;
+      return r && r.confirmed && tickLocalDate(r) === state.today;
     }).length;
     if(n){ outletsN++; marks += n; }
   });
@@ -5478,7 +5612,7 @@ function psTodayBreakdown(docObj, outlets, items){
   return items.map(it=>{
     const count = outlets.filter(o=>{
       const rec = docObj.outlets && docObj.outlets[o.kode] && docObj.outlets[o.kode][it.key];
-      return rec && rec.confirmed && typeof rec.ts === "string" && rec.ts.slice(0,10) === state.today;
+      return rec && rec.confirmed && tickLocalDate(rec) === state.today;
     }).length;
     return {item:it, count};
   });
@@ -5578,16 +5712,20 @@ function buildShareCardData(){
   const salesmanLabel = salesman ? (salesman.full || salesman.label) : "?";
   const list = sp.outlets.filter(o=>o[2]===state.salesman);
   const skuRows = mySkuBreakdown(monthDoc, list, skus, monthStr);
-  const todayCount = myTodayCount(monthDoc, list, skus);
-  const todayRows = myTodayBreakdown(monthDoc, list, skus).filter(r=>r.count>0);
+  const todayCount = myTodayCount(monthDoc, list, skus, monthStr);
+  const todayRows = myTodayBreakdown(monthDoc, list, skus, monthStr).filter(r=>r.count>0);
   // "Cakupan Rute Hari Ini" (16 Sept 2026) — sama persis logikanya dgn renderSummary()
   // di tab Ringkasan, disertakan jg di gambar share krn ini laporan harian yg sama.
   const routeTodayOutlets = list.filter(o=>o[3]===todayDow);
-  const routeTodayInfo = routeTodayOutlets.length ? myTodayCount(monthDoc, routeTodayOutlets, skus) : {outlets:0, marks:0};
+  const routeTodayInfo = routeTodayOutlets.length ? myTodayCount(monthDoc, routeTodayOutlets, skus, monthStr) : {outlets:0, marks:0};
   const route = {done: routeTodayInfo.outlets, total: routeTodayOutlets.length};
   const totalAll = list.length * skus.length;
   const doneAll = list.reduce((sum,[kode,,,,baseline])=>sum + outletDoneCount(monthDoc, kode, skus, baseline, monthStr), 0);
   const totalPct = totalAll ? (doneAll/totalAll*100) : 0;
+  // v120: baris ini DIMATIKAN total di gambar share, di mode mana pun (Mode Tamu murni mirroring) —
+  // item unproven sudah kembali polos & tidak dihitung di angka2 di atas, cuma tidak ada lagi jejak
+  // yg ditampilkan.
+  const unproven = {marks:0, outlets:0};
   const distObj = salesman ? distById(salesman.dist) : null;
   const distLabel = distObj ? (distObj.name + " (" + distObj.area + ")") : "-";
   // Top 12 COTC (kumulatif berjalan, periode aktif)
@@ -5660,7 +5798,7 @@ function buildShareCardData(){
       belum: ecoRouteToday.filter(o=>o.status==="BELUM").length,
     } : null,
   };
-  return {sp, monthStr, salesmanLabel, distLabel, skuRows, todayCount, todayRows, route, totalAll, doneAll, totalPct, cotc, ps, eco};
+  return {sp, monthStr, salesmanLabel, distLabel, skuRows, todayCount, todayRows, route, totalAll, doneAll, totalPct, unproven, cotc, ps, eco};
 }
 function renderShareCardDom(){
   const d = buildShareCardData();
@@ -5747,6 +5885,7 @@ function renderShareCardDom(){
         <span style="font-size:12px;font-weight:700;color:var(--brand);background:var(--brand-soft);padding:2px 9px;border-radius:99px;">${d.totalPct.toFixed(1)}%</span>
       </span>
     </div>
+    ${d.unproven && d.unproven.marks ? `<div style="margin-top:8px;padding:6px 10px;border-radius:10px;background:var(--danger-soft);color:var(--danger);font-size:11px;font-weight:600;display:flex;justify-content:space-between;gap:8px;"><span>✗ Centang tidak terbukti di extract (tidak dihitung)</span><span>${d.unproven.marks} centang · ${d.unproven.outlets} outlet</span></div>` : ""}
     </div>
     ${shareSectionHtml("TOP 12 SKU COTC", "Kumulatif berjalan", d.cotc, "Outlet comply (semua SKU)")}
     ${shareSectionHtml("PERFECT STORE", "Kumulatif berjalan", d.ps, "Outlet Perfect (sesuai Target AVD)")}
