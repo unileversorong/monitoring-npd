@@ -277,7 +277,7 @@ h1,h2,h3{
   display:inline-block;margin-bottom:5px;
 }
 .sku-panel-head .headline{font-size:14.5px;font-weight:600;line-height:1.3;}
-.sku-panel-head .chev{color:var(--ink-muted);font-size:12px;flex-shrink:0;transition:transform .15s;}
+.sku-panel-head .chev{color:var(--ink-muted);font-size:16px;font-weight:800;flex-shrink:0;transition:transform .15s;}
 .sku-panel-head.open .chev{transform:rotate(180deg);}
 .sku-panel-body{
   border-top:1px solid var(--border);padding:4px 16px 8px;display:none;
@@ -402,7 +402,7 @@ h1,h2,h3{
   cursor:pointer;transition:.15s;display:flex;align-items:center;justify-content:center;gap:6px;
 }
 .kalk-toggle-btn:active{transform:scale(.98);}
-.kalk-toggle-btn .chev{font-size:10px;transition:transform .15s;}
+.kalk-toggle-btn .chev{font-size:16px;font-weight:800;transition:transform .15s;}
 .kalk-toggle-btn.open .chev{transform:rotate(180deg);}
 .kalk-card{margin-top:8px;padding:14px;}
 .kalk-header{margin-bottom:4px;}
@@ -504,7 +504,7 @@ h1,h2,h3{
   cursor:pointer;min-width:74px;text-align:center;transition:.15s;
   display:flex;align-items:center;gap:6px;justify-content:center;
 }
-.status-pill .chev{font-size:10px;transition:transform .15s;}
+.status-pill .chev{font-size:16px;font-weight:800;line-height:1;transition:transform .15s;}
 .status-pill.open .chev{transform:rotate(180deg);}
 .status-pill.zero{background:var(--danger-soft);border-color:var(--danger);color:var(--danger);}
 .status-pill.partial{background:var(--pending-soft);border-color:var(--pending);color:var(--pending);}
@@ -821,7 +821,7 @@ details.info{margin-top:8px;background:var(--surface);border:1px solid var(--bor
 details.info summary{cursor:pointer;list-style:none;padding:7px 11px;font-weight:600;color:var(--ink);display:flex;align-items:center;gap:8px;}
 details.info summary::-webkit-details-marker{display:none;}
 details.info summary::before{content:"i";flex-shrink:0;width:16px;height:16px;border-radius:50%;background:var(--brand-soft);color:var(--brand);font-size:10px;font-weight:800;display:inline-flex;align-items:center;justify-content:center;font-family:Georgia,serif;}
-details.info summary::after{content:"▾";margin-left:auto;font-size:11px;color:var(--ink-muted);transition:transform .15s;}
+details.info summary::after{content:"▾";margin-left:auto;font-size:15px;font-weight:800;color:var(--ink-muted);transition:transform .15s;}
 details.info[open] summary::after{transform:rotate(180deg);}
 details.info .info-body{padding:0 11px 9px;line-height:1.5;border-top:1px dashed var(--border);padding-top:7px;}
 details.info .info-body ul{margin:4px 0 0;padding-left:16px;}
@@ -972,7 +972,6 @@ details.info .info-body ul{margin:4px 0 0;padding-left:16px;}
 .eco-bu-item b{font-size:12.5px;font-variant-numeric:tabular-nums;}
 .eco-bu-item.eco-bu-zero b{color:var(--danger);}
 .eco-bu-item.eco-bu-ok b{color:var(--success);}
-.eco-bu-item.eco-bu-retur b{color:var(--pending);}
 /* BU item icon (evaluasi user 16 Sept 2026 poin 6: status & omset per-BU kurang
    mencolok) -- bulatan kecil warna sesuai status, taruh di kiri nama BU spy
    mata langsung tertuju ke situ sebelum baca angka. */
@@ -983,7 +982,6 @@ details.info .info-body ul{margin:4px 0 0;padding-left:16px;}
 }
 .eco-bu-item.eco-bu-ok .eco-bu-icon{background:var(--success-soft);color:var(--success);}
 .eco-bu-item.eco-bu-zero .eco-bu-icon{background:var(--danger-soft);color:var(--danger);}
-.eco-bu-item.eco-bu-retur .eco-bu-icon{background:var(--pending-soft);color:var(--pending);}
 .eco-bu-info{display:flex;flex-direction:column;gap:2px;min-width:0;}
 /* Status pill ECO — pakai kelas .status-pill dasar (bg/border/color per status
    sudah ada), cuma bukan tombol expand (tidak ada .chev / cursor pointer). */
@@ -1029,6 +1027,302 @@ details.info .info-body ul{margin:4px 0 0;padding-left:16px;}
 .eco-today-route-tile.belum{background:var(--danger-soft);}
 .eco-today-route-tile.belum .tlbl{color:var(--danger);}
 .eco-today-route-empty{font-size:11.5px;color:var(--ink-muted);font-weight:600;}
+
+/* ---------- Hygiene Factor Jasper (Syarat Pencairan Insentif) / Lainnya — TAHAP 3, 19 Sept 2026 ---------- */
+.lainnya-item-badge.ok{color:var(--success);}
+.lainnya-item-badge.bad{color:var(--danger);}
+.hygiene-hero{
+  margin-top:10px;padding:16px;border-radius:14px;text-align:center;
+  background:var(--success-soft);border:1.5px solid var(--success);
+}
+.hygiene-hero.bad{background:var(--danger-soft);border-color:var(--danger);}
+.hygiene-hero .hh-status{font-size:19px;font-weight:900;color:var(--success);}
+.hygiene-hero.bad .hh-status{color:var(--danger);}
+.hygiene-hero .hh-pct{font-size:28px;font-weight:900;margin-top:4px;font-variant-numeric:tabular-nums;color:var(--ink);}
+.hygiene-hero .hh-sub{font-size:11.5px;color:var(--ink-muted);margin-top:4px;font-weight:600;}
+/* Kotak "Syarat Hygiene Factor" -- dipindah ke atas (sebelum grid angka) & dibuat lebih mencolok
+   (border+background brand, ada judul+ikon) sesuai evaluasi user 19 Sept 2026: sebelumnya di
+   paling bawah & polos abu-abu, gampang terlewat padahal ini penjelasan paling penting. */
+.hygiene-criteria{
+  margin-top:10px;padding:12px 14px;border-radius:12px;
+  background:var(--brand-soft);border:1.5px solid var(--brand);
+}
+.hygiene-criteria .hc-title{font-size:12.5px;font-weight:800;color:var(--brand);margin-bottom:4px;display:flex;align-items:center;gap:5px;}
+.hygiene-criteria .hc-body{font-size:11.5px;color:var(--ink);line-height:1.55;}
+.hygiene-criteria .hc-body b{color:var(--brand);}
+.hygiene-detail-grid{
+  display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--border);
+  border:1px solid var(--border);border-radius:12px;overflow:hidden;margin-top:12px;
+}
+/* Kartu J/K/O/Q diberi ikon + warna beda per makna (evaluasi user: "jangan terlalu polos") --
+   J/K netral (info, biru brand), O (tepat waktu/dimaafkan) selalu hijau positif, Q (terlambat)
+   merah kalau >0, hijau/perayaan kalau pas 0 (bukan alarm palsu utk hasil bagus). */
+.hygiene-detail-cell{background:var(--surface);padding:10px 6px;text-align:center;}
+.hygiene-detail-cell.hd-neutral{background:var(--brand-soft);}
+.hygiene-detail-cell.hd-good{background:var(--success-soft);}
+.hygiene-detail-cell.hd-bad{background:var(--danger-soft);}
+.hygiene-detail-cell .hd-icon{font-size:14px;line-height:1;margin-bottom:3px;}
+.hygiene-detail-cell .hd-val{font-size:17px;font-weight:800;color:var(--ink);font-variant-numeric:tabular-nums;}
+.hygiene-detail-cell.hd-neutral .hd-val{color:var(--brand);}
+.hygiene-detail-cell.hd-good .hd-val{color:var(--success);}
+.hygiene-detail-cell.hd-bad .hd-val{color:var(--danger);}
+.hygiene-detail-cell .hd-lbl{font-size:9.5px;color:var(--ink-muted);font-weight:700;margin-top:2px;line-height:1.3;}
+.hygiene-late-block{margin-top:14px;padding-top:10px;border-top:1px dashed var(--border);}
+.hygiene-late-block .lbl{font-size:11.5px;font-weight:700;color:var(--ink-muted);margin-bottom:6px;}
+.hygiene-late-list{display:flex;flex-direction:column;gap:5px;}
+.hygiene-late-item{
+  display:flex;justify-content:flex-start;align-items:center;gap:8px;font-size:12.5px;
+  background:var(--danger-soft);color:var(--danger);border-radius:8px;padding:6px 10px;font-weight:700;
+}
+.hygiene-empty{margin-top:14px;padding:16px;text-align:center;color:var(--ink-muted);font-size:12.5px;font-weight:600;}
+
+/* ---------- Juragan (Basic Point / Target Growth / Extra Miles) / Lainnya — TAHAP 4, 20 Sept 2026 ---------- */
+/* Notice NETT vs Gross (permintaan user 21 Sept 2026, biar sales tidak bingung kok angkanya beda
+   dari GSV yg mereka lihat di tab lain) -- statis, selalu tampil, sengaja mencolok (border+bg). */
+.juragan-nett-notice{
+  margin-top:10px;padding:8px 11px;border-radius:10px;font-size:11.5px;font-weight:700;
+  background:var(--brand-soft);border:1.5px solid var(--brand);color:var(--ink);line-height:1.4;
+}
+.juragan-nett-notice b{color:var(--brand);}
+.juragan-hero{
+  margin-top:10px;padding:16px;border-radius:14px;text-align:center;
+  background:var(--brand-soft);border:1.5px solid var(--brand);
+}
+.juragan-hero .jgh-label{font-size:11px;font-weight:700;color:var(--ink-muted);text-transform:uppercase;letter-spacing:.04em;}
+.juragan-hero .jgh-total{font-size:32px;font-weight:900;margin-top:4px;color:var(--brand);font-variant-numeric:tabular-nums;}
+.juragan-hero .jgh-total .unit{font-size:15px;font-weight:800;margin-left:3px;}
+/* jgh-rp = angka omset (headline BARU 21 Sept, gantikan poin -- lihat catatan di juragan-omset-box
+   di bawah) -- font sedikit lebih kecil & responsif krn teks Rupiah jauh lebih panjang drpd angka poin. */
+.juragan-hero .jgh-total.jgh-rp{font-size:clamp(21px,6.4vw,28px);word-break:break-word;}
+.juragan-hero .jgh-sub{font-size:11.5px;color:var(--ink-muted);margin-top:4px;font-weight:600;}
+.juragan-hero .jgh-bar{margin-top:10px;height:8px;border-radius:99px;background:var(--surface);overflow:hidden;}
+.juragan-hero .jgh-bar-fill{height:100%;background:var(--brand);border-radius:99px;transition:width .2s;}
+.juragan-hero .jgh-poin-strip{
+  margin-top:10px;font-size:12px;font-weight:700;color:var(--ink);background:var(--surface);
+  border-radius:8px;padding:7px 10px;display:flex;align-items:center;justify-content:center;gap:5px;
+}
+.juragan-hero .jgh-poin-strip .of{font-weight:600;color:var(--ink-muted);font-size:11px;}
+.juragan-mech-grid{
+  display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--border);
+  border:1px solid var(--border);border-radius:12px;overflow:hidden;margin-top:10px;
+}
+/* PADATKAN 22 Sept 2026 (feedback user: kotak nomer 1/2/3 di hero makan tempat) -- padding
+   dipangkas & emoji keycap besar diganti badge bulat kecil senada dgn .jmr-badge (badge nomer
+   mekanisme di kartu per-toko), biar konsisten & jauh lebih ringkas.
+   LANJUTAN (feedback user: "jangan diposisikan atas-bawah, biar hemat space") -- badge+angka
+   digabung 1 baris (horizontal, bukan lagi ditumpuk), label+"maks" digabung jadi 1 baris teks
+   kecil -- dari 4 baris jadi 2 baris per kotak. */
+.juragan-mech-cell{background:var(--surface);padding:8px 4px;text-align:center;}
+.jgm-top{display:flex;align-items:center;justify-content:center;gap:5px;}
+.juragan-mech-cell .jgm-icon{
+  flex-shrink:0;width:16px;height:16px;border-radius:50%;background:var(--brand-soft);color:var(--brand);
+  font-size:9.5px;font-weight:800;line-height:16px;
+}
+.juragan-mech-cell .jgm-val{font-size:16px;font-weight:800;color:var(--brand);font-variant-numeric:tabular-nums;}
+.juragan-mech-cell .jgm-lbl{font-size:8.5px;color:var(--ink-muted);font-weight:700;margin-top:4px;line-height:1.25;}
+.juragan-mech-cell .jgm-max{font-weight:500;}
+.juragan-list-label{margin-top:16px;font-size:12px;font-weight:800;color:var(--ink);}
+.juragan-empty{margin-top:14px;padding:16px;text-align:center;color:var(--ink-muted);font-size:12.5px;font-weight:600;}
+/* Badge "poin sekarang" (22 Sept 2026, feedback user: teks "X poin dari potensi Y poin" kurang
+   jelas & kurang terhighlight) -- SEMPAT dicoba ditumpuk di ATAS status-pill (kolom kanan sempit),
+   tapi bikin kolom kanan terlalu lebar & squeeze kolom kiri (bbrp bug tabrakan). LANJUTAN (feedback
+   user): dipindah lagi jadi baris tersendiri LEBAR PENUH, di bawah kode+PJP (bagian dari
+   .outlet-extra) -- status-pill jadi sendirian lagi di kolom kanan .outlet-row (pola sama spt
+   tab ECO/COTC/PS, sudah terbukti stabil), jauh lebih lega & tanpa perlu lebar kolom fixed lagi. */
+.jo-poin-badge{
+  font-size:12px;font-weight:800;color:var(--brand);background:var(--brand-soft);
+  border:1.5px solid var(--brand);border-radius:8px;padding:7px 10px;text-align:center;line-height:1.35;
+}
+.jo-poin-badge b{font-size:13px;}
+/* RAPIKAN 22 Sept 2026 (feedback user: layout kartu toko msh berantakan -- angka Rupiah kepotong
+   di tengah krn kotak Target/Pencapaian/Kekurangan dulu berbagi baris & lebar dgn kolom kanan
+   (badge+pill), jadi sempit sekali). Sekarang baris statistik/petunjuk (.outlet-extra) DIPISAH ke
+   baris tersendiri di BAWAH nama+kolom kanan, lebar PENUH kartu -- jauh lebih lega & rapi/sejajar.
+   Scoped ke #juraganOutletList krn .outlet-row dipakai bareng tab lain (ECO/COTC/PS). */
+#juraganOutletList .outlet-row{padding-bottom:6px;}
+.outlet-extra{padding:0 12px 12px 14px;}
+/* PERBESAR 22 Sept 2026 (feedback user: nama/kode/PJP toko kurang besar drpd byk ruang kosong di
+   kolom kiri, dibanding kolom kanan yg lbh tinggi krn badge+pill) -- scoped ke #juraganOutletList
+   spy tab lain (ECO/COTC/PS) yg jg pakai .outlet-name/.outlet-meta tdk ikut berubah. */
+#juraganOutletList .outlet-name{font-size:17px;margin-bottom:4px;}
+#juraganOutletList .outlet-meta{font-size:13px;margin-top:5px;}
+/* ---------- Juragan lanjutan (21 Sept 2026, evaluasi user thd hasil uji PERCOBAAN): rekap Rupiah,
+   filter Hari PJP + pencarian, 2 mode urutkan, rekap tercapai/belum, detail per-mekanisme per toko
+   (expand/collapse) ---------- */
+.juragan-omset-box{margin-top:12px;padding:2px 4px;border-radius:12px;}
+.juragan-omset-row{display:flex;justify-content:space-between;align-items:baseline;gap:10px;padding:8px 0;border-top:1px solid var(--border);}
+.juragan-omset-row:first-child{border-top:none;}
+.juragan-omset-row .lbl{font-size:12px;color:var(--ink-muted);font-weight:600;}
+.juragan-omset-row .val{font-size:14px;font-weight:800;font-variant-numeric:tabular-nums;text-align:right;}
+.juragan-omset-row .val .of{font-size:11px;color:var(--ink-muted);font-weight:600;}
+/* Rekap status (REDESAIN 21 Sept 2026, feedback user: pill lama beda2 lebar/tidak proporsional +
+   urutan salah) -- grid 3 kolom sama lebar (spt juragan-mech-grid), URUTAN skrg ikut progres
+   pencapaian mekanisme (Belum Target -> Target Tercapai -> Extra Miles), BUKAN lagi diurut manual. */
+.juragan-status-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-top:12px;}
+/* REDESAIN 21 Sept 2026 lanjutan (feedback user): sekarang <button> yg bisa diklik jd filter
+   (bukan lagi <div> statis) -- reset semua default tombol browser (border/bg/font) supaya visual
+   tetap sama spt sebelumnya, tambah highlight ring (.active) saat filter itu lagi dipilih. */
+.jsg-cell{
+  border-radius:10px;padding:9px 4px;text-align:center;border:1.5px solid var(--border);
+  font-family:inherit;cursor:pointer;transition:.15s;width:100%;
+}
+.jsg-cell .jsg-num{font-size:18px;font-weight:800;font-variant-numeric:tabular-nums;line-height:1.1;}
+.jsg-cell .jsg-lbl{font-size:9.5px;font-weight:700;color:var(--ink-muted);margin-top:3px;line-height:1.25;}
+.jsg-cell.zero{background:var(--danger-soft);border-color:var(--danger);}
+.jsg-cell.zero .jsg-num{color:var(--danger);}
+.jsg-cell.partial{background:var(--pending-soft);border-color:var(--pending);}
+.jsg-cell.partial .jsg-num{color:var(--pending);}
+.jsg-cell.full{background:var(--success-soft);border-color:var(--success);}
+.jsg-cell.full .jsg-num{color:var(--success);}
+.jsg-cell.active{box-shadow:0 0 0 2px var(--brand);}
+.jsg-cell:active{transform:scale(.96);}
+/* Catatan "Tanpa Omset" (feedback user: sebelumnya kurang terlihat/kurang mencolok) -- SEKARANG
+   kotak highlight tersendiri (bukan teks polos abu2), warna mengikuti tingkat urgensi (0=netral). */
+.juragan-status-note{
+  margin-top:10px;padding:9px 11px;border-radius:10px;font-size:12px;font-weight:700;color:var(--ink);
+  display:flex;align-items:center;gap:6px;background:var(--surface-2);border:1.5px solid var(--border);
+}
+.juragan-status-note.jsn-alert{background:var(--danger-soft);border-color:var(--danger);}
+.juragan-status-note b{font-size:14px;}
+.juragan-status-note.jsn-alert b{color:var(--danger);}
+/* Stat Target/Pencapaian/Kekurangan per-toko (REDESAIN 21 Sept 2026 lanjutan, feedback user: minta
+   ke-3 angka ini mencolok tanpa harus buka dropdown) -- grid 3 kolom, mirip jsg-cell tp lebih ringkas. */
+.jo-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:5px;margin-top:8px;}
+.jo-stat{background:var(--surface-2);border-radius:8px;padding:6px 5px;text-align:center;min-width:0;}
+.jo-stat-lbl{font-size:8.5px;font-weight:700;color:var(--ink-muted);text-transform:uppercase;letter-spacing:.02em;line-height:1.2;}
+.jo-stat-val{font-size:11.5px;font-weight:800;font-variant-numeric:tabular-nums;margin-top:2px;line-height:1.25;word-break:break-word;}
+.jo-stat-pct{display:block;font-size:9px;font-weight:600;color:var(--ink-muted);}
+.jo-stat.jo-pencapaian .jo-stat-val{color:var(--brand);}
+.jo-stat.jo-kurang .jo-stat-val{color:var(--danger);}
+.jo-stat.jo-lewat{background:var(--success-soft);}
+.jo-stat.jo-lewat .jo-stat-val{color:var(--success);}
+/* Baris "kurang berapa lagi + dapat berapa poin" ringkas (dropdown tetap py narasi lengkap) */
+/* WARNA 22 Sept 2026 (feedback user): kotak "Kurang Rp... capai X" ini cuma PETUNJUK/INFO (bukan
+   status), tapi sebelumnya pakai warna kuning/pending -- SAMA dgn warna pill status "✔️ Target
+   Tercapai" -- jadi ambigu seakan2 dua hal itu berkaitan. Ganti ke biru (brand), senada dgn badge
+   "Poin sekarang" & notice NETT di atas, biar jelas: biru = info/petunjuk, kuning/hijau/merah HANYA
+   dipakai utk pill status.
+   LANJUTAN (feedback user): angka Rp di baris ini adalah KEKURANGAN (belum tercapai) -- kalau warna
+   biru/netral bisa dikira "sudah lebih". Sekarang: angka kekurangan = MERAH (jo-neg), angka
+   "+X poin" yg didapat = HIJAU (jo-pos) -- konsisten dgn jo-stat-kurang(merah)/jo-stat-lewat(hijau)
+   di kotak Target/Pencapaian di atasnya.
+   LANJUTAN LAGI (feedback user 22 Sept 2026): warna KOTAK sekarang ikut ZONA status outlet ini --
+   MERAH kalau outlet msh "Belum Capai Target" (senada pill), KUNING kalau "Target Tercapai" tinggal
+   Extra Miles (senada pill), HIJAU kalau sudah tercapai semua (jo-gate-done, sudah ada). Supaya
+   angka jo-neg (merah) TETAP jelas kebaca walau kotaknya jg merah, dikasih "chip" putih/surface di
+   belakang teksnya -- jadi selalu kontras apapun warna kotaknya. */
+.jo-gate{margin-top:6px;font-size:11px;font-weight:700;color:var(--ink);background:var(--brand-soft);border-radius:8px;padding:6px 9px;line-height:1.4;}
+.jo-gate.jo-gate-zero{background:var(--danger-soft);}
+.jo-gate.jo-gate-partial{background:var(--pending-soft);}
+.jo-gate .jo-neg{color:var(--danger);background:var(--surface);border-radius:5px;padding:1px 5px;box-decoration-break:clone;-webkit-box-decoration-break:clone;}
+.jo-gate .jo-pos{color:var(--success);}
+.jo-gate.jo-gate-done{background:var(--success-soft);color:var(--success);}
+.jo-gate.jo-gate-done b{color:var(--success);}
+/* Detail per-mekanisme (REDESAIN 21 Sept 2026, feedback user: dropdown lama "tidak rapi") --
+   tiap mekanisme jadi kartu sendiri (border-left warna status: netral=Basic, abu=blm aktif,
+   kuning=aktif blm mentok, hijau=sudah mentok), badge angka bulat (bukan emoji "1️⃣" dst yg
+   render-nya beda2 & sering bikin baseline miring di beberapa perangkat). */
+.juragan-mech-detail{display:none;margin-top:10px;padding-top:10px;border-top:1px dashed var(--border);}
+.juragan-mech-detail.open{display:flex;flex-direction:column;gap:8px;}
+.juragan-mech-row{border-radius:10px;padding:9px 10px 9px 11px;border-left:3px solid var(--border);background:var(--surface);}
+.juragan-mech-row.jmr-base{border-left-color:var(--brand);background:var(--brand-soft);}
+.juragan-mech-row.jmr-inactive{border-left-color:var(--ink-muted);}
+.juragan-mech-row.jmr-active{border-left-color:var(--pending);background:var(--pending-soft);}
+.juragan-mech-row.jmr-maxed{border-left-color:var(--success);background:var(--success-soft);}
+.jmr-head{display:flex;align-items:center;gap:7px;font-weight:700;font-size:12.5px;flex-wrap:wrap;}
+.jmr-badge{
+  flex-shrink:0;width:18px;height:18px;border-radius:50%;background:var(--surface-2);color:var(--ink);
+  font-size:10.5px;font-weight:800;display:inline-flex;align-items:center;justify-content:center;
+}
+.jmr-label{flex:1;min-width:0;}
+.jmr-val{font-variant-numeric:tabular-nums;white-space:nowrap;font-size:12.5px;}
+.jmr-val .of{font-weight:600;color:var(--ink-muted);font-size:11px;}
+.jmr-explain{font-size:11.5px;color:var(--ink-muted);margin-top:4px;line-height:1.45;}
+.jmr-explain b{color:var(--ink);}
+
+/* ===================== TAHAP 5 (22 Sept 2026): "R2G DSR" (Red to Green) ======================
+   Konvensi warna DIPINJAM dari .status-pill/.jsg-cell yg sudah ada di app ini: "full"=Green/sukses,
+   "partial"=Amber/pending, "zero"=Red/danger — supaya bahasa warna konsisten di seluruh app, bukan
+   skema warna baru. r2gBucketCls_() di JS memetakan bucket "Green"/"Amber"/"Red" ke 3 kelas ini. */
+.r2g-empty{margin-top:14px;padding:16px;text-align:center;color:var(--ink-muted);font-size:12.5px;font-weight:600;}
+.r2g-hero{border-radius:16px;padding:16px;text-align:center;border:1.5px solid var(--border);background:var(--surface);}
+.r2g-hero.full{background:var(--success-soft);border-color:var(--success);}
+.r2g-hero.partial{background:var(--pending-soft);border-color:var(--pending);}
+.r2g-hero.zero{background:var(--danger-soft);border-color:var(--danger);}
+.r2g-hero-icon{font-size:30px;line-height:1;}
+.r2g-hero-bucket{margin-top:4px;font-size:14px;font-weight:900;letter-spacing:.03em;text-transform:uppercase;}
+.r2g-hero.full .r2g-hero-bucket{color:var(--success);}
+.r2g-hero.partial .r2g-hero-bucket{color:var(--pending);}
+.r2g-hero.zero .r2g-hero-bucket{color:var(--danger);}
+.r2g-hero-score{font-size:34px;font-weight:900;margin-top:2px;font-variant-numeric:tabular-nums;color:var(--ink);}
+.r2g-hero-score .of{font-size:16px;font-weight:700;color:var(--ink-muted);}
+.r2g-hero-sub{font-size:11.5px;color:var(--ink-muted);font-weight:600;margin-top:3px;}
+.r2g-hero-bar{margin-top:12px;height:9px;border-radius:99px;background:var(--surface);overflow:hidden;border:1px solid var(--border);}
+.r2g-hero-bar-fill{height:100%;border-radius:99px;transition:width .2s;}
+.r2g-hero-bar-fill.full{background:var(--success);}
+.r2g-hero-bar-fill.partial{background:var(--pending);}
+.r2g-hero-bar-fill.zero{background:var(--danger);}
+.r2g-hero-refline{position:relative;height:0;}
+.r2g-mini-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-top:14px;}
+.r2g-mini-cell{border-radius:10px;padding:8px 4px;text-align:center;border:1.5px solid var(--border);background:var(--surface);}
+.r2g-mini-cell.full{background:var(--success-soft);border-color:var(--success);}
+.r2g-mini-cell.zero{background:var(--danger-soft);border-color:var(--danger);}
+.r2g-mini-cell.nodata{opacity:.6;}
+.r2g-mini-icon{font-size:15px;}
+.r2g-mini-lbl{font-size:9px;font-weight:800;color:var(--ink-muted);text-transform:uppercase;letter-spacing:.03em;margin-top:2px;}
+.r2g-mini-val{font-size:14px;font-weight:900;margin-top:2px;font-variant-numeric:tabular-nums;color:var(--ink);}
+.r2g-mini-val .of{font-size:10px;font-weight:600;color:var(--ink-muted);}
+
+.r2g-section-lbl{margin-top:18px;font-size:12px;font-weight:800;color:var(--ink);}
+.r2g-chart-wrap{margin-top:8px;padding:10px 6px 4px;border-radius:14px;border:1.5px solid var(--border);background:var(--surface);overflow-x:auto;}
+.r2g-chart-svg{display:block;overflow:visible;}
+.r2g-bar{rx:3;}
+.r2g-bar.full{fill:var(--success);}
+.r2g-bar.partial{fill:var(--pending);}
+.r2g-bar.zero{fill:var(--danger);}
+.r2g-bar.nodata{fill:var(--border);}
+.r2g-bar-track{fill:var(--surface-2);}
+.r2g-chart-val{font-size:9.5px;font-weight:800;fill:var(--ink);text-anchor:middle;font-variant-numeric:tabular-nums;}
+.r2g-chart-lbl{font-size:8.5px;font-weight:700;fill:var(--ink-muted);text-anchor:middle;}
+.r2g-chart-lbl.now{fill:var(--brand);font-weight:900;}
+.r2g-chart-ref{stroke:var(--border);stroke-width:1;stroke-dasharray:2,2;}
+
+.r2g-month-row{margin-top:14px;}
+.r2g-month-row .lbl{font-size:11px;font-weight:700;color:var(--ink-muted);display:block;margin-bottom:5px;}
+.r2g-chip-wrap{display:flex;flex-wrap:wrap;gap:6px;}
+.r2g-chip{display:inline-flex;align-items:center;gap:5px;padding:6px 11px;border-radius:99px;border:1.5px solid var(--border);background:var(--surface);color:var(--ink-muted);font:inherit;font-size:11.5px;font-weight:700;cursor:pointer;}
+.r2g-chip.all{font-weight:800;}
+.r2g-chip.active{border-color:var(--brand);color:var(--ink);background:var(--brand-soft);}
+.r2g-chip:active{transform:scale(.96);}
+.r2g-chip-dot{width:8px;height:8px;border-radius:50%;flex:none;}
+.r2g-chip-dot.full{background:var(--success);}
+.r2g-chip-dot.partial{background:var(--pending);}
+.r2g-chip-dot.zero{background:var(--danger);}
+.r2g-chip-dot.nodata{background:var(--ink-muted);}
+
+.r2g-list-label{margin-top:16px;font-size:12px;font-weight:800;color:var(--ink);}
+.r2g-card{border-radius:14px;border:1.5px solid var(--border);background:var(--surface);padding:12px 13px;margin-top:8px;}
+.r2g-card-head{display:flex;align-items:center;justify-content:space-between;gap:8px;cursor:pointer;}
+.r2g-card-month{font-size:13px;font-weight:800;color:var(--ink);}
+.r2g-card-month .now-tag{font-size:9.5px;font-weight:800;color:var(--brand);background:var(--brand-soft);border-radius:99px;padding:1px 7px;margin-left:6px;vertical-align:1px;}
+.r2g-card-right{display:flex;align-items:center;gap:8px;}
+.r2g-card-score{font-size:13px;font-weight:900;font-variant-numeric:tabular-nums;color:var(--ink);}
+.r2g-card .chev{transition:transform .15s;color:var(--ink-muted);}
+.r2g-card.open .chev{transform:rotate(180deg);}
+.r2g-card-detail{display:none;margin-top:11px;padding-top:11px;border-top:1px dashed var(--border);flex-direction:column;gap:7px;}
+.r2g-card-detail.open{display:flex;}
+.r2g-kpi-row{border-radius:10px;padding:8px 10px;border-left:3px solid var(--border);background:var(--surface-2);}
+.r2g-kpi-row.hit{border-left-color:var(--success);background:var(--success-soft);}
+.r2g-kpi-row.miss{border-left-color:var(--danger);background:var(--danger-soft);}
+.r2g-kpi-row.nodata{border-left-color:var(--ink-muted);opacity:.75;}
+.r2g-kpi-head{display:flex;align-items:center;gap:7px;font-weight:800;font-size:12px;flex-wrap:wrap;}
+.r2g-kpi-head .icon{font-size:13px;}
+.r2g-kpi-head .name{flex:1;min-width:0;}
+.r2g-kpi-head .score{font-variant-numeric:tabular-nums;font-size:12.5px;white-space:nowrap;}
+.r2g-kpi-head .score .of{font-weight:600;color:var(--ink-muted);font-size:11px;}
+.r2g-kpi-sub{font-size:11px;color:var(--ink-muted);margin-top:4px;line-height:1.4;}
+.r2g-kpi-sub b{color:var(--ink);}
+.r2g-emp-sub{font-size:11px;color:var(--ink-muted);font-weight:600;margin-top:2px;text-align:center;}
 
 /* Banner "Total Insentif periode ini" gabungan NPD + Perfect Store (16 Sept 2026,
    evaluasi user poin 6: "posisi strategis, mudah dilihat, memotivasi") — ditaruh
@@ -1431,6 +1725,30 @@ details.info .info-body ul{margin:4px 0 0;padding-left:16px;}
         </div>
         <span class="chev">›</span>
       </button>
+      <button type="button" class="lainnya-item" id="lainnyaHygieneBtn">
+        <div class="lainnya-item-info">
+          <div class="lainnya-item-title">🧴 Hygiene Factor Jasper</div>
+          <div class="lainnya-item-sub">Syarat pencairan insentif — kunjungan tepat waktu ke toko pertama</div>
+          <div class="lainnya-item-badge" id="lainnyaHygieneBadge"></div>
+        </div>
+        <span class="chev">›</span>
+      </button>
+      <button type="button" class="lainnya-item" id="lainnyaJuraganBtn">
+        <div class="lainnya-item-info">
+          <div class="lainnya-item-title">👑 Juragan</div>
+          <div class="lainnya-item-sub">Poin insentif Basic Point / Target Growth / Extra Miles per outlet</div>
+          <div class="lainnya-item-badge" id="lainnyaJuraganBadge"></div>
+        </div>
+        <span class="chev">›</span>
+      </button>
+      <button type="button" class="lainnya-item" id="lainnyaR2gBtn">
+        <div class="lainnya-item-info">
+          <div class="lainnya-item-title">🚦 R2G DSR</div>
+          <div class="lainnya-item-sub">Skor KPI SSV / BP / PSA bulanan — status Red, Amber, atau Green</div>
+          <div class="lainnya-item-badge" id="lainnyaR2gBadge"></div>
+        </div>
+        <span class="chev">›</span>
+      </button>
     </div>
   </div>
 
@@ -1465,6 +1783,66 @@ details.info .info-body ul{margin:4px 0 0;padding-left:16px;}
 
     <div class="outlet-list" id="ecoOutletList"></div>
     <div class="hint" id="ecoHintText">Data ini murni dari extract transaksi bulan berjalan — tidak ada tombol centang, tidak butuh input dari salesman.</div>
+  </div>
+
+  <!-- TAHAP 3 (19 Sept 2026, permintaan user): Hygiene Factor Jasper (Syarat Pencairan Insentif) —
+       PERSONAL saja (hanya status milik salesman yg sedang login), konsisten dgn semua tab lain di
+       app ini (ECO dkk juga personal, bukan transparan ke salesman lain — dikonfirmasi ulang oleh
+       user 19 Sept 2026 stlh koreksi asumsi awal Claude). Sumber: action getEco + body.hygiene,
+       dicocokkan client-side ke identitas aktif via hygieneRowForSalesman() (lihat JS). -->
+  <div id="viewHygiene" hidden>
+    <button type="button" class="eco-back-btn" id="hygieneBackBtn">‹ Lainnya</button>
+    <div class="summary-title">
+      <h2>Hygiene Factor Jasper</h2>
+      <span class="sub">Syarat Pencairan Insentif — data update s.d. <b id="hygieneDataDate">–</b></span>
+    </div>
+    <div id="hygieneBody"></div>
+  </div>
+
+  <!-- TAHAP 4 (20 Sept 2026, permintaan user): "Juragan" - poin insentif Basic Point / Target
+       Growth / Extra Miles per outlet, Q3 2026. PERSONAL saja (konsisten dgn tab lain), sumber:
+       action getEco + body.juragan (join juragan_target_raw x master_raw x eco_raw.Net), lihat
+       fetchEcoLive()/renderJuraganDetail(). Outlet split (dicover 2 salesman) tampil PENUH di
+       keduanya (bukan dibagi) - keputusan eksplisit user 20 Sept 2026. -->
+  <div id="viewJuragan" hidden>
+    <button type="button" class="eco-back-btn" id="juraganBackBtn">‹ Lainnya</button>
+    <div class="summary-title">
+      <h2>Juragan</h2>
+      <span class="sub">Basic Point / Target Growth / Extra Miles — data update s.d. <b id="juraganDataDate">–</b></span>
+    </div>
+
+    <div class="juragan-nett-notice">ℹ️ Target &amp; Pencapaian di Juragan dihitung dari <b>NETT</b>, BUKAN Gross/GSV.</div>
+
+    <div id="juraganSummary"></div>
+
+    <div class="selector-row" id="juraganDayRow"><span class="lbl">Hari PJP</span><div class="chipwrap"><div class="chiprow" id="juraganDayChips"></div></div></div>
+
+    <div class="search-row" id="juraganSearchRow">
+      <input type="text" class="search-input" id="juraganSearch" placeholder="Cari outlet: nama atau kode…">
+      <button class="search-clear" id="juraganSearchClear" hidden>×</button>
+    </div>
+    <div class="filter-reset-row" id="juraganFilterResetRow" hidden><button class="filter-reset-btn" id="juraganFilterReset">↺ Reset Filter</button></div>
+
+    <div class="sort-row" id="juraganSortRow">
+      <button class="sort-toggle-btn" id="juraganSortToggle">↕ Urutkan: Kekurangan Tersedikit</button>
+    </div>
+
+    <div class="juragan-list-label" id="juraganListLabel">📋 Rincian per Toko</div>
+    <div class="outlet-list" id="juraganOutletList"></div>
+  </div>
+
+  <!-- TAHAP 5 (22 Sept 2026, permintaan user): "R2G DSR" (Red to Green) - skor KPI SSV/BP/PSA
+       bulanan, PERSONAL saja (konsisten dgn tab lain). Sumber: action getEco + body.r2g (lihat
+       Code.gs getR2g_), dicocokkan client-side via r2gRowsForSalesman(). Beda dari Hygiene/Juragan:
+       filter bulan di sini MULTI-SELECT (bisa pilih 1 atau beberapa bulan sekaligus, permintaan
+       eksplisit user) + ada grafik batang tren skor per bulan (renderR2gChart). -->
+  <div id="viewR2g" hidden>
+    <button type="button" class="eco-back-btn" id="r2gBackBtn">‹ Lainnya</button>
+    <div class="summary-title">
+      <h2>R2G DSR</h2>
+      <span class="sub">Red to Green — skor KPI update s.d. <b id="r2gDataDate">–</b></span>
+    </div>
+    <div id="r2gBody"></div>
   </div>
 
 </div>
@@ -1657,7 +2035,23 @@ const ecoLive = { rows: null, dataUntil: null, loading: false, error: null, load
   // tiap rilis Excel baru. null = server belum pernah kirim / baris judul tidak ketemu -> fallback
   // ke konstanta lama (lihat cotcHistoryUntil()/psHistoryUntil()).
   cotcHistoryUntil: null,
-  psHistoryUntil: null };
+  psHistoryUntil: null,
+  // TAHAP 3 (19 Sept 2026): {rows:[{salesman,dt,dtName,J,K,O,P,Q,R,S}], dataUntil} dari action
+  // getEco + body.hygiene (lihat Code.gs getHygiene_). null = belum pernah berhasil ambil - tab
+  // Hygiene tampil kosong/pesan "belum tersedia" (TIDAK ADA data statis bawaan utk fitur ini,
+  // beda dari ECO_RAW/npd - Hygiene 100% live sejak awal, tidak ada versi Excel-tertanam).
+  hygiene: null,
+  // TAHAP 4 (20 Sept 2026): {rows:[{kode,nama,salesmanId,hari,target,pencapaian,pct,basicNow,
+  // basicMax,growthNow,growthMax,extraNow,extraMax,totalNow,totalMax}], dataUntil} dari action
+  // getEco + body.juragan (lihat Code.gs getJuragan_). null = belum pernah berhasil ambil - tab
+  // Juragan tampil kosong/pesan "belum tersedia" (100% live, tidak ada versi Excel-tertanam,
+  // sama seperti Hygiene).
+  juragan: null,
+  // TAHAP 5 (22 Sept 2026): {rows:[{salesmanId,empCode,distributor,monthly:{"2026-Aug":{ssv,bp,
+  // psa,total,bucket},...}}], months:[...]} dari action getEco + body.r2g (lihat Code.gs getR2g_).
+  // null = belum pernah berhasil ambil - tab R2G DSR tampil kosong/pesan "belum tersedia" (100%
+  // live, tidak ada versi Excel-tertanam, sama seperti Hygiene/Juragan).
+  r2g: null };
 // v118: simpan salinan riwayat NPD BAWAAN HTML (o[4]) supaya bisa dipulihkan kalau live tidak dipakai.
 const NPD_EMBEDDED_BASELINE = {};
 Object.keys(SPLITS).forEach(sk=>SPLITS[sk].outlets.forEach(o=>{ NPD_EMBEDDED_BASELINE[sk+"|"+o[2]+"|"+o[0]] = o[4] ? JSON.parse(JSON.stringify(o[4])) : null; }));
@@ -1676,6 +2070,21 @@ Object.keys(SPLITS).forEach(sk=>SPLITS[sk].salesmen.forEach(s=>{ SALESMAN_SPLIT_
 // server tiap panggilan (server tidak simpan pemetaan sendiri) - REUSE persis pemetaan riwayat
 // NPD (npdLiveConfig().names) supaya SATU sumber kebenaran nama salesman utk kedua fitur live ini.
 function masterLiveConfig(){ return { names: npdLiveConfig().names }; }
+// TAHAP 3 (19 Sept 2026): Hygiene Factor Jasper — PERSONAL saja (dikonfirmasi user, konsisten
+// dgn semua tab lain di app ini yg semuanya personal, bukan transparan ke salesman lain). Server
+// kirim SEMUA baris hygiene apa adanya (nama format Excel asli, mis. "95024001-14_FARIS - CORP"),
+// pencocokan ke identitas aktif dilakukan DI CLIENT (server tidak perlu tahu pemetaan id app) —
+// nama di sheet Hygiene = "<kodeDT>-<kode>_<full>", dan "<full>" itu PERSIS sama dgn field
+// `full` tiap salesman di SPLITS (dibuktikan cocok 19/19 salesman non-eksklusi thd data Excel
+// asli sebelum fitur ini dibangun). Kalau suatu saat field `full` diubah di SPLITS TANPA sinkron
+// ke sheet Hygiene, pencocokan ini gagal dgn AMAN (hygieneRowForSalesman return null -> tampil
+// "belum ada data", bukan salah tampil punya orang lain).
+function hygieneTailName_(fullSheetName){ return String(fullSheetName||"").replace(/^[^_]*_/, ""); }
+function hygieneRowForSalesman(id){
+  const s = salesmanById(id);
+  if(!s || !ecoLive.hygiene || !Array.isArray(ecoLive.hygiene.rows)) return null;
+  return ecoLive.hygiene.rows.find(r=>r && hygieneTailName_(r.salesman)===s.full) || null;
+}
 /** rows server [{kode,nama,salesmanId,hari}] (flat) -> {HCNUT:[[kode,nama,sid,hari],...], BWPC:[...], NONSPLIT:[...]}.
  *  Baris dgn salesmanId yg tak dikenal (semestinya tak mungkin - server hanya mengirim id dari
  *  pemetaan yg sama-sama kita kirim) dilewati dgn aman, tidak membuat split baru yg tak terduga. */
@@ -1834,7 +2243,7 @@ function ecoActiveRawRows(){
 }
 function ecoActiveDataUntil(){ return ecoLive.dataUntil || ECO_DATA_UNTIL; }
 function saveEcoCache(){
-  try{ localStorage.setItem(ECO_CACHE_KEY, JSON.stringify({rows: ecoLive.rows, dataUntil: ecoLive.dataUntil, loadedAt: ecoLive.loadedAt, npdBaseline: ecoLive.npdBaseline, npdDataUntil: ecoLive.npdDataUntil, dist: ecoLive.dist, masterRoster: ecoLive.masterRoster, cotcRows: ecoLive.cotcRows, psRows: ecoLive.psRows, cotcHistoryUntil: ecoLive.cotcHistoryUntil, psHistoryUntil: ecoLive.psHistoryUntil})); }catch(e){}
+  try{ localStorage.setItem(ECO_CACHE_KEY, JSON.stringify({rows: ecoLive.rows, dataUntil: ecoLive.dataUntil, loadedAt: ecoLive.loadedAt, npdBaseline: ecoLive.npdBaseline, npdDataUntil: ecoLive.npdDataUntil, dist: ecoLive.dist, masterRoster: ecoLive.masterRoster, cotcRows: ecoLive.cotcRows, psRows: ecoLive.psRows, cotcHistoryUntil: ecoLive.cotcHistoryUntil, psHistoryUntil: ecoLive.psHistoryUntil, hygiene: ecoLive.hygiene, juragan: ecoLive.juragan, r2g: ecoLive.r2g})); }catch(e){}
 }
 function loadEcoCache(){
   try{
@@ -1852,6 +2261,12 @@ function loadEcoCache(){
     // dgn masterRoster di atas (tetap pakai data live terakhir walau baru buka lagi/offline).
     if(Array.isArray(c.cotcRows) && c.cotcRows.length){ ecoLive.cotcRows = c.cotcRows; ecoLive.cotcHistoryUntil = c.cotcHistoryUntil || null; }
     if(Array.isArray(c.psRows) && c.psRows.length){ ecoLive.psRows = c.psRows; ecoLive.psHistoryUntil = c.psHistoryUntil || null; }
+    // TAHAP 3: status Hygiene Factor Jasper ikut dipulihkan dari cache yg sama, sama alasannya.
+    if(c.hygiene && Array.isArray(c.hygiene.rows)) ecoLive.hygiene = c.hygiene;
+    // TAHAP 4: data Juragan ikut dipulihkan dari cache yg sama, sama alasannya.
+    if(c.juragan && Array.isArray(c.juragan.rows)) ecoLive.juragan = c.juragan;
+    // TAHAP 5: data R2G DSR ikut dipulihkan dari cache yg sama, sama alasannya.
+    if(c.r2g && Array.isArray(c.r2g.rows)) ecoLive.r2g = c.r2g;
     applyMasterRoster(); applyCotcRoster(); applyPsRoster(); applyNpdBaseline(); renderNpdUpdateNotes(); renderCotcPsUpdateNotes();
   }catch(e){}
 }
@@ -1865,12 +2280,58 @@ function rerenderEcoViews(){
   if(viewEco && !viewEco.hidden){ renderEcoDayChips(); renderEcoStatusChips(); renderEcoList(); }
   if(viewLainnya && !viewLainnya.hidden) renderLainnyaMenu();
   if(viewSummary && !viewSummary.hidden) renderEcoSummaryCard();
+  const viewHygiene = document.getElementById("viewHygiene");
+  if(viewHygiene && !viewHygiene.hidden) renderHygieneDetail();
+  const viewJuragan = document.getElementById("viewJuragan");
+  if(viewJuragan && !viewJuragan.hidden) renderJuraganDetail();
+  const viewR2g = document.getElementById("viewR2g");
+  if(viewR2g && !viewR2g.hidden) renderR2gDetail();
 }
 async function fetchEcoLive(){
   if(!gasConfigured() || ecoLive.loading) return;
   ecoLive.loading = true;
   try{
-    const data = await api({action:"getEco", npd: npdLiveConfig(), master: masterLiveConfig(), cotc: cotcLiveConfig(), ps: psLiveConfig()}, {timeoutMs: ECO_TIMEOUT_MS});
+    const data = await api({action:"getEco", npd: npdLiveConfig(), master: masterLiveConfig(), cotc: cotcLiveConfig(), ps: psLiveConfig(), hygiene: 1, juragan: 1, r2g: 1}, {timeoutMs: ECO_TIMEOUT_MS});
+    // TAHAP 3 (19 Sept 2026): Hygiene Factor Jasper - independen dari status ECO/master/cotc/ps di
+    // bawah (pola sama: tab kosong/bermasalah -> diabaikan dgn warning, TETAP pakai data live
+    // sebelumnya, TIDAK PERNAH bikin app kosong/crash). Diproses PALING AWAL (sebelum early-return
+    // eco_raw kosong di bawah) supaya status Hygiene tetap segar walau eco_raw kebetulan kosong.
+    let hygieneChanged = false;
+    if(data.hygiene && data.hygiene.ok){
+      if(data.hygiene.warning && typeof console !== "undefined") console.warn("[HYGIENE] catatan:", data.hygiene.warning);
+      const rowsH = Array.isArray(data.hygiene.rows) ? data.hygiene.rows.filter(r=>r && typeof r.salesman==="string" && r.salesman) : [];
+      const newHygiene = { rows: rowsH, dataUntil: data.hygiene.dataUntil || null };
+      hygieneChanged = JSON.stringify(ecoLive.hygiene) !== JSON.stringify(newHygiene);
+      ecoLive.hygiene = newHygiene;
+    }
+    // TAHAP 4 (20 Sept 2026): "Juragan" (Basic Point / Target Growth / Extra Miles) - independen
+    // dari status ECO/master/cotc/ps di bawah, pola SAMA PERSIS dgn Hygiene di atas (tab
+    // kosong/bermasalah -> diabaikan dgn warning, TETAP pakai data live sebelumnya, TIDAK PERNAH
+    // bikin app kosong/crash). Baris SUDAH digabung ke roster master_raw di Code.gs (lihat
+    // getJuragan_) - termasuk outlet split (dicover 2 salesman) yang sengaja muncul 2x dgn isi
+    // PENUH sama persis (bukan dibagi dua), sesuai keputusan eksplisit user 20 Sept 2026.
+    let juraganChanged = false;
+    if(data.juragan && data.juragan.ok){
+      if(data.juragan.warning && typeof console !== "undefined") console.warn("[JURAGAN] catatan:", data.juragan.warning);
+      const rowsJ = Array.isArray(data.juragan.rows) ? data.juragan.rows.filter(r=>r && typeof r.kode==="string" && r.kode && typeof r.salesmanId==="string" && r.salesmanId) : [];
+      const newJuragan = { rows: rowsJ, dataUntil: data.juragan.dataUntil || null };
+      juraganChanged = JSON.stringify(ecoLive.juragan) !== JSON.stringify(newJuragan);
+      ecoLive.juragan = newJuragan;
+    }
+    // TAHAP 5 (22 Sept 2026): "R2G DSR" (skor KPI SSV/BP/PSA bulanan) - independen dari status
+    // ECO/master/cotc/ps/hygiene/juragan, pola SAMA PERSIS dgn keduanya di atas (tab
+    // kosong/bermasalah -> diabaikan dgn warning, TETAP pakai data live sebelumnya, TIDAK PERNAH
+    // bikin app kosong/crash). unmapped (Employee Code Name yg tak cocok ke salesman manapun)
+    // cuma dicatat ke console, TIDAK pernah ditampilkan ke salesman (bukan tanggung jawab mereka).
+    let r2gChanged = false;
+    if(data.r2g && data.r2g.ok){
+      if(data.r2g.warning && typeof console !== "undefined") console.warn("[R2G] catatan:", data.r2g.warning);
+      if(data.r2g.unmapped && typeof console !== "undefined") console.warn("[R2G] Employee Code Name tidak dikenal:", data.r2g.unmapped);
+      const rowsR = Array.isArray(data.r2g.rows) ? data.r2g.rows.filter(r=>r && typeof r.empCode==="string" && r.empCode && typeof r.salesmanId==="string" && r.salesmanId && r.monthly && typeof r.monthly==="object") : [];
+      const newR2g = { rows: rowsR, months: Array.isArray(data.r2g.months) ? data.r2g.months : [] };
+      r2gChanged = JSON.stringify(ecoLive.r2g) !== JSON.stringify(newR2g);
+      ecoLive.r2g = newR2g;
+    }
     // TAHAP 2 (19 Sept 2026): roster outlet live diproses TERPISAH dari status ECO di bawah —
     // supaya tab "master_raw" kosong/bermasalah tidak ikut menahan data ECO, dan sebaliknya
     // eco_raw kosong tidak ikut menahan roster (2 tab independen, lihat Code.gs getMaster_).
@@ -1936,7 +2397,7 @@ async function fetchEcoLive(){
     if(!rows.length || data.warning){
       ecoLive.error = data.warning || "eco_raw kosong";
       if(typeof console !== "undefined") console.warn("[ECO] data live diabaikan:", ecoLive.error);
-      if(masterChanged || cotcChanged || psChanged){ saveEcoCache(); rerenderEcoViews(); applyNpdBaseline(); renderNpdUpdateNotes(); renderCotcPsUpdateNotes(); rerenderAllViews(); }
+      if(masterChanged || cotcChanged || psChanged || hygieneChanged || juraganChanged || r2gChanged){ saveEcoCache(); rerenderEcoViews(); applyNpdBaseline(); renderNpdUpdateNotes(); renderCotcPsUpdateNotes(); rerenderAllViews(); }
       return;
     }
     ecoLive.rows = rows;
@@ -1960,7 +2421,7 @@ async function fetchEcoLive(){
     saveEcoCache();
     rerenderEcoViews();
     applyNpdBaseline(); renderNpdUpdateNotes(); renderCotcPsUpdateNotes();
-    if(npdChanged || distChanged || masterChanged || cotcChanged || psChanged) rerenderAllViews(); // checklist NPD (Riwayat), Ringkasan, Insentif & Jasper ikut segar
+    if(npdChanged || distChanged || masterChanged || cotcChanged || psChanged || hygieneChanged || juraganChanged || r2gChanged) rerenderAllViews(); // checklist NPD (Riwayat), Ringkasan, Insentif & Jasper ikut segar
   }catch(e){
     ecoLive.error = errText(e); // ecoActiveRawRows() otomatis tetap pakai cache/data statis terakhir
   }finally{
@@ -2247,7 +2708,7 @@ function getKalkState(){
 // Periode aktif app (bulan konfirmasi NPD yang sedang berjalan). TIDAK ikut tanggal HP —
 // pindah bulan hanya lewat rilis versi baru dari file update AASM (keputusan user 14 Sept 2026).
 const ACTIVE_PERIOD = "2026-09";
-const APP_BUILD = "v122";  // label versi, tampil kecil di header — naikkan tiap publish
+const APP_BUILD = "v136-UJI-T4-JURAGAN-UX11";  // label versi, tampil kecil di header — naikkan tiap publish
 // Logo header gambar share WA (v109, 17 Sept 2026, permintaan user) — PNG asli
 // di-crop otomatis (buang padding transparan) + diperkecil tinggi 160px lewat
 // Pillow supaya ukuran base64 kecil (SONIK ~44KB, Unilever ~53KB teks base64).
@@ -2368,9 +2829,30 @@ const state = {
   ecoStatusFilter: null, // "BELUM" | "SEBAGIAN" | "LENGKAP" | null ("Semua") -- chip "Perlu Perhatian" dihapus 16 Sept 2026 (feedback user: langsung 3 kategori saja)
   ecoDay: null, // null = "Semua Hari"
   ecoSortMode: null, // null (default, alfabetis) | "desc" (Omset Terbesar) | "asc" (Omset Terkecil)
+  // TAHAP 4 lanjutan (21 Sept 2026, evaluasi user): filter/urutan/expand utk tab Juragan — pola
+  // PERSIS eco*/cotc*/ps* di atas, state terpisah krn Juragan filter berdasar `hari` (dari
+  // master_raw) bukan `pjpDay` milik ECO_ROSTER, dan expand key-nya "kode|salesmanId" (bukan cuma
+  // kode) krn outlet split py 2 baris (1 per salesman) yg harus bisa dibuka independen.
+  juraganDay: null, // null = "Semua Hari"
+  juraganSearchQuery: "",
+  juraganDayBeforeSearch: undefined,
+  juraganSortMode: null, // null (default: prioritas tertinggi/pct desc) | "gap" (Kekurangan Tersedikit) | "pencapaian" (Pencapaian Terbesar)
+  // REDESAIN 21 Sept 2026 lanjutan (feedback user: kotak rekap status skrg SEKALIGUS jadi filter,
+  // klik ulang -> nonaktif lagi). Digabung (AND) dgn juraganDay, pola PERSIS ecoStatusFilter+ecoDay.
+  juraganStatusFilter: null, // null | "BELUM" | "TARGET" | "EXTRA"
+  juraganStatusBeforeSearch: undefined,
+  juraganExpanded: new Set(), // key "kode|salesmanId" -> detail 3-mekanisme toko ini sedang dibuka
   // (kotak "Potensi Insentif" tab Insentif TIDAK butuh state serupa — icon & popovernya
   // sekarang elemen statis di HTML dasar spt insentifInfoBtn, bukan innerHTML yg direbuild
   // tiap render, jadi status buka/tutup cukup dari classList popover itu sendiri.)
+  // TAHAP 5 (22 Sept 2026): filter/expand tab "R2G DSR" — beda dari Juragan: filter bulan di sini
+  // MULTI-SELECT (Set, bukan 1 nilai) krn fitur ini memang utk lihat histori beberapa bulan
+  // sekaligus (permintaan eksplisit user), bukan cuma 1 hari PJP. r2gSelectedMonths null berarti
+  // "belum diinisialisasi" -> renderR2gDetail() isi otomatis dgn SEMUA bulan yg tersedia sekali di
+  // awal (lihat renderR2gDetail), sesudah itu murni ikut pilihan user.
+  r2gSelectedMonths: null, // null (blm diinisialisasi) | Set of "YYYY-Mon"
+  r2gExpanded: new Set(), // key "empCode|YYYY-Mon" -> kartu detail SSV/BP/PSA bulan itu sedang dibuka
+  r2gActiveEmp: null, // empCode yg lagi ditampilkan (biasanya cuma 1 baris per salesman; lihat r2gRowsForSalesman)
 };
 
 function fmtDateShort(iso){
@@ -2742,6 +3224,9 @@ document.querySelectorAll(".tab-btn").forEach(btn=>{
     document.getElementById("viewSummary").hidden = v!=="summary";
     document.getElementById("viewLainnya").hidden = v!=="lainnya";
     document.getElementById("viewEco").hidden = true; // selalu tertutup saat ganti tab utama; dibuka lagi lewat menu Lainnya
+    document.getElementById("viewHygiene").hidden = true; // sama spt viewEco - selalu tertutup, dibuka lagi lewat menu Lainnya
+    document.getElementById("viewJuragan").hidden = true; // sama spt viewEco/viewHygiene - selalu tertutup, dibuka lagi lewat menu Lainnya
+    document.getElementById("viewR2g").hidden = true; // sama spt viewEco/viewHygiene/viewJuragan - selalu tertutup, dibuka lagi lewat menu Lainnya
     if(v==="summary"){ renderSummary(); renderEcoSummaryCard(); }
     if(v==="cotc"){ renderCotcDayChips(); renderCotcList(); }
     if(v==="ps"){ renderPsDayChips(); renderPsList(); }
@@ -5315,7 +5800,11 @@ function ecoOutletsForSalesman(salesmanId){
     const sums = agg[kode] || {B:0,P:0,H:0,F:0};
     const values = {}; assigned.forEach(k=>{ values[k] = sums[k] || 0; });
     const total = assigned.reduce((s,k)=>s+values[k], 0);
-    const zeroBUs = assigned.filter(k=>values[k]===0);
+    // KOREKSI 21 Sept 2026 (feedback user, membalik keputusan 16 Sept di atas): retur murni
+    // tanpa transaksi baru (v<0) SEKARANG dianggap SAMA dgn "belum transaksi" (v<=0), bukan lagi
+    // kategori "ada aktivitas" tersendiri -- retur berarti TIDAK ada penjualan baru bulan ini utk
+    // BU itu, jadi harus ikut menurunkan status outlet ke SEBAGIAN/BELUM, bukan tetap LENGKAP.
+    const zeroBUs = assigned.filter(k=>values[k]<=0);
     let status;
     if(zeroBUs.length===0) status = "LENGKAP";
     else if(zeroBUs.length===assigned.length) status = "BELUM";
@@ -5360,6 +5849,39 @@ function renderLainnyaMenu(){
   const attn = all.filter(o=>o.status!=="LENGKAP").length;
   const badge = document.getElementById("lainnyaEcoBadge");
   if(badge) badge.textContent = all.length===0 ? "Belum tersedia untuk Anda" : (attn>0 ? `${attn} perlu perhatian` : "Semua lengkap ✓");
+  // TAHAP 3 (19 Sept 2026): badge status Hygiene Factor Jasper milik SENDIRI (personal, lihat
+  // catatan hygieneRowForSalesman di atas) - preview cepat sblm masuk ke detail.
+  const hBadge = document.getElementById("lainnyaHygieneBadge");
+  if(hBadge){
+    const row = hygieneRowForSalesman(state.salesman);
+    hBadge.classList.remove("ok","bad");
+    if(!row){ hBadge.textContent = "Belum tersedia untuk Anda"; }
+    else if(row.S==="HYGIENE"){ hBadge.textContent = `HYGIENE ✓ (${Math.round(row.P*100)}%)`; hBadge.classList.add("ok"); }
+    else { hBadge.textContent = `Belum tercapai (${Math.round(row.P*100)}%)`; hBadge.classList.add("bad"); }
+  }
+  // TAHAP 4 (20 Sept 2026): badge total poin Juragan milik SENDIRI (personal, lihat
+  // juraganRowsForSalesman di atas) - preview cepat sblm masuk ke detail.
+  const jBadge = document.getElementById("lainnyaJuraganBadge");
+  if(jBadge){
+    const jRows = juraganRowsForSalesman(state.salesman);
+    if(!jRows.length){ jBadge.textContent = "Belum tersedia untuk Anda"; }
+    else { const jTotal = jRows.reduce((s,r)=>s+r.totalNow, 0); jBadge.textContent = `${jTotal} poin bulan ini`; }
+  }
+  // TAHAP 5 (22 Sept 2026): badge status R2G DSR milik SENDIRI (personal, lihat r2gRowsForSalesman
+  // di atas) - preview cepat bucket bulan TERAKHIR sblm masuk ke detail.
+  const rBadge = document.getElementById("lainnyaR2gBadge");
+  if(rBadge){
+    rBadge.classList.remove("ok","bad");
+    const rRows = r2gRowsForSalesman(state.salesman);
+    const rMonths = ecoLive.r2g && Array.isArray(ecoLive.r2g.months) ? ecoLive.r2g.months : [];
+    const rRow = rRows.find(r=>r.monthly && rMonths.length && r.monthly[rMonths[rMonths.length-1]]) || rRows[0];
+    const rLatest = rRow && rMonths.length ? rRow.monthly[rMonths[rMonths.length-1]] : null;
+    if(!rRow || !rLatest){ rBadge.textContent = "Belum tersedia untuk Anda"; }
+    else {
+      rBadge.textContent = `${r2gBucketIcon_(rLatest.bucket)} ${r2gBucketWord_(rLatest.bucket)} (${rLatest.total}/100)`;
+      rBadge.classList.add(rLatest.bucket==="Red" ? "bad" : "ok");
+    }
+  }
 }
 function openEcoDetail(){
   document.getElementById("viewLainnya").hidden = true;
@@ -5372,6 +5894,682 @@ function closeEcoDetail(){
   document.getElementById("viewEco").hidden = true;
   document.getElementById("viewLainnya").hidden = false;
   renderLainnyaMenu();
+}
+// TAHAP 3 (19 Sept 2026): Hygiene Factor Jasper - pola buka/tutup PERSIS openEcoDetail/closeEcoDetail
+// di atas (satu-satunya beda: tidak ada filter/search, cuma 1 kartu status milik sendiri).
+function openHygieneDetail(){
+  document.getElementById("viewLainnya").hidden = true;
+  document.getElementById("viewHygiene").hidden = false;
+  renderHygieneDetail();
+}
+function closeHygieneDetail(){
+  document.getElementById("viewHygiene").hidden = true;
+  document.getElementById("viewLainnya").hidden = false;
+  renderLainnyaMenu();
+}
+/** Render kartu status Hygiene Factor Jasper milik salesman yg sedang login. 3 kondisi:
+ *  (1) belum pernah ada data live sama sekali -> pesan "belum tersedia"; (2) ada data tapi baris
+ *  milik salesman ini tidak ketemu (nama di sheet Hygiene blm/tdk cocok field `full` -> lihat
+ *  hygieneRowForSalesman) -> pesan "belum ada data utk Anda"; (3) baris ketemu -> kartu lengkap. */
+function renderHygieneDetail(){
+  const dateEl = document.getElementById("hygieneDataDate");
+  if(dateEl){
+    const du = ecoLive.hygiene && ecoLive.hygiene.dataUntil;
+    dateEl.textContent = du ? new Date(...du.split("-").map((v,i)=>i===1?Number(v)-1:Number(v))).toLocaleDateString("id-ID",{day:"numeric",month:"short",year:"numeric"}) : "–";
+  }
+  const body = document.getElementById("hygieneBody");
+  if(!body) return;
+  const row = hygieneRowForSalesman(state.salesman);
+  if(!ecoLive.hygiene || !Array.isArray(ecoLive.hygiene.rows) || !ecoLive.hygiene.rows.length){
+    body.innerHTML = `<div class="hygiene-empty">Data Hygiene Factor belum tersedia saat ini.<br>Coba lagi nanti setelah data harian diperbarui.</div>`;
+    return;
+  }
+  if(!row){
+    body.innerHTML = `<div class="hygiene-empty">Belum ada data Hygiene Factor untuk Anda pada periode ini.</div>`;
+    return;
+  }
+  const pct = Math.round(row.P*100);
+  const isHygiene = row.S==="HYGIENE";
+  const lateList = String(row.R||"").split(";").map(s=>s.trim()).filter(Boolean);
+  const dataUntil = ecoLive.hygiene && ecoLive.hygiene.dataUntil;
+  body.innerHTML = `
+    <div class="hygiene-hero${isHygiene ? "" : " bad"}">
+      <div class="hh-status">${isHygiene ? "✅ HYGIENE" : "⚠️ BELUM TERCAPAI"}</div>
+      <div class="hh-pct">${pct}%</div>
+      <div class="hh-sub">${row.O} dari ${row.J} hari kerja wajib tercapai tepat waktu</div>
+    </div>
+    <div class="hygiene-criteria">
+      <div class="hc-title">📋 Syarat Hygiene Factor</div>
+      <div class="hc-body">Minimal <b>75%</b> hari kerja wajib, kunjungan ke toko pertama sudah tercatat &amp; geotag comply paling lambat pukul <b>08:30</b>. Tanggal yang ditandai <b>Libur</b> tidak dihitung; tanggal yang <b>Dimaafkan</b> tetap dianggap tepat waktu.</div>
+    </div>
+    <div class="hygiene-detail-grid">
+      <div class="hygiene-detail-cell hd-neutral"><div class="hd-icon">📅</div><div class="hd-val">${row.J}</div><div class="hd-lbl">Hari PJP<br>Berjalan</div></div>
+      <div class="hygiene-detail-cell hd-neutral"><div class="hd-icon">🚶</div><div class="hd-val">${row.K}</div><div class="hd-lbl">Hari<br>Aktif</div></div>
+      <div class="hygiene-detail-cell hd-good"><div class="hd-icon">✅</div><div class="hd-val">${row.O}</div><div class="hd-lbl">Tepat Waktu/<br>Dimaafkan</div></div>
+      <div class="hygiene-detail-cell ${row.Q>0 ? "hd-bad" : "hd-good"}"><div class="hd-icon">${row.Q>0 ? "⏰" : "🎉"}</div><div class="hd-val">${row.Q}</div><div class="hd-lbl">Terlambat<br>&gt;08:30</div></div>
+    </div>
+    ${lateList.length ? `
+    <div class="hygiene-late-block">
+      <div class="lbl">Tanggal terlambat (kunjungan toko pertama &gt; 08:30)</div>
+      <div class="hygiene-late-list">${lateList.map(d=>`<div class="hygiene-late-item"><span>⏰ ${escapeHtml(hygieneFormatLateItem_(d, dataUntil))}</span></div>`).join("")}</div>
+    </div>` : ""}
+  `;
+}
+/** TAHAP 3 lanjutan (evaluasi user 19 Sept 2026): ubah item tanggal terlambat dari format mentah
+ *  server "dd (hh:mm)" mis. "10 (08:36)" jadi lebih informatif "10 September 2026, pukul 08:36".
+ *  Bulan & tahun diambil dari ecoLive.hygiene.dataUntil (field terakhir periode ini, format
+ *  "YYYY-MM-DD") -- semua tanggal dalam 1 periode Hygiene selalu 1 bulan yg sama, jadi aman
+ *  dipakai utk semua item. Kalau format tak dikenali/dataUntil kosong -> tampilkan apa adanya
+ *  (fallback aman, tidak pernah bikin error/kosong-melompong). Murni perubahan tampilan di HTML
+ *  ini, TIDAK mengubah data/format yg dikirim Code.gs sama sekali. */
+function hygieneFormatLateItem_(item, dataUntil){
+  const raw = String(item||"").trim();
+  const m = /^(\d{1,2})\s*\((\d{2}:\d{2})\)$/.exec(raw);
+  if(!m || !dataUntil) return raw;
+  const parts = String(dataUntil).split("-").map(Number);
+  if(parts.length < 2 || parts.some(isNaN)) return raw;
+  const day = Number(m[1]), time = m[2];
+  const d = new Date(parts[0], parts[1]-1, day);
+  if(isNaN(d.getTime())) return raw;
+  const tgl = d.toLocaleDateString("id-ID",{weekday:"long",day:"numeric",month:"long",year:"numeric"});
+  return `${tgl}, pukul ${time}`;
+}
+// ============================================================================================
+// TAHAP 4 (20 Sept 2026): "Juragan" - Basic Point / Target Growth / Extra Miles per outlet.
+// Pola buka/tutup/render PERSIS Hygiene Factor Jasper di atas (personal-only via state.salesman,
+// 3 kondisi kosong/tidak ada data/data lengkap, tidak pernah crash/kosong-melompong kalau data
+// belum ada). Beda: Juragan filter berdasar salesmanId (banyak baris per salesman, 1 per outlet -
+// termasuk outlet split yg SENGAJA muncul 2x dgn isi PENUH sama di 2 salesman berbeda, keputusan
+// eksplisit user), bukan 1 baris per salesman spt Hygiene.
+// ============================================================================================
+function juraganRowsForSalesman(id){
+  if(!ecoLive.juragan || !Array.isArray(ecoLive.juragan.rows)) return [];
+  return ecoLive.juragan.rows.filter(r=>r.salesmanId===id);
+}
+function openJuraganDetail(){
+  document.getElementById("viewLainnya").hidden = true;
+  document.getElementById("viewJuragan").hidden = false;
+  renderJuraganDetail();
+}
+function closeJuraganDetail(){
+  document.getElementById("viewJuragan").hidden = true;
+  document.getElementById("viewLainnya").hidden = false;
+  renderLainnyaMenu();
+}
+/** Dispatcher utama tab Juragan. 3 kondisi (sama pola dgn Hygiene): (1) belum pernah ada data live
+ *  sama sekali -> pesan "belum tersedia", semua kontrol filter disembunyikan; (2) ada data tapi
+ *  tidak ada outlet milik salesman ini (roster kosong utknya) -> pesan "belum ada data utk Anda",
+ *  kontrol filter disembunyikan jg; (3) ada baris -> tampilkan rekap (renderJuraganSummary, basis
+ *  SELALU seluruh outlet salesman ini, TIDAK ikut filter yg lagi aktif — pola sama persis progress
+ *  bar ECO) + chip Hari PJP + daftar toko (boleh difilter/diurutkan/expand). */
+function renderJuraganDetail(){
+  const dateEl = document.getElementById("juraganDataDate");
+  if(dateEl){
+    const du = ecoLive.juragan && ecoLive.juragan.dataUntil;
+    dateEl.textContent = du ? new Date(...du.split("-").map((v,i)=>i===1?Number(v)-1:Number(v))).toLocaleDateString("id-ID",{day:"numeric",month:"short",year:"numeric"}) : "–";
+  }
+  const summaryEl = document.getElementById("juraganSummary");
+  const dayRow = document.getElementById("juraganDayRow");
+  const searchRow = document.getElementById("juraganSearchRow");
+  const sortRow = document.getElementById("juraganSortRow");
+  const listLabel = document.getElementById("juraganListLabel");
+  const listContainer = document.getElementById("juraganOutletList");
+  const resetRow = document.getElementById("juraganFilterResetRow");
+  if(!summaryEl || !listContainer) return;
+  const noDataAtAll = !ecoLive.juragan || !Array.isArray(ecoLive.juragan.rows) || !ecoLive.juragan.rows.length;
+  const rows = noDataAtAll ? [] : juraganRowsForSalesman(state.salesman);
+  if(noDataAtAll || !rows.length){
+    summaryEl.innerHTML = "";
+    if(dayRow) dayRow.hidden = true;
+    if(searchRow) searchRow.hidden = true;
+    if(sortRow) sortRow.hidden = true;
+    if(listLabel) listLabel.hidden = true;
+    if(resetRow) resetRow.hidden = true;
+    listContainer.innerHTML = `<div class="juragan-empty">${noDataAtAll
+      ? "Data Juragan belum tersedia saat ini.<br>Coba lagi nanti setelah data harian diperbarui."
+      : "Belum ada data Juragan untuk Anda pada periode ini."}</div>`;
+    return;
+  }
+  if(dayRow) dayRow.hidden = false;
+  if(searchRow) searchRow.hidden = false;
+  if(sortRow) sortRow.hidden = false;
+  if(listLabel) listLabel.hidden = false;
+  renderJuraganSummary(rows);
+  renderJuraganDayChips();
+  renderJuraganList();
+}
+/** Rekap atas (hero poin + kotak Rupiah + rekap tercapai/belum) — basis SELALU seluruh outlet
+ *  salesman ini (parameter `rows`, sudah tidak difilter), sama spt progress bar ECO: proporsi yg
+ *  ditampilkan konsisten & tidak berubah2 tiap ganti filter Hari/pencarian. "Potensi Omset (kalau
+ *  semua toko capai target)" SENGAJA = Total Target (kalau semua tepat 100%, pencapaian=target) —
+ *  dikonfirmasi eksplisit ke user (21 Sept 2026) sebelum dibangun, ditampilkan terpisah sbg framing
+ *  motivasi, bukan angka hitungan baru. */
+function renderJuraganSummary(rows){
+  const el = document.getElementById("juraganSummary");
+  if(!el) return;
+  const totalNow = rows.reduce((s,r)=>s+r.totalNow, 0);
+  const totalMax = rows.reduce((s,r)=>s+r.totalMax, 0);
+  const basicNow = rows.reduce((s,r)=>s+r.basicNow, 0), basicMax = rows.reduce((s,r)=>s+r.basicMax, 0);
+  const growthNow = rows.reduce((s,r)=>s+r.growthNow, 0), growthMax = rows.reduce((s,r)=>s+r.growthMax, 0);
+  const extraNow = rows.reduce((s,r)=>s+r.extraNow, 0), extraMax = rows.reduce((s,r)=>s+r.extraMax, 0);
+  const barPct = totalMax>0 ? Math.min(100, Math.round((totalNow/totalMax)*100)) : 0;
+  const totalTarget = rows.reduce((s,r)=>s+r.target, 0);
+  const totalPencapaian = rows.reduce((s,r)=>s+r.pencapaian, 0);
+  const omsetPct = totalTarget>0 ? Math.round((totalPencapaian/totalTarget)*100) : 0;
+  const extraCount = rows.filter(r=>r.pct>=1.2).length;
+  const targetCount = rows.filter(r=>r.pct>=1 && r.pct<1.2).length;
+  const belumCount = rows.filter(r=>r.pct<1).length;
+  // KOREKSI 21 Sept 2026 (feedback user): outlet tanpa omset sama sekali (Rp0) ATAU minus (retur)
+  // dianggap SAMA -- keduanya "belum ada penjualan" -- konsisten dgn koreksi status ECO di atas.
+  const noOmsetCount = rows.filter(r=>r.pencapaian<=0).length;
+  // REDESAIN 21 Sept 2026 (feedback user poin 1): hero SEKARANG highlight OMSET (Rupiah), bukan
+  // lagi poin -- poin dipindah jadi strip kecil sekunder di bawah bar, tetap ada tapi tidak lagi
+  // jadi angka utama yg dilihat pertama. Progress bar hero skrg basis % pencapaian vs target.
+  el.innerHTML = `
+    <div class="juragan-hero">
+      <div class="jgh-label">Omset Toko Juragan Saat Ini</div>
+      <div class="jgh-total jgh-rp">${fmtRupiah(totalPencapaian)}</div>
+      <div class="jgh-sub">${omsetPct}% dari total target ${fmtRupiah(totalTarget)}</div>
+      <div class="jgh-bar"><div class="jgh-bar-fill" style="width:${Math.max(0,Math.min(100,omsetPct))}%"></div></div>
+      <div class="jgh-poin-strip">🏆 <b>${totalNow}</b> poin saat ini <span class="of">/ potensi maks ${Math.round(totalMax)}</span></div>
+      <div class="juragan-mech-grid">
+        <div class="juragan-mech-cell"><div class="jgm-top"><span class="jgm-icon">1</span><span class="jgm-val">${basicNow}</span></div><div class="jgm-lbl">Basic Point <span class="jgm-max">· maks ${Math.round(basicMax)}</span></div></div>
+        <div class="juragan-mech-cell"><div class="jgm-top"><span class="jgm-icon">2</span><span class="jgm-val">${growthNow}</span></div><div class="jgm-lbl">Target Growth <span class="jgm-max">· maks ${Math.round(growthMax)}</span></div></div>
+        <div class="juragan-mech-cell"><div class="jgm-top"><span class="jgm-icon">3</span><span class="jgm-val">${extraNow}</span></div><div class="jgm-lbl">Extra Miles <span class="jgm-max">· maks ${Math.round(extraMax)}</span></div></div>
+      </div>
+    </div>
+    <div class="juragan-omset-box">
+      <div class="juragan-omset-row"><span class="lbl">Total Target Semua Toko</span><span class="val">${fmtRupiah(totalTarget)}</span></div>
+      <div class="juragan-omset-row"><span class="lbl">Total Pencapaian Semua Toko</span><span class="val">${fmtRupiah(totalPencapaian)} <span class="of">(${omsetPct}%)</span></span></div>
+      <div class="juragan-omset-row"><span class="lbl">💡 Potensi Omset (kalau semua toko capai target)</span><span class="val">${fmtRupiah(totalTarget)}</span></div>
+    </div>
+    <div class="juragan-status-grid">
+      <button type="button" class="jsg-cell zero${state.juraganStatusFilter==='BELUM'?' active':''}" data-jsg="BELUM"><div class="jsg-num">${belumCount}</div><div class="jsg-lbl">❌ Belum Capai<br>Target</div></button>
+      <button type="button" class="jsg-cell partial${state.juraganStatusFilter==='TARGET'?' active':''}" data-jsg="TARGET"><div class="jsg-num">${targetCount}</div><div class="jsg-lbl">✔️ Target<br>Tercapai</div></button>
+      <button type="button" class="jsg-cell full${state.juraganStatusFilter==='EXTRA'?' active':''}" data-jsg="EXTRA"><div class="jsg-num">${extraCount}</div><div class="jsg-lbl">✅ Extra<br>Miles</div></button>
+    </div>
+    <div class="juragan-status-note${noOmsetCount>0?' jsn-alert':''}">🚫 <b>${noOmsetCount}</b> toko di antaranya belum ada omset sama sekali (Rp0 atau retur)</div>
+  `;
+  // REDESAIN 21 Sept 2026 lanjutan (feedback user poin 4): klik kotak rekap status -> jd filter
+  // daftar toko di bawah (klik lagi kotak yg sama -> nonaktif). Angka di kotak SENGAJA tetap basis
+  // SEMUA outlet (tidak ikut menyusut saat filter aktif) -- pola sama spt hero/omset-box di atas.
+  el.querySelectorAll('.jsg-cell').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      const key = btn.dataset.jsg;
+      state.juraganStatusFilter = state.juraganStatusFilter===key ? null : key;
+      resetJuraganSearchUI();
+      renderJuraganSummary(rows);
+      renderJuraganList();
+    });
+  });
+}
+function resetJuraganSearchUI(){
+  state.juraganSearchQuery = "";
+  state.juraganDayBeforeSearch = undefined;
+  state.juraganStatusBeforeSearch = undefined;
+  const input = document.getElementById("juraganSearch");
+  if(input) input.value = "";
+  const clearBtn = document.getElementById("juraganSearchClear");
+  if(clearBtn) clearBtn.hidden = true;
+}
+function renderJuraganDayChips(){
+  const wrap = document.getElementById("juraganDayChips");
+  if(!wrap) return;
+  const all = juraganRowsForSalesman(state.salesman);
+  wrap.innerHTML = "";
+  const allBtn = document.createElement("button");
+  allBtn.className = "chip" + (!state.juraganDay ? " active" : "");
+  allBtn.innerHTML = "Semua" + `<span class="n">${all.length}</span>`;
+  allBtn.addEventListener("click", ()=>{
+    state.juraganDay = null;
+    resetJuraganSearchUI();
+    renderJuraganDayChips();
+    renderJuraganList();
+  });
+  wrap.appendChild(allBtn);
+  DAY_ORDER.forEach(d=>{
+    const count = all.filter(r=>r.hari===d).length;
+    if(count===0) return;
+    const btn = document.createElement("button");
+    btn.className = "chip" + (state.juraganDay===d ? " active" : "");
+    btn.innerHTML = d + `<span class="n">${count}</span>`;
+    btn.addEventListener("click", ()=>{
+      state.juraganDay = d;
+      resetJuraganSearchUI();
+      renderJuraganDayChips();
+      renderJuraganList();
+    });
+    wrap.appendChild(btn);
+  });
+}
+// Pencarian selalu lintas semua hari & status (abaikan filter Hari PJP & Status Rekap yg lagi
+// aktif) — pola PERSIS ECO: begitu mulai mengetik, chip/kotak jd "Semua" (jujur ke cakupan hasil
+// pencarian lintas hari/status), lalu balik ke pilihan semula begitu pencarian dikosongkan (lihat
+// juraganDayBeforeSearch/juraganStatusBeforeSearch + listener #juraganSearch di bawah). Di luar
+// pencarian, Hari PJP & Status Rekap DIGABUNG (AND) — pola sama spt Hari+Status di ECO.
+function visibleJuraganOutlets(){
+  const list = juraganRowsForSalesman(state.salesman);
+  if(state.juraganSearchQuery){
+    const q = state.juraganSearchQuery;
+    return list.filter(r=>r.kode.toLowerCase().includes(q) || r.nama.toLowerCase().includes(q));
+  }
+  let out = state.juraganDay ? list.filter(r=>r.hari===state.juraganDay) : list;
+  if(state.juraganStatusFilter==="BELUM") out = out.filter(r=>r.pct<1);
+  else if(state.juraganStatusFilter==="TARGET") out = out.filter(r=>r.pct>=1 && r.pct<1.2);
+  else if(state.juraganStatusFilter==="EXTRA") out = out.filter(r=>r.pct>=1.2);
+  return out;
+}
+// 2 mode urutkan diminta user (21 Sept 2026) + default (prioritas tertinggi/pct desc, spt semula):
+// "gap" = Kekurangan Tersedikit (naik dari selisih target-pencapaian TERKECIL — toko yg sudah
+// lewat target otomatis di paling atas krn selisihnya negatif, lalu yg makin dekat, push yg
+// paling gampang dikejar duluan); "pencapaian" = Pencapaian Terbesar (turun dari Rupiah pencapaian).
+function juraganSortedOutlets(list){
+  if(state.juraganSortMode === "gap") return [...list].sort((a,b)=>(a.target-a.pencapaian)-(b.target-b.pencapaian) || a.nama.localeCompare(b.nama,"id"));
+  if(state.juraganSortMode === "pencapaian") return [...list].sort((a,b)=>b.pencapaian-a.pencapaian || a.nama.localeCompare(b.nama,"id"));
+  return [...list].sort((a,b)=>b.pct-a.pct || a.nama.localeCompare(b.nama,"id"));
+}
+function toggleJuraganExpand(key){
+  if(state.juraganExpanded.has(key)) state.juraganExpanded.delete(key);
+  else state.juraganExpanded.add(key);
+  renderJuraganList();
+}
+/** Teks penjelasan + syarat 1 mekanisme bergerbang (Target Growth/Extra Miles) — dipakai
+ *  juraganMechDetailHtml_. `gateFrac`/`capFrac` dlm satuan fraksi dari Target (mis. gateFrac=1
+ *  utk Growth artinya gerbang di 100% target); capFrac SELALU 1.3 utk kedua mekanisme (diturunkan
+ *  langsung dari rumus juraganCompute_ Code.gs: growthCap/extraCap sama2 tercapai persis di
+ *  pencapaian=130% target — lihat komentar rumus di Code.gs). 3 keadaan: (1) belum capai gerbang
+ *  -> tampilkan sisa Rp yg dibutuhkan; (2) sudah lewat gerbang tapi blm capai batas maks -> masih
+ *  bisa nambah poin sampai capRp; (3) sudah capai/lewat capRp -> sudah maksimal. */
+/** Satu baris kartu mekanisme (REDESAIN 21 Sept 2026 -- badge bulat angka biasa, bukan emoji
+ *  "1️⃣" dst yg render-nya tidak konsisten antar perangkat & jadi salah satu penyebab dropdown
+ *  "tidak rapi" menurut feedback user). `stateClass` menentukan warna aksen kiri kartu:
+ *  base=Basic (biru, tak pernah digerbang), inactive=blm capai gerbang (abu), active=sudah aktif
+ *  tapi blm mentok (kuning), maxed=sudah capai batas maksimal (hijau). */
+function juraganMechRowHtml_(num, label, nowPoin, maxPoin, stateClass, explainHtml){
+  return `
+    <div class="juragan-mech-row jmr-${stateClass}">
+      <div class="jmr-head">
+        <span class="jmr-badge">${num}</span>
+        <span class="jmr-label">${label}</span>
+        <span class="jmr-val">${nowPoin}<span class="of"> / maks ${Math.round(maxPoin)} poin</span></span>
+      </div>
+      <div class="jmr-explain">${explainHtml}</div>
+    </div>`;
+}
+/** Teks penjelasan + status (state) 1 mekanisme bergerbang (Target Growth/Extra Miles).
+ *  `gateFrac`/`capFrac` dlm satuan fraksi dari Target (mis. gateFrac=1 utk Growth artinya gerbang
+ *  di 100% target); capFrac SELALU 1.3 utk kedua mekanisme (diturunkan langsung dari rumus
+ *  juraganCompute_ Code.gs: growthCap/extraCap sama2 tercapai persis di pencapaian=130% target --
+ *  lihat komentar rumus di Code.gs). 3 keadaan: inactive (blm capai gerbang, tampilkan sisa Rp yg
+ *  dibutuhkan), active (sudah lewat gerbang tapi blm capai batas maks, masih bisa nambah poin),
+ *  maxed (sudah capai/lewat batas maks). */
+function juraganMechStateText_(target, pencapaian, gateFrac, capFrac, maxPoin){
+  const gateRp = target*gateFrac, capRp = target*capFrac;
+  if(pencapaian < gateRp){
+    return { state: "inactive", text: `Aktif kalau pencapaian mencapai <b>${Math.round(gateFrac*100)}% target</b> (${fmtRupiah(gateRp)}). Butuh <b>${fmtRupiah(gateRp-pencapaian)}</b> lagi untuk mulai dapat poin ini.` };
+  }
+  if(pencapaian < capRp){
+    return { state: "active", text: `✓ Sudah aktif. Poin masih bisa bertambah sampai pencapaian <b>${fmtRupiah(capRp)}</b> (${Math.round(capFrac*100)}% target) untuk poin maksimal <b>${Math.round(maxPoin)}</b>.` };
+  }
+  return { state: "maxed", text: `✓ Sudah mencapai batas maksimal mekanisme ini (pencapaian ≥ ${Math.round(capFrac*100)}% target).` };
+}
+function juraganMechDetailHtml_(r){
+  // KOREKSI 21 Sept 2026 lanjutan (feedback user): jelaskan RASIO mekanisme (bukan cuma "tidak
+  // digerbang") -- persis rumus juraganCompute_ Code.gs (VRR1=Rp4.000/Rp1.500.000).
+  const basicRow = juraganMechRowHtml_(1, "Basic Point", r.basicNow, r.basicMax, "base",
+    "Setiap kelipatan <b>Rp1.500.000</b> pencapaian = <b>1 poin</b>. Aktif otomatis dari Rp1 pertama, tidak ada syarat minimum pencapaian.");
+  const g = juraganMechStateText_(r.target, r.pencapaian, 1, 1.3, r.growthMax);
+  const growthRow = juraganMechRowHtml_(2, "Target Growth", r.growthNow, r.growthMax, g.state, g.text);
+  const e = juraganMechStateText_(r.target, r.pencapaian, 1.2, 1.3, r.extraMax);
+  const extraRow = juraganMechRowHtml_(3, "Extra Miles", r.extraNow, r.extraMax, e.state, e.text);
+  return basicRow + growthRow + extraRow;
+}
+/** Daftar toko: filter Hari/pencarian (visibleJuraganOutlets) + urutkan (juraganSortedOutlets),
+ *  tiap kartu bisa expand/collapse rincian 3-mekanisme (state.juraganExpanded, key "kode|salesmanId"
+ *  spy outlet split — 2 baris beda salesmanId — bisa dibuka independen tanpa saling pengaruh). */
+function renderJuraganList(){
+  const list = juraganSortedOutlets(visibleJuraganOutlets());
+  const container = document.getElementById("juraganOutletList");
+  if(!container) return;
+  const resetRow = document.getElementById("juraganFilterResetRow");
+  if(resetRow) resetRow.hidden = !(state.juraganDay || state.juraganSearchQuery || state.juraganStatusFilter != null);
+  container.innerHTML = "";
+  if(list.length===0){
+    container.innerHTML = state.juraganSearchQuery
+      ? `<div class="empty-note">Outlet tidak ditemukan untuk "${escapeHtml(state.juraganSearchQuery)}".</div>`
+      : `<div class="empty-note">Tidak ada outlet untuk filter ini.</div>`;
+    return;
+  }
+  list.forEach((r, idx)=>{
+    const pillClass = r.pct>=1.2 ? "full" : r.pct>=1 ? "partial" : "zero";
+    const pillLabel = r.pct>=1.2 ? "✅ Extra Miles" : r.pct>=1 ? "✔️ Target Tercapai" : "❌ Belum Capai Target";
+    const key = r.kode + "|" + r.salesmanId;
+    const isOpen = state.juraganExpanded.has(key);
+    const card = document.createElement("div");
+    card.className = "outlet-card";
+    card.innerHTML = `
+      <div class="outlet-row">
+        <div class="outlet-info">
+          <div class="outlet-name"><span class="outlet-num">${idx+1}.</span>${escapeHtml(r.nama)}</div>
+          <div class="outlet-meta mono">${escapeHtml(r.kode)}${r.hari?` · PJP ${escapeHtml(r.hari)}`:""}</div>
+        </div>
+        <button class="status-pill ${pillClass} ${isOpen?"open":""}">${pillLabel} <span class="chev">▾</span></button>
+      </div>
+      <div class="outlet-extra">
+        <div class="jo-poin-badge">🏆 Poin sekarang <b>${r.totalNow}</b> dari potensi <b>${Math.round(r.totalMax)}</b> poin</div>
+        ${juraganOutletStatsHtml_(r)}
+        ${juraganGateLineHtml_(r)}
+      </div>
+      <div class="juragan-mech-detail ${isOpen?"open":""}">${juraganMechDetailHtml_(r)}</div>
+    `;
+    card.querySelector(".status-pill").addEventListener("click", ()=>toggleJuraganExpand(key));
+    container.appendChild(card);
+  });
+}
+/** Target/Pencapaian/Kekurangan (atau "Lewat Target" kalau pct>=100%) -- REDESAIN 21 Sept 2026
+ *  lanjutan, feedback user: mau 3 angka ini mencolok tanpa buka dropdown. */
+function juraganOutletStatsHtml_(r){
+  const pct = Math.round(r.pct*100);
+  const lewat = r.pct>=1;
+  const kurangLbl = lewat ? "✓ Lewat Target" : "Kekurangan ke Target";
+  const kurangVal = lewat ? `+${fmtRupiah(r.pencapaian-r.target)}` : fmtRupiah(r.target-r.pencapaian);
+  const kurangCls = lewat ? "jo-lewat" : "jo-kurang";
+  return `
+    <div class="jo-stats">
+      <div class="jo-stat"><div class="jo-stat-lbl">Target</div><div class="jo-stat-val">${fmtRupiah(r.target)}</div></div>
+      <div class="jo-stat jo-pencapaian"><div class="jo-stat-lbl">Pencapaian</div><div class="jo-stat-val">${fmtRupiah(r.pencapaian)}<span class="jo-stat-pct">${pct}%</span></div></div>
+      <div class="jo-stat ${kurangCls}"><div class="jo-stat-lbl">${kurangLbl}</div><div class="jo-stat-val">${kurangVal}</div></div>
+    </div>`;
+}
+/** Baris ringkas "kurang berapa Rp + dapat berapa poin" utk capai 100%/Extra Miles (120%) tanpa
+ *  perlu buka dropdown (feedback user poin 3: singkat saja, narasi lengkap tetap di dropdown).
+ *  poin100/poin120 dihitung PERSIS rumus juraganCompute_ Code.gs (growthNow/extraNow tepat DI
+ *  TITIK gerbang, blm termasuk tambahan poin lanjutan sampai batas maks 130% -- itu tetap hanya
+ *  dijelaskan lengkap di dropdown, spy baris ini tetap ringkas). */
+function juraganGateLineHtml_(r){
+  if(r.target<=0) return "";
+  const gateGrowthRp = r.target;
+  const gateExtraRp = r.target*1.2;
+  const poin100 = Math.floor((r.target*0.005)/4000);
+  const poin120 = Math.floor((gateExtraRp*0.002)/4000);
+  if(r.pencapaian < gateGrowthRp){
+    // zona "Belum Capai Target" -- kotak MERAH, senada pill status outlet ini (feedback user 22
+    // Sept 2026: biar box & pill sama2 nunjukkin "masih zona merah/belum").
+    return `<div class="jo-gate jo-gate-zero">🎯 Kurang <b class="jo-neg">${fmtRupiah(gateGrowthRp-r.pencapaian)}</b> capai 100% target → <b class="jo-pos">+${poin100} poin</b></div>
+      <div class="jo-gate jo-gate-zero">🚀 Kurang <b class="jo-neg">${fmtRupiah(gateExtraRp-r.pencapaian)}</b> capai Extra Miles (120%) → <b class="jo-pos">+${poin120} poin</b></div>`;
+  }
+  if(r.pencapaian < gateExtraRp){
+    // zona "Target Tercapai" (blm Extra Miles) -- kotak KUNING, senada pill.
+    return `<div class="jo-gate jo-gate-partial">🚀 Kurang <b class="jo-neg">${fmtRupiah(gateExtraRp-r.pencapaian)}</b> lagi capai Extra Miles (120%) → <b class="jo-pos">+${poin120} poin</b></div>`;
+  }
+  return `<div class="jo-gate jo-gate-done">🎉 Growth &amp; Extra Miles sudah tercapai</div>`;
+}
+// ============================================================================================
+// TAHAP 5 (22 Sept 2026): "R2G DSR" (Red to Green) - skor KPI SSV/BP/PSA bulanan. Pola buka/tutup
+// PERSIS Hygiene/Juragan di atas (personal-only via state.salesman, 3 kondisi kosong/tidak ada
+// data/data lengkap, tidak pernah crash/kosong-melompong kalau data belum ada). Beda dari
+// keduanya: (1) filter bulan MULTI-SELECT (state.r2gSelectedMonths, permintaan eksplisit user -
+// "pilih bulan tertentu ATAU beberapa bulan") dipakai HANYA utk menyaring daftar kartu detail di
+// bawah - grafik tren SENDIRI selalu tampil SEMUA bulan supaya trennya tetap utuh terlepas dari
+// filter kartu yg lagi aktif (pola sama spt hero/progress ECO yg tak ikut filter); (2) 1 baris per
+// Employee Code Name (bukan per outlet) - hampir selalu cuma 1 baris per salesman, tapi kode di
+// bawah tetap menghormati kemungkinan >1 baris (mis. DSR ganti kode di tengah jalan) via
+// state.r2gActiveEmp, pola serupa outlet split Juragan (walau di sini ditampilkan bergantian via
+// tombol "Ganti kode", bukan 2 kartu sekaligus, krn ini status milik 1 orang yg sama).
+// ============================================================================================
+function r2gRowsForSalesman(id){
+  if(!ecoLive.r2g || !Array.isArray(ecoLive.r2g.rows)) return [];
+  return ecoLive.r2g.rows.filter(r=>r.salesmanId===id);
+}
+// Konvensi warna DIPINJAM dari .status-pill/.jsg-cell yg sudah ada di app ini (full=Green/sukses,
+// partial=Amber/pending, zero=Red/danger) - lihat catatan CSS TAHAP 5 di atas.
+function r2gBucketCls_(bucket){ return bucket==="Green" ? "full" : bucket==="Amber" ? "partial" : "zero"; }
+function r2gBucketIcon_(bucket){ return bucket==="Green" ? "✅" : bucket==="Amber" ? "⚠️" : "❌"; }
+function r2gBucketWord_(bucket){ return bucket==="Green" ? "GREEN" : bucket==="Amber" ? "AMBER" : "RED"; }
+const R2G_MONTH_ID_FULL_ = {Jan:"Januari",Feb:"Februari",Mar:"Maret",Apr:"April",May:"Mei",Jun:"Juni",Jul:"Juli",Aug:"Agustus",Sep:"September",Oct:"Oktober",Nov:"November",Dec:"Desember"};
+const R2G_MONTH_ID_SHORT_ = {Jan:"Jan",Feb:"Feb",Mar:"Mar",Apr:"Apr",May:"Mei",Jun:"Jun",Jul:"Jul",Aug:"Agu",Sep:"Sep",Oct:"Okt",Nov:"Nov",Dec:"Des"};
+function r2gMonthLabelFull_(label){ // "2026-Aug" -> "Agustus 2026"
+  const m = /^(\d{4})-([A-Za-z]{3})$/.exec(String(label||""));
+  if(!m) return String(label||"");
+  return (R2G_MONTH_ID_FULL_[m[2]]||m[2]) + " " + m[1];
+}
+function r2gMonthLabelShort_(label){ // "2026-Aug" -> "Agu 26"
+  const m = /^(\d{4})-([A-Za-z]{3})$/.exec(String(label||""));
+  if(!m) return String(label||"");
+  return (R2G_MONTH_ID_SHORT_[m[2]]||m[2]) + " " + m[1].slice(2);
+}
+/** State 1 baris KPI (SSV/BP/PSA) utk 1 bulan: "nodata" (blm ada pengaturan gerbang ATAU target
+ *  DAN actual sama2 0 - dianggap datanya blm diisi, lihat r2gScoreKpi_ Code.gs), "hit" (skor>0,
+ *  gerbang tercapai), "miss" (skor=0, gerbang belum tercapai). SENGAJA cuma 2 keadaan (bukan 3) -
+ *  KOREKSI 22 Sept 2026 (feedback user): skor KPI ini murni all-or-nothing (0 atau poin penuh,
+ *  TIDAK PERNAH ada nilai di antaranya), jadi kategori "hampir"/warna kuning di level per-KPI tidak
+ *  punya arti nyata (36% dari gerbang 40% hasilnya SAMA PERSIS 0 dgn yg cuma 5%) - dihapus supaya
+ *  tidak menyesatkan seolah2 ada nilai tengah. */
+function r2gKpiState_(k){
+  if(!k || k.gerbang===null || k.gerbang===undefined || (k.target<=0 && k.actual<=0)) return "nodata";
+  return k.score>0 ? "hit" : "miss";
+}
+function r2gKpiIcon_(st){ return st==="hit" ? "✅" : st==="miss" ? "❌" : "➖"; }
+function openR2gDetail(){
+  document.getElementById("viewLainnya").hidden = true;
+  document.getElementById("viewR2g").hidden = false;
+  renderR2gDetail();
+}
+function closeR2gDetail(){
+  document.getElementById("viewR2g").hidden = true;
+  document.getElementById("viewLainnya").hidden = false;
+  renderLainnyaMenu();
+}
+/** Dispatcher utama tab R2G DSR. 3 kondisi (sama pola Hygiene/Juragan): (1) belum pernah ada data
+ *  live sama sekali -> pesan "belum tersedia"; (2) ada data tapi tidak ada baris milik salesman ini
+ *  (Employee Code Name blm/tdk cocok - lihat r2gTailName_ Code.gs) -> pesan "belum ada data utk
+ *  Anda"; (3) baris ketemu -> render hero (skor bulan terakhir) + grafik tren (SEMUA bulan) + filter
+ *  bulan multi-select + daftar kartu detail (ikut filter bulan yg aktif). */
+function renderR2gDetail(){
+  const dateEl = document.getElementById("r2gDataDate");
+  if(dateEl){
+    // R2G data bulanan (bukan harian) - tampilkan bulan terakhir yg tersedia di sheet R2G.
+    const monthsAll = ecoLive.r2g && Array.isArray(ecoLive.r2g.months) ? ecoLive.r2g.months : [];
+    dateEl.textContent = monthsAll.length ? r2gMonthLabelFull_(monthsAll[monthsAll.length-1]) : "–";
+  }
+  const body = document.getElementById("r2gBody");
+  if(!body) return;
+  const noDataAtAll = !ecoLive.r2g || !Array.isArray(ecoLive.r2g.rows) || !ecoLive.r2g.rows.length;
+  const allRows = noDataAtAll ? [] : r2gRowsForSalesman(state.salesman);
+  if(noDataAtAll || !allRows.length){
+    body.innerHTML = `<div class="r2g-empty">${noDataAtAll
+      ? "Data R2G DSR belum tersedia saat ini.<br>Coba lagi nanti setelah data bulanan diperbarui."
+      : "Belum ada data R2G DSR untuk Anda pada periode ini."}</div>`;
+    return;
+  }
+  if(!state.r2gActiveEmp || !allRows.some(r=>r.empCode===state.r2gActiveEmp)) state.r2gActiveEmp = allRows[0].empCode;
+  const row = allRows.find(r=>r.empCode===state.r2gActiveEmp) || allRows[0];
+  const months = (ecoLive.r2g.months||[]).filter(m=>row.monthly[m]);
+  if(!months.length){
+    body.innerHTML = `<div class="r2g-empty">Belum ada data bulan apa pun untuk Anda pada periode ini.</div>`;
+    return;
+  }
+  // Default: SEMUA bulan tampil di daftar kartu bawah (baru diisi 1x, sesudahnya murni ikut pilihan
+  // user - lihat catatan state.r2gSelectedMonths). Kalau daftar bulan bertambah (rilis bulan baru)
+  // dan user belum sempat pilih apa2 (Set masih kosong krn semua di-uncheck manual), tetap hormati
+  // pilihan kosong itu (tidak dipaksa penuh lagi).
+  if(!state.r2gSelectedMonths) state.r2gSelectedMonths = new Set(months);
+  const latestMonth = months[months.length-1];
+  const empSwitchBtn = allRows.length>1 ? ` <button type="button" class="filter-reset-btn" id="r2gEmpSwitch">↺ Ganti kode</button>` : "";
+  const empSub = allRows.length>1 ? `<div class="r2g-emp-sub">Kode: ${escapeHtml(state.r2gActiveEmp)}${row.distributor?" · "+escapeHtml(row.distributor):""}${empSwitchBtn}</div>` : "";
+  body.innerHTML = `
+    ${renderR2gHero_(row, latestMonth)}
+    ${empSub}
+    <div class="r2g-section-lbl">📈 Tren Skor per Bulan</div>
+    ${renderR2gChart_(row, months, latestMonth)}
+    <div class="r2g-month-row"><span class="lbl">Tampilkan Bulan</span><div class="r2g-chip-wrap" id="r2gMonthChips"></div></div>
+    <div class="r2g-list-label">📋 Rincian per Bulan</div>
+    <div id="r2gList"></div>
+  `;
+  renderR2gMonthChips_(row, months);
+  renderR2gList_(row, months, latestMonth);
+  if(allRows.length>1){
+    const sw = document.getElementById("r2gEmpSwitch");
+    if(sw) sw.addEventListener("click", ()=>{
+      const idx = allRows.findIndex(r=>r.empCode===state.r2gActiveEmp);
+      state.r2gActiveEmp = allRows[(idx+1)%allRows.length].empCode;
+      renderR2gDetail();
+    });
+  }
+}
+/** Kartu hero: skor TOTAL bulan TERAKHIR yg tersedia (bukan ikut filter bulan yg aktif - pola sama
+ *  spt hero/progress bar ECO & Juragan, supaya angka utama konsisten & tak berubah2 tiap ganti
+ *  filter), warna latar & ikon besar ikut bucket Green/Amber/Red, + 3 kotak mini SSV/BP/PSA. */
+function renderR2gHero_(row, latestMonth){
+  const m = row.monthly[latestMonth];
+  if(!m) return `<div class="r2g-empty">Belum ada data bulan ini.</div>`;
+  const cls = r2gBucketCls_(m.bucket);
+  const barPct = Math.max(0, Math.min(100, m.total));
+  const kpis = [{label:"SSV", k:m.ssv}, {label:"BP", k:m.bp}, {label:"PSA", k:m.psa}];
+  const miniCells = kpis.map(x=>{
+    const st = r2gKpiState_(x.k);
+    const cellCls = st==="hit" ? "full" : st==="miss" ? "zero" : "nodata";
+    const val = st==="nodata" ? "–" : `${x.k.score}<span class="of"> / ${Math.round(x.k.poinMax)}</span>`;
+    return `<div class="r2g-mini-cell ${cellCls}"><div class="r2g-mini-icon">${r2gKpiIcon_(st)}</div><div class="r2g-mini-lbl">${x.label}</div><div class="r2g-mini-val">${val}</div></div>`;
+  }).join("");
+  return `
+    <div class="r2g-hero ${cls}">
+      <div class="r2g-hero-icon">${r2gBucketIcon_(m.bucket)}</div>
+      <div class="r2g-hero-bucket">${r2gBucketWord_(m.bucket)}</div>
+      <div class="r2g-hero-score">${m.total}<span class="of"> / 100</span></div>
+      <div class="r2g-hero-sub">Skor bulan ${r2gMonthLabelFull_(latestMonth)} (bulan terakhir tersedia)</div>
+      <div class="r2g-hero-bar"><div class="r2g-hero-bar-fill ${cls}" style="width:${barPct}%"></div></div>
+      <div class="r2g-mini-grid">${miniCells}</div>
+    </div>`;
+}
+/** Grafik batang tren skor Total per bulan (SEMUA bulan, tidak ikut filter kartu di bawah) - SVG
+ *  buatan sendiri (app ini tidak punya library chart apa pun, lihat catatan riset sblm nulis kode
+ *  ini), warna tiap batang ikut bucket bulan itu (Green/Amber/Red), batang bulan TERAKHIR diberi
+ *  label tebal warna brand ("now") biar gampang dikenali di antara batang2 lain. */
+function renderR2gChart_(row, months, latestMonth){
+  const barW = 30, gap = 14, barMaxH = 70, topPad = 16, botPad = 16;
+  const w = months.length*(barW+gap)+gap;
+  const h = topPad+barMaxH+botPad;
+  let bars = "";
+  months.forEach((mLabel, i)=>{
+    const m = row.monthly[mLabel];
+    const total = m ? m.total : 0;
+    const cls = m ? r2gBucketCls_(m.bucket) : "nodata";
+    const x = gap + i*(barW+gap);
+    const barH = Math.max(2, (total/100)*barMaxH);
+    const y = topPad + (barMaxH-barH);
+    const valY = (y-4) < 10 ? 10 : (y-4);
+    const isNow = mLabel===latestMonth;
+    bars += `<rect class="r2g-bar-track" x="${x}" y="${topPad}" width="${barW}" height="${barMaxH}" rx="3"></rect>`;
+    bars += `<rect class="r2g-bar ${cls}" x="${x}" y="${y}" width="${barW}" height="${barH}" rx="3"></rect>`;
+    bars += `<text class="r2g-chart-val" x="${x+barW/2}" y="${valY}">${total}</text>`;
+    bars += `<text class="r2g-chart-lbl${isNow?" now":""}" x="${x+barW/2}" y="${h-2}">${escapeHtml(r2gMonthLabelShort_(mLabel))}</text>`;
+  });
+  // class "r2g-scroll" (nama sengaja mengandung kata "scroll") - dikenali QA overflow-checker
+  // (lihat qa/harness.js .overflow()) sbg wadah geser horizontal yg SAH, sama spt .chiprow/
+  // .chipwrap yg sudah ada di app ini - grafik BOLEH lebih lebar dari layar & digeser (bukan bug),
+  // beda dari elemen lain yg memang tidak boleh melebihi lebar layar.
+  return `<div class="r2g-chart-wrap r2g-scroll"><svg class="r2g-chart-svg" viewBox="0 0 ${w} ${h}" width="${w}" height="${h}">${bars}</svg></div>`;
+}
+/** Chip bulan MULTI-SELECT (Set, bukan 1 nilai) - beda dari semua chip lain di app ini yg
+ *  single-select, krn ini memang permintaan eksplisit user ("pilih bulan tertentu ATAU beberapa
+ *  bulan"). Tiap chip diberi titik warna kecil (r2g-chip-dot) senada bucket bulan itu biar bisa
+ *  "preview" warna tanpa perlu buka kartunya. Chip "Pilih Semua" toggle: pilih semua <-> kosongkan. */
+function renderR2gMonthChips_(row, months){
+  const wrap = document.getElementById("r2gMonthChips");
+  if(!wrap) return;
+  wrap.innerHTML = "";
+  const allSelected = months.every(m=>state.r2gSelectedMonths.has(m));
+  const allBtn = document.createElement("button");
+  allBtn.type = "button";
+  allBtn.className = "r2g-chip all" + (allSelected ? " active" : "");
+  allBtn.textContent = allSelected ? "✓ Semua Bulan" : "Pilih Semua";
+  allBtn.addEventListener("click", ()=>{
+    state.r2gSelectedMonths = allSelected ? new Set() : new Set(months);
+    renderR2gMonthChips_(row, months);
+    renderR2gList_(row, months, months[months.length-1]);
+  });
+  wrap.appendChild(allBtn);
+  months.forEach(mLabel=>{
+    const m = row.monthly[mLabel];
+    const cls = m ? r2gBucketCls_(m.bucket) : "nodata";
+    const btn = document.createElement("button");
+    btn.type = "button";
+    const active = state.r2gSelectedMonths.has(mLabel);
+    btn.className = "r2g-chip" + (active ? " active" : "");
+    btn.innerHTML = `<span class="r2g-chip-dot ${cls}"></span>${escapeHtml(r2gMonthLabelShort_(mLabel))}`;
+    btn.addEventListener("click", ()=>{
+      if(state.r2gSelectedMonths.has(mLabel)) state.r2gSelectedMonths.delete(mLabel);
+      else state.r2gSelectedMonths.add(mLabel);
+      renderR2gMonthChips_(row, months);
+      renderR2gList_(row, months, months[months.length-1]);
+    });
+    wrap.appendChild(btn);
+  });
+}
+/** Daftar kartu detail per bulan (ikut filter state.r2gSelectedMonths), terbaru dulu, tiap kartu
+ *  bisa expand/collapse rincian 3 KPI (state.r2gExpanded, key "empCode|YYYY-Mon"). */
+function renderR2gList_(row, months, latestMonth){
+  const container = document.getElementById("r2gList");
+  if(!container) return;
+  const selected = months.filter(m=>state.r2gSelectedMonths.has(m)).slice().reverse();
+  container.innerHTML = "";
+  if(!selected.length){
+    container.innerHTML = `<div class="empty-note">Pilih minimal 1 bulan di atas untuk lihat rinciannya.</div>`;
+    return;
+  }
+  selected.forEach(mLabel=>{
+    const m = row.monthly[mLabel];
+    const cls = r2gBucketCls_(m.bucket);
+    const key = row.empCode + "|" + mLabel;
+    const isOpen = state.r2gExpanded.has(key);
+    const card = document.createElement("div");
+    card.className = "r2g-card" + (isOpen?" open":"");
+    card.innerHTML = `
+      <div class="r2g-card-head">
+        <div class="r2g-card-month">${escapeHtml(r2gMonthLabelFull_(mLabel))}${mLabel===latestMonth?'<span class="now-tag">Terbaru</span>':""}</div>
+        <div class="r2g-card-right">
+          <span class="status-pill ${cls}">${r2gBucketIcon_(m.bucket)} ${r2gBucketWord_(m.bucket)}</span>
+          <span class="r2g-card-score">${m.total}<span class="of">/100</span></span>
+          <span class="chev">▾</span>
+        </div>
+      </div>
+      <div class="r2g-card-detail${isOpen?" open":""}">${r2gKpiDetailHtml_(m)}</div>
+    `;
+    card.querySelector(".r2g-card-head").addEventListener("click", ()=>toggleR2gExpand(row, months, latestMonth, key));
+    container.appendChild(card);
+  });
+}
+function toggleR2gExpand(row, months, latestMonth, key){
+  if(state.r2gExpanded.has(key)) state.r2gExpanded.delete(key);
+  else state.r2gExpanded.add(key);
+  renderR2gList_(row, months, latestMonth);
+}
+/** Rincian 3 baris KPI (SSV/BP/PSA) 1 bulan - tiap baris tampilkan pencapaian vs target/gerbang +
+ *  poin didapat/maks, warna kiri kartu ikut r2gKpiState_ (hit=hijau "lolos gerbang", miss=merah
+ *  "belum lolos", nodata=abu "data belum lengkap"). SENGAJA cuma 2 warna keberhasilan (bukan 3) -
+ *  lihat catatan koreksi di r2gKpiState_: skor KPI ini all-or-nothing, tidak ada nilai tengah. */
+function r2gKpiDetailHtml_(m){
+  const kpis = [{label:"SSV", k:m.ssv}, {label:"BP", k:m.bp}, {label:"PSA", k:m.psa}];
+  return kpis.map(x=>{
+    const st = r2gKpiState_(x.k);
+    const pct = Math.round((x.k.pct||0)*100);
+    let sub;
+    if(st==="nodata"){
+      sub = "Data belum lengkap untuk KPI ini pada bulan tersebut (dianggap skor 0, cek sheet R2G di Google Sheet).";
+    } else {
+      sub = `Pencapaian <b>${pct}%</b> dari target (${Math.round(x.k.actual).toLocaleString("id-ID")} / ${Math.round(x.k.target).toLocaleString("id-ID")}) — gerbang minimal <b>${x.k.gerbang}%</b>.`;
+    }
+    return `
+      <div class="r2g-kpi-row ${st}">
+        <div class="r2g-kpi-head">
+          <span class="icon">${r2gKpiIcon_(st)}</span>
+          <span class="name">${x.label}</span>
+          <span class="score">${x.k.score}<span class="of"> / ${Math.round(x.k.poinMax)} poin</span></span>
+        </div>
+        <div class="r2g-kpi-sub">${sub}</div>
+      </div>`;
+  }).join("");
 }
 function resetEcoSearchUI(){
   state.ecoSearchQuery = "";
@@ -5465,13 +6663,14 @@ function renderEcoList(){
     card.className = "outlet-card";
     const buRows = o.assigned.map(k=>{
       const v = o.values[k];
-      // v<0 (retur murni tanpa transaksi baru bulan ini, ditemukan 1 kasus saat cross-check
-      // 3 distributor 16 Sept 2026) TETAP dianggap "ada aktivitas" (bukan "Belum") supaya
-      // konsisten dgn logika status LENGKAP/SEBAGIAN di ecoOutletsForSalesman (yg cuma
-      // menganggap === 0 sbg belum) -- ditandai warna netral (bukan hijau/merah) & label jelas.
-      const cls = v>0 ? "eco-bu-ok" : v<0 ? "eco-bu-retur" : "eco-bu-zero";
-      const icon = v>0 ? "✓" : v<0 ? "↩" : "✗";
-      const label = v>0 ? fmtRupiah(v) : v<0 ? `-${fmtRupiah(Math.abs(v))} (retur)` : "Belum";
+      // KOREKSI 21 Sept 2026 (feedback user, membalik keputusan 16 Sept di atas): v<0 (retur murni
+      // tanpa transaksi baru bulan ini) SEKARANG digabung ke kategori "Belum" (sama spt v===0),
+      // konsisten dgn perubahan zeroBUs di ecoOutletsForSalesman -- retur = belum ada penjualan
+      // baru, BUKAN kategori "ada aktivitas" tersendiri. Detail jumlah retur tetap ditampilkan di
+      // label supaya tidak hilang informasinya, cuma warna/ikon-nya sekarang ikut "Belum" (merah).
+      const cls = v>0 ? "eco-bu-ok" : "eco-bu-zero";
+      const icon = v>0 ? "✓" : "✗";
+      const label = v>0 ? fmtRupiah(v) : v<0 ? `Belum (ada retur ${fmtRupiah(v)})` : "Belum";
       return `<div class="eco-bu-item ${cls}"><span class="eco-bu-icon">${icon}</span><span class="eco-bu-info"><span class="eco-bu-name">${ecoBuLabel(k)}</span><b>${label}</b></span></div>`;
     }).join("");
     card.innerHTML = `
@@ -5605,6 +6804,60 @@ document.getElementById("ecoSortToggle").addEventListener("click", ()=>{
 });
 document.getElementById("lainnyaEcoBtn").addEventListener("click", openEcoDetail);
 document.getElementById("ecoBackBtn").addEventListener("click", closeEcoDetail);
+document.getElementById("lainnyaHygieneBtn").addEventListener("click", openHygieneDetail);
+document.getElementById("hygieneBackBtn").addEventListener("click", closeHygieneDetail);
+document.getElementById("lainnyaJuraganBtn").addEventListener("click", openJuraganDetail);
+document.getElementById("juraganBackBtn").addEventListener("click", closeJuraganDetail);
+document.getElementById("juraganSearch").addEventListener("input", debounceSearch(e=>{
+  const wasSearching = !!state.juraganSearchQuery;
+  state.juraganSearchQuery = e.target.value.trim().toLowerCase();
+  document.getElementById("juraganSearchClear").hidden = !state.juraganSearchQuery;
+  if(state.juraganSearchQuery && !wasSearching){
+    state.juraganDayBeforeSearch = state.juraganDay;
+    state.juraganDay = null;
+    state.juraganStatusBeforeSearch = state.juraganStatusFilter;
+    state.juraganStatusFilter = null;
+    renderJuraganDayChips();
+    renderJuraganSummary(juraganRowsForSalesman(state.salesman));
+  } else if(!state.juraganSearchQuery && wasSearching){
+    state.juraganDay = state.juraganDayBeforeSearch !== undefined ? state.juraganDayBeforeSearch : state.juraganDay;
+    state.juraganDayBeforeSearch = undefined;
+    state.juraganStatusFilter = state.juraganStatusBeforeSearch !== undefined ? state.juraganStatusBeforeSearch : state.juraganStatusFilter;
+    state.juraganStatusBeforeSearch = undefined;
+    renderJuraganDayChips();
+    renderJuraganSummary(juraganRowsForSalesman(state.salesman));
+  }
+  renderJuraganList();
+}, 60));
+document.getElementById("juraganSearchClear").addEventListener("click", ()=>{
+  state.juraganDay = state.juraganDayBeforeSearch !== undefined ? state.juraganDayBeforeSearch : state.juraganDay;
+  state.juraganStatusFilter = state.juraganStatusBeforeSearch !== undefined ? state.juraganStatusBeforeSearch : state.juraganStatusFilter;
+  resetJuraganSearchUI();
+  renderJuraganDayChips();
+  renderJuraganSummary(juraganRowsForSalesman(state.salesman));
+  renderJuraganList();
+});
+document.getElementById("juraganFilterReset").addEventListener("click", ()=>{
+  state.juraganDay = null;
+  state.juraganStatusFilter = null;
+  resetJuraganSearchUI();
+  renderJuraganDayChips();
+  renderJuraganSummary(juraganRowsForSalesman(state.salesman));
+  renderJuraganList();
+});
+document.getElementById("juraganSortToggle").addEventListener("click", ()=>{
+  // 3 keadaan bergilir tiap ketuk (pola sama persis ecoSortToggle): default (prioritas tertinggi)
+  // -> Kekurangan Tersedikit -> Pencapaian Terbesar -> balik ke default.
+  state.juraganSortMode = state.juraganSortMode===null ? "gap" : state.juraganSortMode==="gap" ? "pencapaian" : null;
+  const btn = document.getElementById("juraganSortToggle");
+  btn.classList.toggle("active", state.juraganSortMode !== null);
+  btn.textContent = state.juraganSortMode==="gap" ? "✓ Urutkan: Kekurangan Tersedikit"
+    : state.juraganSortMode==="pencapaian" ? "✓ Urutkan: Pencapaian Terbesar"
+    : "↕ Urutkan: Kekurangan Tersedikit";
+  renderJuraganList();
+});
+document.getElementById("lainnyaR2gBtn").addEventListener("click", openR2gDetail);
+document.getElementById("r2gBackBtn").addEventListener("click", closeR2gDetail);
 document.getElementById("ecoSummaryCta").addEventListener("click", ()=>{
   document.querySelectorAll(".tab-btn").forEach(b=>b.classList.remove("active"));
   const lainnyaBtn = document.querySelector('.tab-btn[data-view="lainnya"]');
