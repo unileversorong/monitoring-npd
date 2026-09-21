@@ -1,4 +1,4 @@
-<!doctype html><html lang="id"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>MONITORING HARIAN SALESMAN — NPD, TOP 12 COTC, PERFECT STORE (AVD), &amp; ECO</title><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap"><style>:root{color-scheme:light}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#faf9f5;color:#141413}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<!doctype html><html lang="id"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>RADAR SONIK — MONITORING HARIAN SALESMAN</title><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap"><style>:root{color-scheme:light}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#faf9f5;color:#141413}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
 <style>
 :root{
   --bg:#F3F7FC;
@@ -125,18 +125,32 @@ h1,h2,h3{
   max-width:560px;margin:0 auto;padding:9px 16px 8px;
   display:flex;flex-direction:column;gap:7px;
 }
-.brand{display:flex;align-items:center;gap:10px;}
-.brand-logo{flex-shrink:0;width:52px;height:52px;border-radius:10px;border:1px solid var(--border);background:#111827;display:block;}
-.brand-text{display:flex;flex-direction:column;gap:3px;min-width:0;}
+.brand{display:flex;align-items:flex-start;gap:10px;}
+.brand-logo-col{flex-shrink:0;display:flex;flex-direction:column;align-items:center;gap:4px;order:2;margin-left:auto;}
+.brand-logo{width:52px;height:52px;border-radius:10px;border:1px solid var(--border);background:#111827;display:block;}
+.brand-text{display:flex;flex-direction:column;gap:3px;min-width:0;order:1;}
 /* Judul di-highlight lewat warna+ukuran teks (bukan kotak/badge) — permintaan user
    15 Sept 2026: "buat lebih terhighlight tanpa kotak2 lagi ya, tapi tetap elegan
    dan simpel". Warna var(--title-navy) = biru dongker (BUKAN var(--brand) yg biru
    lebih muda/terang dipakai di tombol&link lain) — revisi user susulan: "jangan
    warna biru muda dong, warna biru dongker menurut saya lebih elegan". */
-.brand h1{font-size:17.5px;font-weight:800;letter-spacing:.015em;line-height:1.25;text-transform:uppercase;color:var(--title-navy);}
+.brand h1{font-size:20px;font-weight:800;letter-spacing:.03em;line-height:1.2;text-transform:uppercase;color:var(--title-navy);}
 /* Judul 2 baris (17 Sept 2026, disinkronkan dgn judul gambar & caption share WA):
-   baris 1 tetap bold (warisan .brand h1 di atas), baris 2 italic TIDAK bold. */
-.brand h1 .h1-sub{display:block;font-weight:400;font-style:italic;letter-spacing:0;font-size:12.5px;margin-top:2px;}
+   baris 1 tetap bold (warisan .brand h1 di atas), baris 2 italic TIDAK bold.
+   REVISI 22 Sept 2026 (rebrand "RADAR SONIK", feedback user: "komposisi & ukurannya
+   tidak proporsional/rapi") -- dulu baris 1 = judul panjang ("MONITORING HARIAN
+   SALESMAN") & baris 2 = tagline sedang ("NPD, TOP 12 COTC..."), ukuran 17.5px/12.5px
+   pas utk itu. SEKARANG baris 1 jadi NAMA BRAND pendek ("RADAR SONIK") & baris 2
+   jadi tagline yg lebih panjang ("MONITORING HARIAN SALESMAN") -- kalau ukuran lama
+   dipakai apa adanya, baris 2 (walau font lebih kecil) jadi HAMPIR SAMA LEBAR dgn
+   kolom teks krn ikut UPPERCASE dari .brand h1 (huruf kapital semua = makan tempat
+   lebih lebar), sementara baris 1 yg pendek jadi terlihat kecil/tenggelam -- kesannya
+   tidak seimbang/berantakan. Perbaikan: baris 1 dibesarkan (17.5->20px, letter-spacing
+   naik dikit) supaya tegas sbg nama brand; baris 2 dikecilkan (12.5->11px), TIDAK lagi
+   ikut UPPERCASE (text-transform:none, ditulis Title Case di HTML), & warnanya diredupkan
+   (var(--ink-muted), bukan warna judul yg sama gelapnya) -- pola umum "nama brand besar +
+   tagline kecil redup di bawahnya", bukan 2 baris yg bersaing sama beratnya. */
+.brand h1 .h1-sub{display:block;font-weight:500;font-style:italic;letter-spacing:.01em;font-size:11px;margin-top:3px;text-transform:none;color:var(--ink-muted);}
 .brand .meta{display:flex;flex-wrap:wrap;gap:5px;font-size:11px;color:var(--ink-muted);font-variant-numeric:tabular-nums;line-height:1.3;}
 .brand .meta .sep{opacity:.5;}
 /* Header disederhanakan (15 Sept 2026): "Riwayat update s.d." dihapus dari sini krn
@@ -184,7 +198,8 @@ h1,h2,h3{
 .sync-legend .sync-dot{margin-right:0;}
 /* Kredit developer — kecil, redup, tidak bersaing dgn info lain (permintaan user
    15 Sept 2026: "kecil saja tapi terlihat dan tidak mengganggu tulisan lainnya"). */
-.brand .credit{font-size:9.5px;color:var(--ink-muted);opacity:.65;letter-spacing:.01em;margin-top:1px;}
+.brand .credit{font-size:9px;color:var(--ink-muted);opacity:.65;letter-spacing:.01em;white-space:nowrap;}
+.brand-logo-col .credit{text-align:center;margin-top:0;}
 /* v116: 6 tab dalam 1 baris TIDAK MUAT di lebar HP umum (360-430px) — diukur nyata:
    butuh ±426px, jadi tab "Lainnya" terpotong & seluruh halaman bisa digeser ke samping
    (overflow horizontal). Di layar sempit tab disusun grid 3 kolom × 2 baris (semua label
@@ -246,21 +261,29 @@ h1,h2,h3{
 .chip .n{opacity:.65;font-weight:500;margin-left:5px;}
 .chip.active .n{opacity:.85;}
 .chip.split-chip{font-family:"Poppins",inherit;}
-/* Tombol "Reset Filter" (v80, evaluasi user: filter Hari PJP/Sisa KPI/Pencarian
+/* Tombol "Hapus Filter" (v80, evaluasi user: filter Hari PJP/Sisa KPI/Pencarian
    sudah masing2 py cara reset sendiri — chip "Semua"/tombol "×" — tapi belum ada
    SATU tombol yg membalikkan SEMUANYA sekaligus). Ditaruh setelah kotak pencarian,
-   HANYA tampil kalau ada filter yg sedang aktif (day/search/[PS]sisa-KPI) supaya
-   tidak jadi kotak nganggur pas semua sudah default. Sengaja teks polos tanpa
-   kotak/border (reuse gaya `.select-all-btn`), bukan tombol baru — konsisten
-   dgn arahan user sebelumnya "jangan terlalu banyak kotak persegi".
-   TIDAK termasuk toggle Urutkan (itu preferensi tampilan terpisah, py tombol
-   on/off sendiri yg sudah jelas, bukan "filter" yg menyembunyikan outlet). */
-.filter-reset-row{display:flex;justify-content:flex-end;margin-top:2px;}
+   HANYA tampil kalau ada filter ATAU urutan yg sedang aktif supaya tidak jadi
+   kotak nganggur pas semua sudah default.
+   REVISI 22 Sept 2026 (feedback user poin 1-3):
+   (1) SEKARANG termasuk toggle Urutkan dlm cakupannya (dulu sengaja tidak --
+       lihat riwayat v80 -- tapi user minta digabung supaya 1 tombol beneran
+       membalikkan SEMUA state tampilan sekaligus, bukan cuma filter).
+   (2) Nama tombol diganti dari "Reset Filter" -> "Hapus Filter" (konsisten
+       Bahasa Indonesia dgn seluruh app).
+   (3) Gaya visual naik kelas dari teks polos tanpa kotak (sering tidak
+       kelihatan/ketiban di pojok) jadi chip bulat warna "danger" (senada aksi
+       "menghapus") + tombol Urutkan (.sort-toggle-btn di bawah) dari abu pudar
+       (kelihatan spt nonaktif) jadi outline biru terang -- supaya SALESMAN
+       SADAR keduanya bisa disentuh walau sedang default/nonaktif. */
+.filter-reset-row{display:flex;justify-content:center;margin-top:8px;}
 .filter-reset-btn{
-  border:none;background:none;color:var(--brand);font-family:inherit;font-size:12px;font-weight:700;
-  cursor:pointer;padding:7px 4px;min-height:32px;
+  border:1.5px solid var(--danger);background:var(--danger-soft);color:var(--danger);
+  font-family:inherit;font-size:12.5px;font-weight:800;border-radius:99px;
+  cursor:pointer;padding:8px 16px;min-height:36px;
 }
-.filter-reset-btn:active{opacity:.6;}
+.filter-reset-btn:active{opacity:.7;transform:scale(.98);}
 
 /* ---- sku summary panel ---- */
 .sku-panel{
@@ -644,6 +667,32 @@ body.view-only .select-all-btn{display:none;}
   width:max-content;max-width:calc(100vw - 32px);text-align:center;line-height:1.35;
 }
 .identity-toast.show{opacity:1;transform:translate(-50%,0);}
+/* 22 Sept 2026 (feedback user poin 5, "tombol Kembali HP langsung keluar dari halaman form") --
+   overlay konfirmasi ini muncul lewat event `popstate` (lihat blok JS "gerbang tombol Kembali HP"
+   di akhir <script>), BUKAN dari klik biasa -- gaya senada .identity-gate/.identity-card supaya
+   konsisten dgn overlay lain yg sudah ada di app ini. "Batal" (tetap di sini) SENGAJA dibuat jadi
+   tombol utama menonjol (warna brand) & "Ya, Keluar" jadi tombol teks polos redup -- default yg
+   aman drpd tak sengaja kepencet keluar 2x berturut2. */
+.exit-confirm-overlay{
+  position:fixed;inset:0;background:rgba(15,25,45,.55);
+  display:flex;align-items:center;justify-content:center;z-index:250;padding:20px;
+}
+.exit-confirm-card{
+  background:var(--surface);border-radius:18px;padding:24px 20px;max-width:360px;width:100%;
+  box-shadow:var(--shadow);text-align:center;
+}
+.exit-confirm-icon{font-size:32px;margin-bottom:8px;}
+.exit-confirm-card h3{font-size:16px;margin:0 0 8px;color:var(--ink);}
+.exit-confirm-card p{font-size:12.5px;color:var(--ink-muted);line-height:1.5;margin:0 0 18px;}
+.exit-confirm-actions{display:flex;flex-direction:column;gap:8px;}
+.exit-confirm-btn{
+  border:none;border-radius:10px;padding:12px 14px;font-family:inherit;font-size:14px;font-weight:700;
+  cursor:pointer;transition:.15s;width:100%;
+}
+.exit-confirm-btn.cancel{background:var(--brand);color:var(--brand-ink);}
+.exit-confirm-btn.cancel:active{opacity:.85;}
+.exit-confirm-btn.confirm{background:none;color:var(--ink-muted);}
+.exit-confirm-btn.confirm:active{opacity:.6;}
 /* Toast konfirmasi centang PS (16 Sept 2026) — beda dari identity-toast (pesan
    pendek tanpa aksi): ini muncul KHUSUS saat centang/batal-centang 1 kriteria
    Perfect Store bikin outlet itu HILANG dari filter "Sisa N KPI" yg lagi
@@ -678,11 +727,17 @@ body.view-only .select-all-btn{display:none;}
   cursor:pointer;padding:6px 8px;line-height:1;
 }
 .sort-row{margin-top:8px;}
+/* REVISI 22 Sept 2026 (feedback user poin 3: "tombol urutkan ini juga tidak terlalu terlihat
+   oleh sales ketika posisi dia tidak di klik, jadi sales tidak tau kalo bisa mengurutkan") --
+   gaya nonaktif dinaikkan dari abu pudar tepi tipis (kesannya spt nonaktif/disabled) jadi
+   outline biru terang berisi (border 1.5px + background brand-soft) supaya tetap kelihatan
+   INTERAKTIF walau belum disentuh. Keadaan aktif (.active) TIDAK diubah -- sudah cukup jelas. */
 .sort-toggle-btn{
-  width:100%;border:1px solid var(--border);background:var(--surface);color:var(--ink-muted);
-  font-family:inherit;font-size:12px;font-weight:700;padding:8px 12px;border-radius:10px;
+  width:100%;border:1.5px solid var(--brand);background:var(--brand-soft);color:var(--brand);
+  font-family:inherit;font-size:12.5px;font-weight:800;padding:9px 12px;border-radius:10px;
   cursor:pointer;transition:.15s;text-align:center;
 }
+.sort-toggle-btn:active{opacity:.85;}
 .sort-toggle-btn.active{background:var(--brand);border-color:var(--brand);color:var(--brand-ink);}
 
 /* ---- bagikan ringkasan ---- */
@@ -1237,6 +1292,15 @@ details.info .info-body ul{margin:4px 0 0;padding-left:16px;}
 .jmr-label{flex:1;min-width:0;}
 .jmr-val{font-variant-numeric:tabular-nums;white-space:nowrap;font-size:12.5px;}
 .jmr-val .of{font-weight:600;color:var(--ink-muted);font-size:11px;}
+/* 22 Sept 2026 (revisi user, poin 4): baris "xx/yy" di jmr-val skrg cuma acuan poin DI TITIK
+   target (100% utk Basic/Growth, 120% utk Extra Miles) -- BUKAN batas atas (Growth/Extra
+   masih bisa nambah poin sampai 130% target, Basic malah tak dibatasi sama sekali -- lihat
+   juraganCompute_ Code.gs). Baris baru .jmr-sub ini pisahkan 2 info: catatan "acuan"-nya (kiri,
+   .jmr-note) + angka batas SUNGGUHAN "Maks" (kanan, .jmr-cap, HANYA utk Growth/Extra -- Basic
+   tidak py elemen ini krn memang tak ada batasnya sama sekali). */
+.jmr-sub{display:flex;align-items:center;justify-content:space-between;gap:6px;margin-top:3px;flex-wrap:wrap;}
+.jmr-note{font-size:10.5px;color:var(--ink-muted);font-weight:600;}
+.jmr-cap{font-size:11px;font-weight:800;color:var(--success);background:var(--success-soft);border-radius:99px;padding:2px 8px;white-space:nowrap;}
 .jmr-explain{font-size:11.5px;color:var(--ink-muted);margin-top:4px;line-height:1.45;}
 .jmr-explain b{color:var(--ink);}
 
@@ -1355,15 +1419,17 @@ details.info .info-body ul{margin:4px 0 0;padding-left:16px;}
 <div class="brandbar">
   <div class="topbar-inner">
     <div class="brand">
-      <img class="brand-logo" src="data:image/webp;base64,UklGRhQZAABXRUJQVlA4IAgZAABQVACdASqwALAAPmEoj0WkIiEWHLXAQAYEs4BqYHRekYRMlaCVxH8RXfN9h/Jz9yfW/8T+V/sP9o/vX+R/uPtKfvXjV6d/3voX/FPrL+L/tf7l/3P90vkf/Q+BvxJ/o/UC/Ev5H/fv7Z+1X9j/c76SPmv8l2weqf530BfXf6D/oP77+63+Y9HP+G9B/rN/xfcA/lP8+/yX96/df/D///6v/w3gtfbf99/rvcB/kv9S/3H95/Jn6V/4n/o/4v/U/t/7UPyz+7/8//F/AN/JP6P/uf8D/n//Z/mf///+Puw/9nur/c32Vv2h/7qJfRsnkWXlD0ogHVX/uk0Gi0SSRsNzdxR1pdnCvUORwuuJvLKuQEc3ItTB1lx55Q8Aaewjs+2qjJ2xWkRSPt0QiDlIecEx75dJhpgRx856/VaXSky9Yw99kxtgMmQFwxUo/9T2zibWrxHaP2KiL3JDZ0LLM9UxufLFPWzJb9q7ZmrmX+SdeyZLNM3fpNVgHONZvgdssFnyUaWdUxuEqyDrvxNVq/pu7ctGRfHJOOHvG0tQubY59PeuNaXW8Exwvzh3gXePInOfsnzXhNAo2MJ4u1yAkcQWVRFz/3itOHXAM40TCxSFzkk9Q765cpcbQOJXZqjVbkgZoDBOWcBUQLHwA+o3B6jARzlB0gB8x5K7xd9fBNqMh6YvZS9UYuLRyPgTPfYJIfXdpkjR6SkdodZeLoyGRpHiZUdtJh39UjQ3XkI5B9Rzh274w6mLul4KDZWlXwcL3xgP3fbfME2tykC/N4+oPPi55suynXSr3AJrqw5Q4m/s8jFKLQsO3Td7+4nn8UP0UwN2JOUqMyt9d/n9QbdVYALqt630B3x3MlkkDrqDuyo/aUJY3VHImAklz/0bep8wVhiKHG3pOfUfIVI8AAD+/QnH+BFsMOzxAOxQAAzfxfbeA/iXVrNfdqnYS8R+sHUo/Iiy4QVCCV1gScH345Nmv/7MdikB2gmwF6ywGCU/QJ/ZGfhHrX2iJP15fSNc5XNksmFYQNP/D7xPpK/nd5gQb4gBrPog04k1R6yEnJtufnO+HIXyxA4BLBYPmL07IJodzXQzOn84hY2qtFi+OQg+DBcZQ1lyWiA6XLswcN93tsGaSDTbeDGOe15ZgIHMRjqM9VGgHIZelqrOs+wpWjcp8SlpRTbdrfTd5qOelY9rZ7owX3FIptmFGcI3kD/jHmegVoXfQim3odEtegkM9DWdpnAIC8Eh8AXt8qHvzSi82NCzO6BqxrmNZAWtKGuyUyYq24VKrfbWzKsqSOM+jtUnA5hqq5r4DY9p9pl3XMLzruKnM6tBiTW2yQIeiqp0lcdW57n942crLLjWiC+AmypNZrbuy6EnZwjyNMmEEAuJCuhXTKba+zKJmYB3WU90OIxA5Hqi75PeJnnX/p+yuzAT9VvrDwcagrifU0y9o9Q754fu3gVzy/VsHNkf+Q7jiyuDicEG51xTpqIgwDo/yfM2DgKEgyA0ELXhxg+YH0v9fiD60sO1IAvqmfL8XRL0f+GvT0WOmyWdgb5CRhUSAChXKqPUCcwgAWUvbkKG3D9JI7nXDZwS/dlyt2OV53iQBpqNCcFru2mbarJBuwthxAZn3n9VK5JhH1GDCHWEBn5fY4IT2F7QLmT0TkuHGo7H8W3QjHf9h83EFF45u5j0nyViIqbgcDPyPUqLmH3AmTtqSsqSAr0jIOxIRdBVqU6SbPU+KOgn8+K3msruGySNhdunUwjkEfdZ7rMSIkenuqPYOuPJ6yYVV/RfvtlhEUq4qD06fVB4KcTkHGMg8O3Of5cbgWPVldSI3AV66NPxkqxtbiHpaVPD6qDhvuzB4Zn1obIIkbR4h5SLtWD2yXZE8luFYA12zlkp+0TDdz7dL94H7bjfbqTUBshv2jJcS26Ordx5FqfzfZpGLqY5Cmyjk0720JXVxO+4TfcwQxCH1uuTKIDRwezfrYWRpMqRmgk4BfVbN+nf3PxtqLWZNZ1vTXHHeLvsfWrK2+ydSKIg7Ux83E6HWDyczzyEuWg6Uk6aKgwixgLtXaa9P9FrEowztYiVShBomzTJUlWOVRhHOuC6eB3SD3PEd8uiC7BkbbbUTjzmY9ghZAbwsKdS4/9t7z7TSFK+Xsfbm6clpA93gjD19YHCl2l+paZuHXA3fLurt2UW35+L3YT8rZchDjBh+cATPMf8gcKQ58MGlh0JD4nJRY3+yeGnRdpNHxzq31+9SZdnboqgmZ+3e0yw2rMDH9Y5yjlp35Ojup3SWoLY9HXYDpQLo9O6zBwFCAkexCWx/eoLECybPrYMHLxgeoMKmeDLanlmLEhGENF/blYHdlz+FWOO3t/PiIzYp996eA6OMZdCvCKjSrsz1jXMgUxhRXmb5jABGpC3/EXtOub42d3bjV7vNLihSvoQzGu3Ols/yxn3KOut/pCGqipIaeNEKbqSPzRYWUETPUG9UeR4QhvVVszk90IqHsxUmZL67s1xsUQZRPoGN2kF0KGTAj/mBtHtk6L0txV2QKqZJGzIVc8bpoOr5s08rqs3p3VAMFqPwEuFryOaI86QzDFU3x0Rwxrm+KXrIqIYTgrJfATOAQrusfToYhRs+koX4Be3cWBmY+ztDQwZNpAQtXqVSSQ18NImZH5rDS9N8SzDlAHrnX4+qGNdWufYcCsixRxHvcu8DS5/SQRweJIgNe50zxgwEpLt2LsEoCbRp4brrRxMdqMti5SIeVurD6BgpQIeFLwMK7Gd8FjMOU/ycSrCFOn9nWCcd18H1D3CDtKbZOSayglBbsgwQbUhV+p0LR5K+hneBjNeORPiO1zJyRPH3MhhVxAXz6PMpVjrvIj6/8rES5FZEDMrB083ZvpAE44yNM84T75hl+gVk/cIlqrRFa98cR5sRLDQMH/v6Vp2V55koryw+k/o6XyBDS5doknvaSc8C1cDBVmTC2fgLSphnp4GI7n2oVRODagftEDWES4PnLAGOq6lfmUN8f0X1SdRLLlhETNGizHXLfQobErU6miOimGpAsj+b9prMX03g0tRUeXVd+g4Fq/SDtdfGa+B7Llfi0GDyoZDPZDFXe6K7PyAVoOZbuw0UyG4H9F7nVUnsnXmhHD/gANbmDZm4GpV9uk79aPHnFbFZ4+wn+z6I90JRjDTT5ZpQGh/b0FJYVRAOniDrKEuZ87PQhuHavuqH+UMiFb9CRWhs4YvcsgfF5jHGfIZhgDX13lCl4bxRBSSwEaVu+3ZRwoT5zKV9GO+++je352n0fO5iqO+uXegDmKaChsZVjHzw1YmdMHYH+A7ndIVs/2bgw/NWjzNXcYAI4S5+CCaD3C49MM4yqi7yTy9nshKnNKZ8UyCHWOsUGiAreaQsUUlub7sFMNEaeu7I/n+a3KOj/+vm3Vf4cgQEFyvqfSFzHqjJWdhOOmbOrz0mGu5V8kA7IMjJ6HOMC9QUJa0JigZU9vmPxxlHdIPqOxZHnJB2GyT9+WvMqQgrfbyO9gMpOnH/DlQ9+86HPI7A0WwfoJGuWWY3BYF8qwFAlUS/gKGMVLnc08w4N0vGgoLALgv+mXCYcGs31xO2xo9bXO9PsAnaPsUE4r0fpqdw0y+BT3NVKzzHY7I17+flrgascWqef29O+JsdBb3NVltNBFjm95sbqTAelLM2h/aJM9h4NXL5Qr9nCwAffGEsNrlKbuJKNiNqLKOa+wgJWd3aXJYHBNk6mSEMMm1QFDwZEGA3OyWhFoq7zMYVOCK5wiPbGyji9t9SJTaQmGrloWK7yd0Mpouoz07rCryRecr6Ig+oE93pEQFkXF3flYmHhAEUP6VfQ0FHFZlXHVsdnn3I+MEXMQxzmwXWUtwlMEiZ7RTBSoNI6OoaNqtWuyOYryIWjwM5r+2ma89xtr9lIxwfxWC5xC2FH8PyHxLLUSfbHhSKfSP95Gs5uXYNXVVhwLxK5tNFEmRt+tPd0haQiM+9VpVh6Ivm/Fd1I9hBPBuRnNOW8srHhPK53PhRcOwrYy1UJXb5ZlDL3UDxONHln2avCjCk4+7i4DCmfhgwYdDuJPh8feUhDJVfgmZKTe5KLm7bBVNPMdZ+GrtqF7kfWhAByDT4xOsfS0y9w0kiOeCB3UhHpS1LGxy3YdBfs2HbG1mwarHUeDyHt/rb332iQaVTlkCB2GhElj+3e5rXLTd97sMQ03sEn5Ck4liIafbEXz/vf1T1GOAqDRXonxdTyBTdV3RkZZgX9OnVVpEeJ2TwtqYAO9sm0h8dVZoMMCBXxZnHJtyGv6Ieg/NJL24GH+oKP5loWFSZDON5qvkhL2M9v+/OuClxPUmlrfnXhV3fNCOtJ4oT+IHz1iCh3HQ2Y+BjZQ8If7SXWINvuwG1IvvvtnBy0Hk/JXW6HWtirDB4faIWeTvkwmcV9mFsYrnMe6IVLfmmn6+MTFtkhqZCE6/3YLGZe9zfmw5ZwCW4gETGiWWvkk7XkZPThPPp5FmuFDSXnzSgjTMp/VZ3GKf0N9TXVdxCaiOUCaZ6TfGVSa6CtgQLSHD/dofE+ov17h7h/BoT/92ssNMa+ZM5wxUTaSot0uG39kailLeZ1hOP2dfJLLp9H4Xb/K/oWa5tkPWWU4z4GcTLHEXkk9O5dgzvI57RJ/D9HSm5QdiH3Pwy29iZbftVCPPGonzcKpNbB5qB1ALpge+rncL0dnxVk5+dkO8Wac8/hktHCpo2E07sWI7ktfaOXDfh7ITl8IcGQPVvFsQR7bBCEG+fP6/RU/pVze9ckDoBdZC5DBkxzyDt7Bm4egVr1wdLGJdG187pBBTm7PTsD1zU6cVglGJi2xmXdK3D1UT9c/l/uipFcXjEoyafzVLCt8s/moWpHFUa1sPml9Gbs3wkH4RmoC43tD4D6/mZN40HyKxtnTTTteC8Ilmz9ezPeQhFwi9zDhqrtn4wUmwC9VlB7yjD7RHeh0ZFDyYigO79X3DJPGoK4AAnoINB6Phi2w7xjt8StHDF7EJjFP2u/fB2/hE8IGACHNzfcUhMFthTfjEgPQoM01eoZrMxnkJvwHWovlkMcXqX+Peb3op1stKDhLOTUc2NI2ceG17Vb4jxR2w8LanDdLBubq+Dbs570erv4D9++CdyRPCnw/XHIQgVowGXD8RCMOeocEiZ/9pB+R3Nx4HZPVjlfP7FqP2K4kjNonGYXX8tDVZt0SyxZsdpiAkWjdka3IXpUD5jvRNvRdmjIEsenUDvN7n+tuGB9NDZgbrs6nJiAb4d+Ji30N1K116R4i7ABqe2135JhstE3cGUxtJwxXofzddX6XiTLFLoe4t0QP7oXkUPnNhbHecLQj6z2cCtfMcO8FuNgIHZ4aiWOgT6zu/hbIvBYdodO17R1sRgASSxiYqMQc521EtXcTPFpfxxeW1vk2WygeFZOhkDpD0jQrzcFGWBv7xw0UJBpX2j2MM8JyZAyNzft0fFTHbADugVdFjnWWCDBIBGhgNh1mTTPtX+8LS2ZS4aGrzyQAnj27zKN7jGYKtzBce73POqqVF4hYiiwYunlZz4WxKvsrkiDreUdIPM0gJrJLqQytsN9vggGVWTnAKbBI6F16+3QjACK1/WZY29YrwK+Sf+RpRcPdN5bTgHVyw0amZO/tif8wOWlbD+SDQVPTcrItAgfyVPb4GB20/HpjP9omEQVTLyxgKw2TH0WMiPZvyW4a/jpnsi4JUAFOVwm6NRFIK6ZxQnWCPzQ6qefuI489fGr/QR6auWDeM7Nnpt0fdlq2tvnoMYY5YmcqdrMk5Y2pKoiTtU2fCf6x6rBXlh1w2upZxDhATXEHf8dOArvwCdS4cwPRsyfuumgqiJ/peDrW/+UR/gWyHjDRJTa7dKVfZr9XTEcgpHwvjILWf/WImOUoH3w2I+8CGfD3ElwPDpfAIuTHg1IFvJ6wQHiJ5S2UgiCblvpAErGifL8pt7uA3lmNaF2Ms9PTzeHZHi3xy9yZxpdAgpjTCEPY6iNzyUMJCvXFOb916dxGyjA2rSthJnLzL/1Q+utcmLqAyFN65whM5sO0gB8kK3J/ueSEnFx54Y5WzSlKro8r9yMxWN5Fs3p5gNG81k4pVe+ZPJavYjc8V5oYB36pFp1TtLU6Smmz5aIOHeCuRiCgv/r/uCQgJWIDR6FcTWulKEq7Tb7/Gfr8PQxHecC/fPX/y9lo0tTabn1JnhCZsxW0iyXmGO2RPHkHLEi9YaXswBiWi9jG2xO9FTc5DD3EoaKtzzqzU2TgaSw7CkzkSFcwV+7+M6t1Tb3hIjqDs9oY9lvJgq9Lt655rPeSftT9nIKUa4RuIvobmRF5ccW27xEh/vgQLIxaE48PrqM0Zr1o/nEOnvcvOmFZriU8mxXp0Lfw4sa9IMv1Hv12FMMA8r4RiFdwiXhgOFEY7tPWoYYoVJH2+o69h0R29zI+yu1D+HE8RuIddJqOHCK97Mf7mQx/FYpo56v1scL37IIdAIWIREkRna6vA+f7wYHjb3Ogeoe61o17s8maK8GWkB2edhd067g+/edI6Fjjr4AokHPrR/9Q6g/wHVKXKnA7A7kPOBMFd04BesRFPQPUkQFnHfBxKAdVOWRu5hUjvRCeIc5IWA2ClbP18irkLBi4Ufwbpq3VfT5U5z8+ztukX5OgJcNOgsaW6On7zRy4nUNnyWHD7yFQYwYCbWXqz59UK7USDmvYqD1LKkuMBmUEjVw3Mg2yiCSXfXQvts4Ijms13BZZEEEFrZveiY9FmF2JrVFgMSQqESZvYA4bNsllp0Nf99OFdX8I6BWJlLBdQUTg87mh/7gzXzSy01gJLyESjxLIGlTbik6cOZHM+/RR5rFDDAwfc9SckLAveUvpFeGQL9vnYQLMf/hE/M4t5DVypvhIhrrgRDRJDO1OUt3XaPQwejcaV5itOHzVXDggV9cKXbGGszOBHRQXTjc/7ad9ahJilhwYYFlFW5dZG8Q0fSGxitrVal2vcGoWpj2+N44PlyQXRmQFcv+Hxxb4mf3rvtYD5oN27HBXJPwG1REyQuZTxJ3EJR1TgxLWPGDdSXwJejm9J3lLGz+sIeVbhsoHy+ot9R5HanJGsdCWQRbXsJC6NALDNXf4ZH1FD33ZmFwiZGsh1UHnNDMv3oss8cFmagiq+PN2rdM7t2FxSh2GTQ2cKT/LDybu8YJkTkWyX7Zt9XVXm44srrZfU0TfdSLjO4S4SqjDpjwUDWgl+iX13x8rrnPfT/N/6ZI/RxxOPPeAYEREq9NfDY79hvsRxnpfkHq6fSpW5pwYi+Y/0/xw3wBgFH5eGuKRGsmjKvVz9WDCZQfgZU0yCgMmMfMKMQTOMIGzrr/ZoMbXOK6tlRkDvpXb0QXfa+/keI9+J5Tb/PAJ39ia4V577qXKcqFxnDOHAH0+u1+xfdzDgnjHihfLDVHDz5FpipYf9rCxXs4FHnkh5m8oDcZf+4o0L2jb4TgARa4OTXTlO0ZJPqEtTCg/QFzmD/CH8rKl2jvrIvNSiRAeCZEVJuUaTS3q8DPRO4ASESbN8rks0Puq9VbDGRcji0FmxgxE4Mn29ilbr33JlfTn11TomlTQXPmUelqBgAkPEVU9EGFBLMqbk3b4nlUfvYJweHrVsa6hthA5zLyVWEJjTPghbq0M3Ng6ELrunAc3IlM4yM8kYWm23/gvDhTHYQ75iHTy9T7ytMafSa0JPf1DFcCc3YCYDTspzkiMBSW8VVsIN/f//qn8JVR/J/IMkHRts6P08RoAC1oc7SCz1Gcg7a0EJxKD9Hn2xRenakKlAtNwKk4BDKV3w1V5+dkxH8P5NKwzMRNCHKh8F/WycG9yBP+UkF4lE1T3AVytg75w71wHIWvq5c2j4YoGYEmVgexiAqVoJUqCN6KNV52NU3RhJ2IneZ5Hi9c4QP6blejtU2rpjfeSgYU9wLUfWhX8nXs0NAiHmw4q3GB1NAupHPQ21u/c6TZXDNa2+2wYEMrfCqMzLKFK0fAr3rcNBgBvDvBnRpwRqaJlxyFIe+zPAvzslytEBd8YFOyr/lY0HL09OxhPt5et2e2dqrNssvBnAsorHpSLdJImzMRMFzttkZ9tbian/Lj1+Itj45qbfCy0wpZKEicybN48KvtcuD24faX/RgrkZBNs4QAt9Yss/A6LEGtD1VXFtFUT/llbQpPKtmQxjhT8JGytmEF2SV5iXMz+feXp+3zANmrCSzHekF+KoaDI1p3xbTIYHe7IxqLTP8TpIwpYHpg1JSq9HaIT9S+zDiHnpEMV4maWvx+cUXpOTRyTgxYidsb6VRDtjw4NmzirLni8f5Tu1UHCdqWNJUjIuTFdTjdtRyzsAnoVHOVzcTP47dSzlE4AsAIV80Jvixsn2BJ0h4nzFkOxZdiChKWFzJaYnykWiHRnyjjXwAp5QjLGD01mc15pEKzbF/Xe8kOwt6FOoSFPIYrzL3cW6Lr6sjzMI/ds7C61tPKGEwK6N//idOE4gSjJl9/DhXEsQKvMfnNdfwn7MPf74707MU5aqWOpPg3FTlaue7885oUHrsspQ/Smu1LyuPgr9RFTsDjnqmF5gF8daHtp1UiAAFOTkAAAAAAA=" alt="SONIK Territory — Sorong, Nabire, Kaimana" width="52" height="52">
+      <div class="brand-logo-col">
+        <img class="brand-logo" src="data:image/webp;base64,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" alt="SONIK Territory — Sorong, Nabire, Kaimana" width="52" height="52">
+        <div class="credit">© RED</div>
+      </div>
       <div class="brand-text">
-      <h1>MONITORING HARIAN SALESMAN<span class="h1-sub">NPD, TOP 12 COTC, PERFECT STORE (AVD), &amp; ECO</span></h1>
+      <h1>RADAR SONIK<span class="h1-sub">Monitoring Harian Salesman</span></h1>
       <div class="meta"><span id="todayLabel"></span><span class="sep">·</span><span id="periodLabel" title="Bulan konfirmasi NPD yang sedang berjalan — hanya berganti lewat rilis versi baru dari file update"></span><span class="sep">·</span><span id="buildLabel" title="Versi app yang sedang dibuka"></span><span class="sep">·</span><span class="sync-wrap"><span id="syncDot" class="sync-dot"></span><span id="syncLabel" title="Waktu terakhir data berhasil ditarik dari database (Google Sheet)">Belum sinkron</span><button class="info-fab" id="syncInfoBtn" aria-label="Keterangan titik status koneksi">i</button><div class="info-popover" id="syncInfoPopover">
         <div class="sync-legend"><span class="sync-dot dot-ok"></span> <b>Aman.</b> Tersimpan &amp; sinkron. Tidak perlu apa-apa.</div>
         <div class="sync-legend"><span class="sync-dot dot-pending"></span> <b>Diproses.</b> Sinyal naik-turun. Tunggu, dicoba ulang sendiri.</div>
         <div class="sync-legend"><span class="sync-dot dot-warn"></span> <b>Bermasalah.</b> Gagal kirim/PIN salah. Ketuk banner merah di atas.</div>
       </div></span></div>
-      <div class="credit">Developed by Riando Elang Desilva</div>
       </div>
     </div>
   </div>
@@ -1371,10 +1437,10 @@ details.info .info-body ul{margin:4px 0 0;padding-left:16px;}
 <div class="topbar">
   <div class="topbar-inner">
     <div class="tabs">
-      <button class="tab-btn active" data-view="confirm">NPD</button>
-      <button class="tab-btn" data-view="cotc">Top 12 COTC</button>
-      <button class="tab-btn" data-view="ps">Perfect Store</button>
+      <button class="tab-btn active" data-view="confirm">⭐ NPD</button>
+      <button class="tab-btn" data-view="ps">⭐ Perfect Store</button>
       <button class="tab-btn" data-view="insentif">💰 Insentif</button>
+      <button class="tab-btn" data-view="cotc">🚨 Top 12 COTC</button>
       <button class="tab-btn" data-view="summary">Ringkasan</button>
       <button class="tab-btn" data-view="lainnya">Lainnya</button>
     </div>
@@ -1460,7 +1526,7 @@ details.info .info-body ul{margin:4px 0 0;padding-left:16px;}
         <button class="search-clear" id="outletSearchClear" hidden>×</button>
       </div>
       <div class="npd-unproven-banner" id="npdUnprovenBanner" hidden></div>
-      <div class="filter-reset-row" id="npdFilterResetRow" hidden><button class="filter-reset-btn" id="npdFilterReset">↺ Reset Filter</button></div>
+      <div class="filter-reset-row" id="npdFilterResetRow" hidden><button class="filter-reset-btn" id="npdFilterReset">↺ Hapus Filter</button></div>
 
       <div class="outlet-list" id="outletList"></div>
       <div class="hint" id="hintText"></div>
@@ -1490,7 +1556,7 @@ details.info .info-body ul{margin:4px 0 0;padding-left:16px;}
       <input type="text" class="search-input" id="cotcSearch" placeholder="Cari outlet: nama atau kode…">
       <button class="search-clear" id="cotcSearchClear" hidden>×</button>
     </div>
-    <div class="filter-reset-row" id="cotcFilterResetRow" hidden><button class="filter-reset-btn" id="cotcFilterReset">↺ Reset Filter</button></div>
+    <div class="filter-reset-row" id="cotcFilterResetRow" hidden><button class="filter-reset-btn" id="cotcFilterReset">↺ Hapus Filter</button></div>
 
     <div class="sort-row">
       <button class="sort-toggle-btn" id="cotcSortToggle">↕ Urutkan: Kekurangan SKU Tersedikit</button>
@@ -1528,7 +1594,7 @@ details.info .info-body ul{margin:4px 0 0;padding-left:16px;}
       <input type="text" class="search-input" id="psSearch" placeholder="Cari outlet: nama atau kode…">
       <button class="search-clear" id="psSearchClear" hidden>×</button>
     </div>
-    <div class="filter-reset-row" id="psFilterResetRow" hidden><button class="filter-reset-btn" id="psFilterReset">↺ Reset Filter</button></div>
+    <div class="filter-reset-row" id="psFilterResetRow" hidden><button class="filter-reset-btn" id="psFilterReset">↺ Hapus Filter</button></div>
 
     <div class="sort-row">
       <button class="sort-toggle-btn" id="psSortToggle">↕ Urutkan: Kekurangan Assortment Tersedikit</button>
@@ -1775,7 +1841,7 @@ details.info .info-body ul{margin:4px 0 0;padding-left:16px;}
       <input type="text" class="search-input" id="ecoSearch" placeholder="Cari outlet: nama atau kode…">
       <button class="search-clear" id="ecoSearchClear" hidden>×</button>
     </div>
-    <div class="filter-reset-row" id="ecoFilterResetRow" hidden><button class="filter-reset-btn" id="ecoFilterReset">↺ Reset Filter</button></div>
+    <div class="filter-reset-row" id="ecoFilterResetRow" hidden><button class="filter-reset-btn" id="ecoFilterReset">↺ Hapus Filter</button></div>
 
     <div class="sort-row">
       <button class="sort-toggle-btn" id="ecoSortToggle">↕ Urutkan: Omset Terbesar</button>
@@ -1821,7 +1887,7 @@ details.info .info-body ul{margin:4px 0 0;padding-left:16px;}
       <input type="text" class="search-input" id="juraganSearch" placeholder="Cari outlet: nama atau kode…">
       <button class="search-clear" id="juraganSearchClear" hidden>×</button>
     </div>
-    <div class="filter-reset-row" id="juraganFilterResetRow" hidden><button class="filter-reset-btn" id="juraganFilterReset">↺ Reset Filter</button></div>
+    <div class="filter-reset-row" id="juraganFilterResetRow" hidden><button class="filter-reset-btn" id="juraganFilterReset">↺ Hapus Filter</button></div>
 
     <div class="sort-row" id="juraganSortRow">
       <button class="sort-toggle-btn" id="juraganSortToggle">↕ Urutkan: Kekurangan Tersedikit</button>
@@ -1863,6 +1929,20 @@ details.info .info-body ul{margin:4px 0 0;padding-left:16px;}
       <button class="share-btn secondary" id="shareModalText" type="button">Kirim teks ke WhatsApp</button>
     </div>
     <div class="share-status" id="shareModalStatus"></div>
+  </div>
+</div>
+
+<!-- 22 Sept 2026 (feedback user poin 5): overlay konfirmasi saat tombol Kembali HP dipencet --
+     lihat blok JS "gerbang tombol Kembali HP" di akhir <script> utk mekanismenya. -->
+<div class="exit-confirm-overlay" id="exitConfirmOverlay" hidden>
+  <div class="exit-confirm-card">
+    <div class="exit-confirm-icon">🚪</div>
+    <h3>Yakin ingin keluar?</h3>
+    <p>Data yang sudah dicentang tetap tersimpan otomatis. Kalau cuma mau pindah menu/tab, tidak perlu keluar dari halaman ini — pakai tab di atas saja.</p>
+    <div class="exit-confirm-actions">
+      <button type="button" class="exit-confirm-btn cancel" id="exitConfirmCancel">Batal, Tetap di Sini</button>
+      <button type="button" class="exit-confirm-btn confirm" id="exitConfirmYes">Ya, Keluar</button>
+    </div>
   </div>
 </div>
 
@@ -2708,7 +2788,7 @@ function getKalkState(){
 // Periode aktif app (bulan konfirmasi NPD yang sedang berjalan). TIDAK ikut tanggal HP —
 // pindah bulan hanya lewat rilis versi baru dari file update AASM (keputusan user 14 Sept 2026).
 const ACTIVE_PERIOD = "2026-09";
-const APP_BUILD = "v136-UJI-T4-JURAGAN-UX11";  // label versi, tampil kecil di header — naikkan tiap publish
+const APP_BUILD = "v22.0";  // label versi, tampil kecil di header — naikkan tiap publish (rilis 22 Sept: Hapus Filter+Urutkan digabung & lebih terlihat, koreksi label "maks" Juragan, gerbang konfirmasi tombol Kembali HP)
 // Logo header gambar share WA (v109, 17 Sept 2026, permintaan user) — PNG asli
 // di-crop otomatis (buang padding transparan) + diperkecil tinggi 160px lewat
 // Pillow supaya ukuran base64 kecil (SONIK ~44KB, Unilever ~53KB teks base64).
@@ -3361,7 +3441,7 @@ document.getElementById("skuPanelHead").addEventListener("click", ()=>{
 // deployment "DB Monitoring NPD" yang dipakai sejak v55 — URL ini TIDAK berubah walau Code.gs
 // di-deploy versi baru (Manage deployments → Edit → New version). Ganti hanya kalau membuat
 // deployment/Sheet yang benar-benar baru.
-const GAS_URL = "https://script.google.com/macros/s/AKfycbw-aIHUr3qh4ujEdcF8KlZZ42TICN_Lzpb_a46rkR51yxATT0rVGFrCdXGWmGgKqLnY/exec";
+const GAS_URL = "https://script.google.com/macros/s/AKfycbw9rmQoGl9f_L98fTScIYc9aYPJvHrSBoVDXpiaMKKf_tw5wPVW_rnDjpKLONe0mUN1/exec";
 const SYNC_INTERVAL_MS = 3 * 60 * 1000;
 const SYNC_JITTER_MS = 30 * 1000; // variasi acak +/- pada timer sync berkala, supaya banyak HP yang
                                    // dibuka bersamaan (mis. awal shift) tidak kompak menembak server
@@ -4706,7 +4786,8 @@ function renderCotcList(){
   let list = visibleCotcOutlets();
   const docObj = getDoc(currentPeriod(), "COTC");
   const cotcResetRow = document.getElementById("cotcFilterResetRow");
-  if(cotcResetRow) cotcResetRow.hidden = !(state.cotcDay || state.cotcSearchQuery);
+  // 22 Sept 2026 (feedback user poin 1): cakupan "Hapus Filter" sekarang termasuk toggle Urutkan.
+  if(cotcResetRow) cotcResetRow.hidden = !(state.cotcDay || state.cotcSearchQuery || state.cotcSortByShortfall);
   // Toggle "Urutkan: Kekurangan SKU Tersedikit" — pola sama persis dgn psSortByShortfall:
   // outlet yg BELUM 12/12 (atau sesuai skuScope-nya) diurutkan naik dari kekurangan SKU
   // paling sedikit (paling gampang dikejar duluan); outlet yg SUDAH lengkap ditaruh di
@@ -4856,12 +4937,18 @@ document.getElementById("cotcSearchClear").addEventListener("click", ()=>{
   renderCotcDayChips();
   renderCotcList();
 });
-// "Reset Filter" (v80, evaluasi user): balikkan Hari PJP ke "Semua" + kosongkan
+// "Hapus Filter" (v80, evaluasi user): balikkan Hari PJP ke "Semua" + kosongkan
 // pencarian sekaligus dlm 1 ketukan.
+// REVISI 22 Sept 2026 (feedback user poin 1): sekarang ikut membalikkan toggle Urutkan ke
+// default (dulu sengaja dipisah -- lihat riwayat komentar CSS .filter-reset-row di atas).
 document.getElementById("cotcFilterReset").addEventListener("click", ()=>{
   state.cotcDay = null;
   state.cotcStickyOutlets.clear(); // reset filter = ganti konteks (v93, lihat catatan psStickyOutlets)
   state.cotcStickySortAnchor = {};
+  state.cotcSortByShortfall = false;
+  const sortBtn = document.getElementById("cotcSortToggle");
+  sortBtn.classList.remove("active");
+  sortBtn.textContent = "↕ Urutkan: Kekurangan SKU Tersedikit";
   resetCotcSearchUI();
   renderCotcDayChips();
   renderCotcList();
@@ -5371,7 +5458,8 @@ function renderPsList(){
   let list = visiblePsOutlets();
   const docObj = getDoc(currentPeriod(), "PS");
   const psResetRow = document.getElementById("psFilterResetRow");
-  if(psResetRow) psResetRow.hidden = !(state.psDay || state.psSearchQuery || state.psRemainingFilter != null);
+  // 22 Sept 2026 (feedback user poin 1): cakupan "Hapus Filter" sekarang termasuk toggle Urutkan.
+  if(psResetRow) psResetRow.hidden = !(state.psDay || state.psSearchQuery || state.psRemainingFilter != null || state.psSortByShortfall);
   // Filter chip "Sisa N KPI" (lihat psRemainingCount) — diterapkan SEBELUM sort
   // shortfall di bawah, supaya kedua filter bisa dipakai bersamaan.
   // "STICKY" outlet (16 Sept 2026, revisi ke-2 dari follow-up user): outlet yg
@@ -5597,7 +5685,12 @@ function renderPsRemainingChips(){
     renderPsList();
   });
   wrap.appendChild(allBtn);
-  [1,2,3].forEach(n=>{
+  // 22 Sept 2026 (feedback user): tambah chip "Perfect" (n=0, sisa KPI = 0 -- outlet yg SEMUA
+  // kriterianya sudah tercapai) di depan Sisa 1/2/3 KPI -- dulu tidak ada, jadi salesman tak bisa
+  // filter langsung utk lihat outlet mana saja yg sudah lengkap. Label pakai psRemainingLabel(n)
+  // (fungsi yg sudah ada, dipakai jg di toast konfirmasi) spy istilahnya konsisten se-app: "Perfect"
+  // utk n=0, "Sisa N KPI" utk n>=1 -- BUKAN teks baru "Sisa 0 KPI" spy tidak asing/aneh dibaca.
+  [0,1,2,3].forEach(n=>{
     const count = base.filter(o=>{
       const rec = docObj.outlets && docObj.outlets[o.kode];
       return psRemainingCount(o, rec) === n;
@@ -5605,7 +5698,7 @@ function renderPsRemainingChips(){
     if(count===0) return;
     const btn = document.createElement("button");
     btn.className = "chip" + (state.psRemainingFilter===n ? " active" : "");
-    btn.innerHTML = `Sisa ${n} KPI` + `<span class="n">${count}</span>`;
+    btn.innerHTML = psRemainingLabel(n) + `<span class="n">${count}</span>`;
     btn.addEventListener("click", ()=>{
       state.psRemainingFilter = n;
       state.psStickyOutlets.clear(); // ganti filter (termasuk klik chip yg sama lagi) = ganti konteks
@@ -5651,13 +5744,18 @@ document.getElementById("psSearchClear").addEventListener("click", ()=>{
   renderPsDayChips();
   renderPsList();
 });
-// "Reset Filter" (v80, evaluasi user): balikkan Hari PJP + Sisa KPI ke "Semua"
+// "Hapus Filter" (v80, evaluasi user): balikkan Hari PJP + Sisa KPI ke "Semua"
 // + kosongkan pencarian sekaligus dlm 1 ketukan (dulu 3 langkah terpisah).
+// REVISI 22 Sept 2026 (feedback user poin 1): sekarang ikut membalikkan toggle Urutkan ke default.
 document.getElementById("psFilterReset").addEventListener("click", ()=>{
   state.psDay = null;
   state.psRemainingFilter = null;
   state.psStickyOutlets.clear(); // reset filter = ganti konteks, lihat catatan di renderPsList()
   state.psStickySortAnchor = {}; // ikut dibersihkan bareng psStickyOutlets, lihat state init
+  state.psSortByShortfall = false;
+  const sortBtn = document.getElementById("psSortToggle");
+  sortBtn.classList.remove("active");
+  sortBtn.textContent = "↕ Urutkan: Kekurangan Assortment Tersedikit";
   resetPsSearchUI();
   renderPsDayChips();
   renderPsList();
@@ -6052,6 +6150,11 @@ function renderJuraganSummary(rows){
   const basicNow = rows.reduce((s,r)=>s+r.basicNow, 0), basicMax = rows.reduce((s,r)=>s+r.basicMax, 0);
   const growthNow = rows.reduce((s,r)=>s+r.growthNow, 0), growthMax = rows.reduce((s,r)=>s+r.growthMax, 0);
   const extraNow = rows.reduce((s,r)=>s+r.extraNow, 0), extraMax = rows.reduce((s,r)=>s+r.extraMax, 0);
+  // 22 Sept 2026 (feedback user poin 4): batas atas SUNGGUHAN (130% target) utk kotak ringkas
+  // Growth/Extra Miles -- growthMax/extraMax dari server cuma acuan di 100%/120% target, BUKAN
+  // batas atas (lihat catatan panjang di juraganMechRowHtml_/juraganMechDetailHtml_ di bawah).
+  const growthCap = growthMax * 1.3;
+  const extraCap = extraMax * (1.3/1.2);
   const barPct = totalMax>0 ? Math.min(100, Math.round((totalNow/totalMax)*100)) : 0;
   const totalTarget = rows.reduce((s,r)=>s+r.target, 0);
   const totalPencapaian = rows.reduce((s,r)=>s+r.pencapaian, 0);
@@ -6071,11 +6174,11 @@ function renderJuraganSummary(rows){
       <div class="jgh-total jgh-rp">${fmtRupiah(totalPencapaian)}</div>
       <div class="jgh-sub">${omsetPct}% dari total target ${fmtRupiah(totalTarget)}</div>
       <div class="jgh-bar"><div class="jgh-bar-fill" style="width:${Math.max(0,Math.min(100,omsetPct))}%"></div></div>
-      <div class="jgh-poin-strip">🏆 <b>${totalNow}</b> poin saat ini <span class="of">/ potensi maks ${Math.round(totalMax)}</span></div>
+      <div class="jgh-poin-strip">🏆 <b>${totalNow}</b> poin saat ini <span class="of">/ potensi capai target ${Math.round(totalMax)}</span></div>
       <div class="juragan-mech-grid">
-        <div class="juragan-mech-cell"><div class="jgm-top"><span class="jgm-icon">1</span><span class="jgm-val">${basicNow}</span></div><div class="jgm-lbl">Basic Point <span class="jgm-max">· maks ${Math.round(basicMax)}</span></div></div>
-        <div class="juragan-mech-cell"><div class="jgm-top"><span class="jgm-icon">2</span><span class="jgm-val">${growthNow}</span></div><div class="jgm-lbl">Target Growth <span class="jgm-max">· maks ${Math.round(growthMax)}</span></div></div>
-        <div class="juragan-mech-cell"><div class="jgm-top"><span class="jgm-icon">3</span><span class="jgm-val">${extraNow}</span></div><div class="jgm-lbl">Extra Miles <span class="jgm-max">· maks ${Math.round(extraMax)}</span></div></div>
+        <div class="juragan-mech-cell"><div class="jgm-top"><span class="jgm-icon">1</span><span class="jgm-val">${basicNow}</span></div><div class="jgm-lbl">Basic Point <span class="jgm-max">· 100%: ${Math.round(basicMax)}</span></div></div>
+        <div class="juragan-mech-cell"><div class="jgm-top"><span class="jgm-icon">2</span><span class="jgm-val">${growthNow}</span></div><div class="jgm-lbl">Target Growth <span class="jgm-max">· maks ${Math.round(growthCap)}</span></div></div>
+        <div class="juragan-mech-cell"><div class="jgm-top"><span class="jgm-icon">3</span><span class="jgm-val">${extraNow}</span></div><div class="jgm-lbl">Extra Miles <span class="jgm-max">· maks ${Math.round(extraCap)}</span></div></div>
       </div>
     </div>
     <div class="juragan-omset-box">
@@ -6184,14 +6287,26 @@ function toggleJuraganExpand(key){
  *  "1️⃣" dst yg render-nya tidak konsisten antar perangkat & jadi salah satu penyebab dropdown
  *  "tidak rapi" menurut feedback user). `stateClass` menentukan warna aksen kiri kartu:
  *  base=Basic (biru, tak pernah digerbang), inactive=blm capai gerbang (abu), active=sudah aktif
- *  tapi blm mentok (kuning), maxed=sudah capai batas maksimal (hijau). */
-function juraganMechRowHtml_(num, label, nowPoin, maxPoin, stateClass, explainHtml){
+ *  tapi blm mentok (kuning), maxed=sudah capai batas maksimal (hijau).
+ *  REVISI 22 Sept 2026 (feedback user poin 4 -- laporan "poin kok bisa lebih dari maks"): `benchmarkPoin`
+ *  ("xx/yy" di jmr-val) SEKARANG cuma acuan poin DI TITIK target (gatePct%) -- BUKAN diberi label
+ *  "maks" lagi (dulu keliru begitu, makanya poin aktual sering kelihatan "lebih dari maks" padahal
+ *  bukan bug, cuma salah label -- lihat juraganCompute_ Code.gs: Basic tak dibatasi sama sekali,
+ *  Growth/Extra baru benar2 mentok di 130% target). `capPoin` = batas atas SUNGGUHAN (di 130%
+ *  target) -- HANYA diisi utk Growth/Extra Miles; Basic Point dibiarkan `null` krn memang tidak
+ *  ada batas atasnya (permintaan eksplisit user: "kalo basic poin kan tidak ada maksimalnya"). */
+function juraganMechRowHtml_(num, label, nowPoin, benchmarkPoin, gatePct, capPoin, stateClass, explainHtml){
+  const capLine = capPoin!=null ? `<span class="jmr-cap">Maks ${Math.round(capPoin)} poin</span>` : "";
   return `
     <div class="juragan-mech-row jmr-${stateClass}">
       <div class="jmr-head">
         <span class="jmr-badge">${num}</span>
         <span class="jmr-label">${label}</span>
-        <span class="jmr-val">${nowPoin}<span class="of"> / maks ${Math.round(maxPoin)} poin</span></span>
+        <span class="jmr-val">${nowPoin}<span class="of"> / ${Math.round(benchmarkPoin)} poin</span></span>
+      </div>
+      <div class="jmr-sub">
+        <span class="jmr-note">(potensi kalau capai ${gatePct}% target)</span>
+        ${capLine}
       </div>
       <div class="jmr-explain">${explainHtml}</div>
     </div>`;
@@ -6202,26 +6317,38 @@ function juraganMechRowHtml_(num, label, nowPoin, maxPoin, stateClass, explainHt
  *  juraganCompute_ Code.gs: growthCap/extraCap sama2 tercapai persis di pencapaian=130% target --
  *  lihat komentar rumus di Code.gs). 3 keadaan: inactive (blm capai gerbang, tampilkan sisa Rp yg
  *  dibutuhkan), active (sudah lewat gerbang tapi blm capai batas maks, masih bisa nambah poin),
- *  maxed (sudah capai/lewat batas maks). */
-function juraganMechStateText_(target, pencapaian, gateFrac, capFrac, maxPoin){
+ *  maxed (sudah capai/lewat batas maks).
+ *  FIX 22 Sept 2026 (feedback user poin 4): parameter terakhir SEKARANG `capPoin` (batas atas
+ *  SUNGGUHAN di 130% target) -- SEBELUMNYA fungsi ini keliru dikasih `maxPoin` (acuan di 100%/120%
+ *  target, BUKAN batas atas), jadi teks "untuk poin maksimal X" yg ditampilkan ke salesman SALAH
+ *  ANGKA (X terlalu kecil dibanding poin sungguhan yg bisa didapat di 130% target). */
+function juraganMechStateText_(target, pencapaian, gateFrac, capFrac, capPoin){
   const gateRp = target*gateFrac, capRp = target*capFrac;
   if(pencapaian < gateRp){
     return { state: "inactive", text: `Aktif kalau pencapaian mencapai <b>${Math.round(gateFrac*100)}% target</b> (${fmtRupiah(gateRp)}). Butuh <b>${fmtRupiah(gateRp-pencapaian)}</b> lagi untuk mulai dapat poin ini.` };
   }
   if(pencapaian < capRp){
-    return { state: "active", text: `✓ Sudah aktif. Poin masih bisa bertambah sampai pencapaian <b>${fmtRupiah(capRp)}</b> (${Math.round(capFrac*100)}% target) untuk poin maksimal <b>${Math.round(maxPoin)}</b>.` };
+    return { state: "active", text: `✓ Sudah aktif. Poin masih bisa bertambah sampai pencapaian <b>${fmtRupiah(capRp)}</b> (${Math.round(capFrac*100)}% target) untuk poin maksimal <b>${Math.round(capPoin)}</b>.` };
   }
   return { state: "maxed", text: `✓ Sudah mencapai batas maksimal mekanisme ini (pencapaian ≥ ${Math.round(capFrac*100)}% target).` };
 }
 function juraganMechDetailHtml_(r){
   // KOREKSI 21 Sept 2026 lanjutan (feedback user): jelaskan RASIO mekanisme (bukan cuma "tidak
   // digerbang") -- persis rumus juraganCompute_ Code.gs (VRR1=Rp4.000/Rp1.500.000).
-  const basicRow = juraganMechRowHtml_(1, "Basic Point", r.basicNow, r.basicMax, "base",
-    "Setiap kelipatan <b>Rp1.500.000</b> pencapaian = <b>1 poin</b>. Aktif otomatis dari Rp1 pertama, tidak ada syarat minimum pencapaian.");
-  const g = juraganMechStateText_(r.target, r.pencapaian, 1, 1.3, r.growthMax);
-  const growthRow = juraganMechRowHtml_(2, "Target Growth", r.growthNow, r.growthMax, g.state, g.text);
-  const e = juraganMechStateText_(r.target, r.pencapaian, 1.2, 1.3, r.extraMax);
-  const extraRow = juraganMechRowHtml_(3, "Extra Miles", r.extraNow, r.extraMax, e.state, e.text);
+  // REVISI 22 Sept 2026 (feedback user poin 4): Basic Point TIDAK dikasih baris "Maks" (gatePct
+  // 100 cuma acuan, capPoin=null) krn memang tak dibatasi -- keputusan eksplisit user. Growth/Extra
+  // Miles skrg dikasih capPoin = batas SUNGGUHAN di 130% target (growthMax/extraMax cuma acuan di
+  // 100%/120% target masing2 -- lihat komentar juraganCompute_ Code.gs), dihitung murni di sisi
+  // client dari rasio capFrac/gateFrac (TANPA ubah Code.gs sama sekali -- growthMax & extraMax dari
+  // server tetap dipakai apa adanya sbg basis, cuma cara menampilkannya yg diperbaiki).
+  const basicRow = juraganMechRowHtml_(1, "Basic Point", r.basicNow, r.basicMax, 100, null, "base",
+    "Setiap kelipatan <b>Rp1.500.000</b> pencapaian = <b>1 poin</b>. Aktif otomatis dari Rp1 pertama, tidak ada syarat minimum pencapaian — <b>tidak ada batas atas</b>, semakin besar pencapaian semakin besar poinnya.");
+  const growthCap = r.growthMax * 1.3; // batas sungguhan di 130% target (growthMax = acuan di 100% target)
+  const g = juraganMechStateText_(r.target, r.pencapaian, 1, 1.3, growthCap);
+  const growthRow = juraganMechRowHtml_(2, "Target Growth", r.growthNow, r.growthMax, 100, growthCap, g.state, g.text);
+  const extraCap = r.extraMax * (1.3/1.2); // batas sungguhan di 130% target (extraMax = acuan di 120% target, BUKAN 100%)
+  const e = juraganMechStateText_(r.target, r.pencapaian, 1.2, 1.3, extraCap);
+  const extraRow = juraganMechRowHtml_(3, "Extra Miles", r.extraNow, r.extraMax, 120, extraCap, e.state, e.text);
   return basicRow + growthRow + extraRow;
 }
 /** Daftar toko: filter Hari/pencarian (visibleJuraganOutlets) + urutkan (juraganSortedOutlets),
@@ -6232,7 +6359,8 @@ function renderJuraganList(){
   const container = document.getElementById("juraganOutletList");
   if(!container) return;
   const resetRow = document.getElementById("juraganFilterResetRow");
-  if(resetRow) resetRow.hidden = !(state.juraganDay || state.juraganSearchQuery || state.juraganStatusFilter != null);
+  // 22 Sept 2026 (feedback user poin 1): cakupan "Hapus Filter" sekarang termasuk toggle Urutkan.
+  if(resetRow) resetRow.hidden = !(state.juraganDay || state.juraganSearchQuery || state.juraganStatusFilter != null || state.juraganSortMode !== null);
   container.innerHTML = "";
   if(list.length===0){
     container.innerHTML = state.juraganSearchQuery
@@ -6648,7 +6776,8 @@ function renderEcoList(){
   const container = document.getElementById("ecoOutletList");
   if(!container) return;
   const resetRow = document.getElementById("ecoFilterResetRow");
-  if(resetRow) resetRow.hidden = !(state.ecoDay || state.ecoSearchQuery || state.ecoStatusFilter != null);
+  // 22 Sept 2026 (feedback user poin 1): cakupan "Hapus Filter" sekarang termasuk toggle Urutkan.
+  if(resetRow) resetRow.hidden = !(state.ecoDay || state.ecoSearchQuery || state.ecoStatusFilter != null || state.ecoSortMode !== null);
   container.innerHTML = "";
   if(list.length===0){
     const allForSalesman = ecoOutletsForSalesman(state.salesman);
@@ -6782,9 +6911,15 @@ document.getElementById("ecoSearchClear").addEventListener("click", ()=>{
   renderEcoStatusChips();
   renderEcoList();
 });
+// REVISI 22 Sept 2026 (feedback user poin 1): "Hapus Filter" sekarang ikut membalikkan toggle
+// Urutkan ke default (dulu sengaja dipisah -- lihat riwayat komentar CSS .filter-reset-row).
 document.getElementById("ecoFilterReset").addEventListener("click", ()=>{
   state.ecoDay = null;
   state.ecoStatusFilter = null;
+  state.ecoSortMode = null;
+  const sortBtn = document.getElementById("ecoSortToggle");
+  sortBtn.classList.remove("active");
+  sortBtn.textContent = "↕ Urutkan: Omset Terbesar";
   resetEcoSearchUI();
   renderEcoDayChips();
   renderEcoStatusChips();
@@ -6837,9 +6972,15 @@ document.getElementById("juraganSearchClear").addEventListener("click", ()=>{
   renderJuraganSummary(juraganRowsForSalesman(state.salesman));
   renderJuraganList();
 });
+// REVISI 22 Sept 2026 (feedback user poin 1): "Hapus Filter" sekarang ikut membalikkan toggle
+// Urutkan ke default (dulu sengaja dipisah -- lihat riwayat komentar CSS .filter-reset-row).
 document.getElementById("juraganFilterReset").addEventListener("click", ()=>{
   state.juraganDay = null;
   state.juraganStatusFilter = null;
+  state.juraganSortMode = null;
+  const sortBtn = document.getElementById("juraganSortToggle");
+  sortBtn.classList.remove("active");
+  sortBtn.textContent = "↕ Urutkan: Kekurangan Tersedikit";
   resetJuraganSearchUI();
   renderJuraganDayChips();
   renderJuraganSummary(juraganRowsForSalesman(state.salesman));
@@ -7289,8 +7430,8 @@ function renderShareCardDom(){
   card.innerHTML = `
     <div style="margin-bottom:14px;display:flex;justify-content:space-between;align-items:center;gap:20px;flex-wrap:wrap;">
       <div style="max-width:870px;">
-        <div style="font-family:'Poppins',sans-serif;font-size:27px;font-weight:800;color:var(--ink);line-height:1.2;">MONITORING HARIAN SALESMAN</div>
-        <div style="font-family:'Poppins',sans-serif;font-size:17px;font-weight:400;font-style:italic;color:var(--ink);line-height:1.3;margin-top:3px;">NPD, TOP 12 COTC, PERFECT STORE (AVD), &amp; ECO</div>
+        <div style="font-family:'Poppins',sans-serif;font-size:27px;font-weight:800;color:var(--ink);line-height:1.2;">RADAR SONIK</div>
+        <div style="font-family:'Poppins',sans-serif;font-size:17px;font-weight:400;font-style:italic;color:var(--ink);line-height:1.3;margin-top:3px;">MONITORING HARIAN SALESMAN</div>
       </div>
       <div style="display:flex;align-items:center;gap:14px;flex-shrink:0;">
         <img src="${LOGO_SONIK_B64}" alt="SONIK" style="height:54px;width:auto;display:block;">
@@ -7527,7 +7668,7 @@ function shareCaptionText(){
   // Angka ringkasan sudah ada di gambarnya, tidak diulang di teks.
   const d = buildShareCardData();
   return ["*LAPORAN HARIAN SALESMAN*",
-    "_NPD, TOP 12 COTC, PERFECT STORE (AVD), & ECO_",
+    "_MONITORING HARIAN SALESMAN_",
     "",
     `Tanggal : ${fmtDateLong(state.today)}`,
     `Salesman : ${d.salesmanLabel}`,
@@ -7668,6 +7809,44 @@ renderCotcList();
 renderPsDayChips();
 renderPsList();
 initDb();
+
+// ---- 22 Sept 2026 (feedback user poin 5): gerbang konfirmasi tombol Kembali HP ----
+// Masukan salesman: pencet tombol Kembali (HP Android)/gestur swipe-back langsung KELUAR dari
+// halaman form ini tanpa ditanya dulu -- rawan tidak sengaja kepencet di tengah kerja isi form.
+// Trik standar SPA: begitu halaman siap, kita "kunci" 1 langkah histori browser lewat
+// history.pushState. Pencet Kembali yg PERTAMA MEMANG membuat browser mundur 1 langkah histori
+// (itu bagian bawaan browser, tidak bisa dicegah/preventDefault) -- tapi kita bisa MENANGKAP
+// momen itu lewat event `popstate` & langsung tunjukkan overlay konfirmasi #exitConfirmOverlay,
+// alih2 membiarkan browser lanjut menutup/keluar dari halaman.
+// - Pilih "Batal" -> overlay ditutup + pushState LAGI (re-arm gerbang utk pencet Kembali
+//   berikutnya -- tanpa ini, pencet Kembali ke-2 akan langsung tembus keluar tanpa ditanya lagi).
+// - Pilih "Ya, Keluar" -> history.back() SEKALI LAGI -- kali ini TIDAK ADA state gerbang kita lagi
+//   utk ditangkap popstate, jadi browser lanjut mundur/keluar sungguhan (ke halaman sebelum form
+//   ini dibuka, atau menutup tab/app kalau ini halaman pertama yg dibuka).
+// CATATAN: ini TIDAK mengubah/mencegat apapun selain tombol Kembali browser/HP -- pindah tab
+// NPD/COTC/PS/dst di DALAM form ini murni ganti tampilan via JS (hidden/innerHTML), sama sekali
+// tidak menyentuh histori browser, jadi gerbang ini tidak pernah muncul saat pindah tab biasa.
+function armExitGate_(){
+  history.pushState({exitGate:true}, "");
+}
+function showExitConfirm_(){
+  document.getElementById("exitConfirmOverlay").hidden = false;
+}
+function hideExitConfirm_(){
+  document.getElementById("exitConfirmOverlay").hidden = true;
+}
+window.addEventListener("popstate", ()=>{
+  showExitConfirm_();
+});
+document.getElementById("exitConfirmCancel").addEventListener("click", ()=>{
+  hideExitConfirm_();
+  armExitGate_(); // re-kunci gerbang utk pencet Kembali berikutnya
+});
+document.getElementById("exitConfirmYes").addEventListener("click", ()=>{
+  hideExitConfirm_();
+  history.back(); // kali ini beneran keluar -- tidak ada state gerbang lagi utk ditangkap popstate
+});
+armExitGate_(); // kunci 1 langkah histori begitu form ini siap dipakai
 </script>
 
 </body></html>
