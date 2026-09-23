@@ -1839,6 +1839,8 @@ details.info .info-body ul{margin:4px 0 0;padding-left:16px;}
 
     <div class="selector-row"><span class="lbl">Hari PJP</span><div class="chipwrap"><div class="chiprow" id="ecoDayChips"></div></div></div>
     <div class="selector-row"><span class="lbl">Status</span><div class="chipwrap"><div class="chiprow" id="ecoStatusChips"></div></div></div>
+    <!-- PATCH (23 Sept 2026, permintaan user): baris filter Channel -- disembunyikan otomatis lewat JS (renderEcoChannelChips) kalau belum ada data channel sama sekali -->
+    <div class="selector-row"><span class="lbl">Channel</span><div class="chipwrap"><div class="chiprow" id="ecoChannelChips"></div></div></div>
 
     <div class="search-row">
       <input type="text" class="search-input" id="ecoSearch" placeholder="Cari outlet: nama atau kode…">
@@ -2091,7 +2093,9 @@ function rebuildEcoRoster(){
   Object.keys(SPLITS).forEach(function(sk){
     const buCode = ECO_BU_CODE_BY_SPLIT_[sk] || "ALL";
     (SPLITS[sk].outlets || []).forEach(function(o){
-      rows.push([o[0], o[1], o[2], buCode, null, o[3]]); // [kode, nama, salesmanId, buCode, channel, hariPJP]
+      // PATCH (23 Sept 2026): channel sekarang ikut o[4] (dari master_raw, lihat groupMasterRoster) --
+      // sebelumnya sengaja null krn master_raw memang belum py kolom Channel saat itu.
+      rows.push([o[0], o[1], o[2], buCode, o[4]||"", o[3]]); // [kode, nama, salesmanId, buCode, channel, hariPJP]
     });
   });
   ECO_ROSTER.length = 0;
@@ -2199,7 +2203,11 @@ function groupMasterRoster(rows){
   (rows||[]).forEach(r=>{
     const sk = SALESMAN_SPLIT_OF[r.salesmanId];
     if(!sk) return;
-    grouped[sk].push([r.kode, r.nama||"", r.salesmanId, r.hari||""]);
+    // PATCH (23 Sept 2026, permintaan user): tambah o[4] = channel dari master_raw (kolom baru
+    // "Channel", opsional -- server kirim "" kalau kolomnya belum ada/blm diisi). DITAMBAHKAN DI
+    // AKHIR array supaya index 0-3 (kode/nama/salesmanId/hari) yg sudah dipakai di tempat lain
+    // tidak ikut bergeser.
+    grouped[sk].push([r.kode, r.nama||"", r.salesmanId, r.hari||"", r.channel||""]);
   });
   return grouped;
 }
@@ -2384,7 +2392,7 @@ function rerenderEcoViews(){
   const viewEco = document.getElementById("viewEco");
   const viewLainnya = document.getElementById("viewLainnya");
   const viewSummary = document.getElementById("viewSummary");
-  if(viewEco && !viewEco.hidden){ renderEcoDayChips(); renderEcoStatusChips(); renderEcoList(); }
+  if(viewEco && !viewEco.hidden){ renderEcoDayChips(); renderEcoStatusChips(); renderEcoChannelChips(); renderEcoList(); }
   if(viewLainnya && !viewLainnya.hidden) renderLainnyaMenu();
   if(viewSummary && !viewSummary.hidden) renderEcoSummaryCard();
   const viewHygiene = document.getElementById("viewHygiene");
@@ -2816,7 +2824,7 @@ function getKalkState(){
 // Periode aktif app (bulan konfirmasi NPD yang sedang berjalan). TIDAK ikut tanggal HP —
 // pindah bulan hanya lewat rilis versi baru dari file update AASM (keputusan user 14 Sept 2026).
 const ACTIVE_PERIOD = "2026-09";
-const APP_BUILD = "v24.0";  // label versi, tampil kecil di header — naikkan tiap publish (rilis 22 Sept: caption WhatsApp direbrand ikut pola "RADAR SONIK" (bold) / "Laporan Harian Salesman" (italic), ganti dari "LAPORAN HARIAN SALESMAN" / "MONITORING HARIAN SALESMAN")
+const APP_BUILD = "v27.0";  // label versi, tampil kecil di header — naikkan tiap publish (rilis 23 Sept: gambar share ECO -- tambah box "Belum Transaksi Sama Sekali per Channel" (basis semua outlet dicover) sejajar dgn "Cakupan Rute Hari Ini" (tile ditumpuk vertikal), gantikan baris full-width lama)
 // Logo header gambar share WA (v109, 17 Sept 2026, permintaan user) — PNG asli
 // di-crop otomatis (buang padding transparan) + diperkecil tinggi 160px lewat
 // Pillow supaya ukuran base64 kecil (SONIK ~44KB, Unilever ~53KB teks base64).
@@ -2899,6 +2907,7 @@ const state = {
   gateMode: "guest",    // pilihan di gate: "guest" (Mode Tamu) / "fill" (Saya salesman)
   gateStep: "dist",     // "dist" -> pilih distributor, "sales" -> pilih salesman
   searchQuery: "",
+  dayBeforeSearch: undefined, // PATCH (23 Sept 2026, konsistensi filter): simpan Hari sblm pencarian mulai, pola PERSIS ecoDayBeforeSearch/cotcDayBeforeSearch/psDayBeforeSearch/juraganDayBeforeSearch
   cotcExpanded: new Set(),
   cotcSkuExpanded: new Set(), // key "<kode outlet>::<sku id>" -> daftar varian SKU basepack sedang dibuka
   cotcSearchQuery: "",
@@ -2936,6 +2945,8 @@ const state = {
   ecoSearchQuery: "",
   ecoStatusFilter: null, // "BELUM" | "SEBAGIAN" | "LENGKAP" | null ("Semua") -- chip "Perlu Perhatian" dihapus 16 Sept 2026 (feedback user: langsung 3 kategori saja)
   ecoDay: null, // null = "Semua Hari"
+  ecoChannelFilter: null, // PATCH (23 Sept 2026, permintaan user): filter channel outlet di ECO -- null = "Semua", else nilai channel persis dari master_raw (mis. "TRADITIONAL TRADE"). Digabung (AND) dgn ecoDay+ecoStatusFilter, pola PERSIS filter ECO lain.
+  ecoChannelBeforeSearch: undefined, // simpan nilai sblm pencarian mulai, pola PERSIS ecoDayBeforeSearch/ecoStatusBeforeSearch
   ecoSortMode: null, // null (default, alfabetis) | "desc" (Omset Terbesar) | "asc" (Omset Terkecil)
   // TAHAP 4 lanjutan (21 Sept 2026, evaluasi user): filter/urutan/expand utk tab Juragan — pola
   // PERSIS eco*/cotc*/ps* di atas, state terpisah krn Juragan filter berdasar `hari` (dari
@@ -3057,6 +3068,7 @@ function fmtMonthLong(monthStr){
 }
 function resetSearchUI(){
   state.searchQuery = "";
+  state.dayBeforeSearch = undefined; // PATCH (23 Sept 2026)
   const input = document.getElementById("outletSearch");
   if(input) input.value = "";
   const clearBtn = document.getElementById("outletSearchClear");
@@ -3375,11 +3387,16 @@ function renderDayChips(){
   const wrap = document.getElementById("dayChips");
   wrap.innerHTML = "";
   // Chip "Semua" (v78 revisi — dulu tab NPD tidak py opsi ini sama sekali,
-  // beda dari COTC/PS yg sudah lebih dulu punya, jadi tidak ada cara balik ke
-  // "semua hari" selain lewat pencarian) — pola persis renderCotcDayChips/
+  // beda dari COTC/PS yg sudah lebih dulu punya) — pola persis renderCotcDayChips/
   // renderPsDayChips.
+  // PATC (23 Sept 2026, konsistensi filter, permintaan user): dulu di sini ada
+  // guard "!state.searchQuery" supaya TIDAK ADA chip yg nyala saat mencari (state.day
+  // sendiri dibiarkan apa adanya). Sekarang disamakan dgn ECO/COTC/PS/Juragan: saat
+  // mulai mencari, state.day DIPAKSA null oleh listener #outletSearch di bawah (lalu
+  // dikembalikan lagi setelah pencarian dikosongkan) -- jadi chip "Semua" di sini
+  // TINGGAL ikut apa adanya state.day, tidak perlu guard search lagi.
   const allBtn = document.createElement("button");
-  allBtn.className = "chip" + (!state.searchQuery && !state.day ? " active" : "");
+  allBtn.className = "chip" + (!state.day ? " active" : "");
   allBtn.innerHTML = "Semua" + `<span class="n">${outletsFor(state.salesman, null).length}</span>`;
   allBtn.addEventListener("click", ()=>{ state.day = null; state.expanded=new Set(); resetSearchUI(); renderAll(); });
   wrap.appendChild(allBtn);
@@ -3387,11 +3404,7 @@ function renderDayChips(){
     const count = outletsFor(state.salesman, d).length;
     if(count===0) return;
     const btn = document.createElement("button");
-    // Saat mencari, jangan tampilkan chip manapun sebagai "aktif" — pencarian
-    // menjangkau semua hari milik salesman ini, bukan cuma hari yang lagi
-    // dipilih, jadi chip yang menyala akan menyesatkan (state.day sendiri
-    // TIDAK diubah di sini, cuma tampilannya yang dinetralkan sementara).
-    btn.className = "chip" + (!state.searchQuery && state.day===d ? " active":"");
+    btn.className = "chip" + (state.day===d ? " active":"");
     btn.innerHTML = d + `<span class="n">${count}</span>`;
     btn.addEventListener("click", ()=>{ state.day = d; state.expanded=new Set(); resetSearchUI(); renderAll(); });
     wrap.appendChild(btn);
@@ -4060,12 +4073,26 @@ function debounceSearch(fn, ms){
   return function(e){ clearTimeout(t); t = setTimeout(()=>{ t = null; fn(e); }, ms); };
 }
 document.getElementById("outletSearch").addEventListener("input", debounceSearch(e=>{
+  // PATCH (23 Sept 2026, konsistensi filter, permintaan user): pola PERSIS listener
+  // #ecoSearch/#cotcSearch/#psSearch/#juraganSearch -- state.day dipaksa null saat mulai
+  // mencari (supaya chip "Semua" ikut menyala, bukan cuma hasil pencariannya saja yg lintas
+  // hari), lalu dikembalikan ke pilihan semula begitu pencarian dikosongkan.
+  const wasSearching = !!state.searchQuery;
   state.searchQuery = e.target.value.trim().toLowerCase();
   document.getElementById("outletSearchClear").hidden = !state.searchQuery;
+  if(state.searchQuery && !wasSearching){
+    state.dayBeforeSearch = state.day;
+    state.day = null;
+  } else if(!state.searchQuery && wasSearching){
+    state.day = state.dayBeforeSearch !== undefined ? state.dayBeforeSearch : state.day;
+    state.dayBeforeSearch = undefined;
+  }
   renderDayChips();
   renderOutletList();
 }, 60));
 document.getElementById("outletSearchClear").addEventListener("click", ()=>{
+  state.day = state.dayBeforeSearch !== undefined ? state.dayBeforeSearch : state.day; // PATCH (23 Sept 2026)
+  state.dayBeforeSearch = undefined;
   state.searchQuery = "";
   document.getElementById("outletSearch").value = "";
   document.getElementById("outletSearchClear").hidden = true;
@@ -5965,6 +5992,7 @@ function visibleEcoOutlets(){
   }
   let out = state.ecoDay ? list.filter(o=>o.pjpDay===state.ecoDay) : list;
   if(state.ecoStatusFilter) out = out.filter(o=>o.status===state.ecoStatusFilter);
+  if(state.ecoChannelFilter) out = out.filter(o=>o.channel===state.ecoChannelFilter); // PATCH (23 Sept 2026)
   return out;
 }
 function ecoSortedOutlets(list){
@@ -6026,6 +6054,7 @@ function openEcoDetail(){
   document.getElementById("viewEco").hidden = false;
   renderEcoDayChips();
   renderEcoStatusChips();
+  renderEcoChannelChips();
   renderEcoList();
 }
 function closeEcoDetail(){
@@ -6743,6 +6772,7 @@ function resetEcoSearchUI(){
   state.ecoSearchQuery = "";
   state.ecoDayBeforeSearch = undefined;
   state.ecoStatusBeforeSearch = undefined;
+  state.ecoChannelBeforeSearch = undefined; // PATCH (23 Sept 2026)
   const input = document.getElementById("ecoSearch");
   if(input) input.value = "";
   const clearBtn = document.getElementById("ecoSearchClear");
@@ -6806,6 +6836,45 @@ function renderEcoStatusChips(){
       resetEcoSearchUI();
       renderEcoDayChips();
       renderEcoStatusChips();
+      renderEcoChannelChips();
+      renderEcoList();
+    });
+    wrap.appendChild(btn);
+  });
+}
+// PATCH (23 Sept 2026, permintaan user): filter Channel di menu ECO -- pola PERSIS renderEcoStatusChips
+// di atas (basis hitungan = outlet yg lolos filter Hari PJP + Status yg lagi aktif, BUKAN filter
+// channel itu sendiri). Daftar channel-nya TIDAK di-hardcode -- diambil otomatis dari nilai yg
+// benar2 ada di master_raw (kolom Channel), supaya kalau suatu saat ada kategori channel baru,
+// chip-nya otomatis muncul tanpa perlu ubah kode lagi. Outlet yg channel-nya masih kosong (blm
+// diisi di master_raw) tetap ikut dihitung di "Semua", tapi tidak dapat chip kategori sendiri.
+function renderEcoChannelChips(){
+  const wrap = document.getElementById("ecoChannelChips");
+  if(!wrap) return;
+  let base = ecoOutletsForSalesman(state.salesman);
+  if(state.ecoDay) base = base.filter(o=>o.pjpDay===state.ecoDay);
+  if(state.ecoStatusFilter) base = base.filter(o=>o.status===state.ecoStatusFilter);
+  const channels = Array.from(new Set(base.map(o=>o.channel).filter(c=>c))).sort((a,b)=>a.localeCompare(b,"id"));
+  const row = wrap.closest(".selector-row");
+  // Sembunyikan seluruh baris filter Channel kalau belum ada satupun outlet salesman ini yg
+  // punya data channel (mis. master_raw belum diisi utk Nabire/Kaimana) -- drpd tampilkan baris
+  // filter yg cuma berisi chip "Semua" doang, tidak berguna.
+  if(row) row.hidden = channels.length===0;
+  if(channels.length===0){ wrap.innerHTML = ""; return; }
+  const defs = [{key:null, label:"Semua", count:base.length}]
+    .concat(channels.map(c=>({key:c, label:c, count:base.filter(o=>o.channel===c).length})));
+  wrap.innerHTML = "";
+  defs.forEach(d=>{
+    if(d.count===0 && d.key!==null) return;
+    const btn = document.createElement("button");
+    btn.className = "chip" + (state.ecoChannelFilter===d.key ? " active" : "");
+    btn.innerHTML = escapeHtml(d.label) + `<span class="n">${d.count}</span>`;
+    btn.addEventListener("click", ()=>{
+      state.ecoChannelFilter = d.key;
+      resetEcoSearchUI();
+      renderEcoDayChips();
+      renderEcoStatusChips();
+      renderEcoChannelChips();
       renderEcoList();
     });
     wrap.appendChild(btn);
@@ -6817,7 +6886,7 @@ function renderEcoList(){
   if(!container) return;
   const resetRow = document.getElementById("ecoFilterResetRow");
   // 22 Sept 2026 (feedback user poin 1): cakupan "Hapus Filter" sekarang termasuk toggle Urutkan.
-  if(resetRow) resetRow.hidden = !(state.ecoDay || state.ecoSearchQuery || state.ecoStatusFilter != null || state.ecoSortMode !== null);
+  if(resetRow) resetRow.hidden = !(state.ecoDay || state.ecoSearchQuery || state.ecoStatusFilter != null || state.ecoChannelFilter != null || state.ecoSortMode !== null);
   container.innerHTML = "";
   if(list.length===0){
     const allForSalesman = ecoOutletsForSalesman(state.salesman);
@@ -6931,24 +7000,32 @@ document.getElementById("ecoSearch").addEventListener("input", debounceSearch(e=
     state.ecoDay = null;
     state.ecoStatusBeforeSearch = state.ecoStatusFilter;
     state.ecoStatusFilter = null;
+    state.ecoChannelBeforeSearch = state.ecoChannelFilter;
+    state.ecoChannelFilter = null;
     renderEcoDayChips();
     renderEcoStatusChips();
+    renderEcoChannelChips();
   } else if(!state.ecoSearchQuery && wasSearching){
     state.ecoDay = state.ecoDayBeforeSearch !== undefined ? state.ecoDayBeforeSearch : state.ecoDay;
     state.ecoDayBeforeSearch = undefined;
     state.ecoStatusFilter = state.ecoStatusBeforeSearch !== undefined ? state.ecoStatusBeforeSearch : state.ecoStatusFilter;
     state.ecoStatusBeforeSearch = undefined;
+    state.ecoChannelFilter = state.ecoChannelBeforeSearch !== undefined ? state.ecoChannelBeforeSearch : state.ecoChannelFilter;
+    state.ecoChannelBeforeSearch = undefined;
     renderEcoDayChips();
     renderEcoStatusChips();
+    renderEcoChannelChips();
   }
   renderEcoList();
 }, 60));
 document.getElementById("ecoSearchClear").addEventListener("click", ()=>{
   state.ecoDay = state.ecoDayBeforeSearch !== undefined ? state.ecoDayBeforeSearch : state.ecoDay;
   state.ecoStatusFilter = state.ecoStatusBeforeSearch !== undefined ? state.ecoStatusBeforeSearch : state.ecoStatusFilter;
+  state.ecoChannelFilter = state.ecoChannelBeforeSearch !== undefined ? state.ecoChannelBeforeSearch : state.ecoChannelFilter;
   resetEcoSearchUI();
   renderEcoDayChips();
   renderEcoStatusChips();
+  renderEcoChannelChips();
   renderEcoList();
 });
 // REVISI 22 Sept 2026 (feedback user poin 1): "Hapus Filter" sekarang ikut membalikkan toggle
@@ -6956,6 +7033,7 @@ document.getElementById("ecoSearchClear").addEventListener("click", ()=>{
 document.getElementById("ecoFilterReset").addEventListener("click", ()=>{
   state.ecoDay = null;
   state.ecoStatusFilter = null;
+  state.ecoChannelFilter = null;
   state.ecoSortMode = null;
   const sortBtn = document.getElementById("ecoSortToggle");
   sortBtn.classList.remove("active");
@@ -6963,6 +7041,7 @@ document.getElementById("ecoFilterReset").addEventListener("click", ()=>{
   resetEcoSearchUI();
   renderEcoDayChips();
   renderEcoStatusChips();
+  renderEcoChannelChips();
   renderEcoList();
 });
 document.getElementById("ecoSortToggle").addEventListener("click", ()=>{
@@ -7436,6 +7515,15 @@ function buildShareCardData(){
   const ecoSebagian = ecoAll.filter(o=>o.status==="SEBAGIAN").length;
   const ecoBelum = ecoAll.filter(o=>o.status==="BELUM").length;
   const ecoRouteToday = ecoAll.filter(o=>o.pjpDay===todayDow);
+  // v27.0 (23 Sept 2026): breakdown "Belum Transaksi Sama Sekali" PER CHANNEL, basis SELURUH
+  // outlet yg dicover salesman (ecoAll) -- BUKAN cuma rute hari ini (permintaan eksplisit user,
+  // sama seperti basis 3 progress bar di atas). Channel yg dicover salesman TETAP ditampilkan
+  // walau jumlah BELUM-nya 0 (user pilih opsi "Tetap ditampilkan (angka 0)"). Diurutkan dari
+  // jumlah BELUM terbanyak ke tersedikit supaya channel paling bermasalah kelihatan duluan.
+  const ecoChannelsCovered = Array.from(new Set(ecoAll.map(o=>o.channel).filter(c=>c)));
+  const ecoChannelBelum = ecoChannelsCovered
+    .map(c=>({channel:c, count: ecoAll.filter(o=>o.channel===c && o.status==="BELUM").length}))
+    .sort((a,b)=> b.count - a.count || a.channel.localeCompare(b.channel,"id"));
   const eco = {
     total: ecoAll.length,
     breakdownHtml: ecoAll.length ? (
@@ -7450,6 +7538,8 @@ function buildShareCardData(){
       sebagian: ecoRouteToday.filter(o=>o.status==="SEBAGIAN").length,
       belum: ecoRouteToday.filter(o=>o.status==="BELUM").length,
     } : null,
+    belumTotal: ecoBelum,
+    channelBelum: ecoChannelBelum,
   };
   return {sp, monthStr, salesmanLabel, distLabel, skuRows, todayCount, todayRows, route, totalAll, doneAll, totalPct, unproven, cotc, ps, eco};
 }
@@ -7550,30 +7640,58 @@ function renderShareCardDom(){
 // Bagian ke-4 laporan harian: TRANSAKSI OUTLET (ECO) (17 Sept 2026) — full-width DI BAWAH
 // sc-grid (bukan kolom sejajar NPD/COTC/PS), lihat catatan lengkap di buildShareCardData().
 function shareEcoSectionHtml(eco){
-  const routeHtml = eco.routeToday ? `
-    <div style="border-top:1px dashed var(--border);margin-top:12px;padding-top:10px;">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
-        <span style="font-size:11px;font-weight:600;color:var(--brand);opacity:.9;">Cakupan Rute Hari Ini (${todayDow}) — status kumulatif</span>
-        <span style="font-size:12px;font-weight:700;color:var(--brand);">${eco.routeToday.total} outlet</span>
+  // v27.0 (23 Sept 2026): baris "Cakupan Rute Hari Ini" diubah dari full-width jadi 2 kolom
+  // sejajar (permintaan eksplisit user, mockup disetujui 23 Sept 2026) -- KIRI = box baru
+  // "Belum Transaksi Sama Sekali per Channel" (basis SELURUH outlet dicover, bukan rute hari
+  // ini), KANAN = box "Cakupan Rute Hari Ini" yg SUDAH ADA sebelumnya, TIDAK berubah datanya,
+  // cuma tile-nya diubah dari sejajar horizontal jadi ditumpuk vertikal (biar muat sejajar
+  // dgn box channel di sebelahnya). Kalau salesman belum py data channel sama sekali (channel
+  // kosong semua di master_raw), channelBelumHtml kosong & box kanan otomatis full-width lagi
+  // (graceful degrade -- tampilannya identik dgn sebelum v27.0).
+  const channelBelumHtml = (eco.channelBelum && eco.channelBelum.length) ? `
+    <div style="flex:1;min-width:280px;padding:10px 12px 9px;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;gap:8px;">
+        <span style="font-size:11px;font-weight:600;color:var(--danger);opacity:.9;">❌ Belum Transaksi Sama Sekali — per Channel</span>
+        <span style="font-size:12px;font-weight:700;color:var(--danger);white-space:nowrap;">${eco.belumTotal} outlet</span>
       </div>
-      <div style="display:flex;gap:10px;flex-wrap:wrap;">
-        <div style="flex:1;min-width:150px;background:var(--success-soft);border-radius:9px;padding:7px 10px;">
-          <div style="font-size:10px;font-weight:700;color:var(--success);">✅ Sudah Lengkap</div>
-          <div style="font-size:16px;font-weight:800;color:var(--ink);margin-top:2px;">${eco.routeToday.lengkap}</div>
+      <div style="display:flex;flex-direction:column;gap:5px;">
+        ${eco.channelBelum.map(c=>`
+        <div style="display:flex;justify-content:space-between;align-items:center;background:${c.count>0?"var(--danger-soft)":"var(--surface-2)"};border-radius:8px;padding:5px 10px;${c.count>0?"":"opacity:.55;"}">
+          <span style="font-size:10.5px;font-weight:600;color:var(--ink);">${escapeHtml(c.channel)}</span>
+          <span style="font-size:12px;font-weight:800;color:${c.count>0?"var(--danger)":"var(--ink-muted)"};">${c.count}</span>
+        </div>`).join("")}
+      </div>
+      <div style="font-size:9px;color:var(--ink-muted);margin-top:7px;line-height:1.35;">* Basis: seluruh ${eco.total} outlet yang di-cover salesman (bukan hanya rute hari ini). Semua channel yang dicover tetap tampil meski angkanya 0.</div>
+    </div>` : "";
+  const routeTilesHtml = eco.routeToday ? `
+    <div style="flex:1;min-width:280px;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;gap:8px;">
+        <span style="font-size:11px;font-weight:600;color:var(--brand);opacity:.9;">Cakupan Rute Hari Ini (${todayDow}) — status kumulatif</span>
+        <span style="font-size:12px;font-weight:700;color:var(--brand);white-space:nowrap;">${eco.routeToday.total} outlet</span>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:6px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;background:var(--success-soft);border-radius:9px;padding:6px 10px;">
+          <span style="font-size:10px;font-weight:700;color:var(--success);">✅ Sudah Lengkap</span>
+          <span style="font-size:15px;font-weight:800;color:var(--ink);">${eco.routeToday.lengkap}</span>
         </div>
-        <div style="flex:1;min-width:150px;background:var(--pending-soft);border-radius:9px;padding:7px 10px;">
-          <div style="font-size:10px;font-weight:700;color:var(--pending);">⚠️ Belum Semua BU</div>
-          <div style="font-size:16px;font-weight:800;color:var(--ink);margin-top:2px;">${eco.routeToday.sebagian}</div>
+        <div style="display:flex;justify-content:space-between;align-items:center;background:var(--pending-soft);border-radius:9px;padding:6px 10px;">
+          <span style="font-size:10px;font-weight:700;color:var(--pending);">⚠️ Belum Semua BU</span>
+          <span style="font-size:15px;font-weight:800;color:var(--ink);">${eco.routeToday.sebagian}</span>
         </div>
-        <div style="flex:1;min-width:150px;background:var(--danger-soft);border-radius:9px;padding:7px 10px;">
-          <div style="font-size:10px;font-weight:700;color:var(--danger);">❌ Belum Transaksi</div>
-          <div style="font-size:16px;font-weight:800;color:var(--ink);margin-top:2px;">${eco.routeToday.belum}</div>
+        <div style="display:flex;justify-content:space-between;align-items:center;background:var(--danger-soft);border-radius:9px;padding:6px 10px;">
+          <span style="font-size:10px;font-weight:700;color:var(--danger);">❌ Belum Transaksi</span>
+          <span style="font-size:15px;font-weight:800;color:var(--ink);">${eco.routeToday.belum}</span>
         </div>
       </div>
     </div>` : `
-    <div style="border-top:1px dashed var(--border);margin-top:12px;padding-top:10px;display:flex;justify-content:space-between;align-items:center;">
+    <div style="flex:1;min-width:280px;display:flex;justify-content:space-between;align-items:center;">
       <span style="font-size:11px;font-weight:600;color:var(--brand);opacity:.9;">Cakupan Rute Hari Ini</span>
       <span style="font-size:12px;font-weight:700;color:var(--brand);">Tidak ada rute terjadwal hari ini</span>
+    </div>`;
+  const bottomRowHtml = `
+    <div style="border-top:1px dashed var(--border);margin-top:12px;padding-top:14px;display:flex;gap:14px;flex-wrap:wrap;">
+      ${channelBelumHtml}
+      ${routeTilesHtml}
     </div>`;
   return `
     <div style="margin-top:18px;border:1.5px solid var(--border);border-radius:14px;padding:14px 16px 12px;">
@@ -7583,7 +7701,7 @@ function shareEcoSectionHtml(eco){
       </div>
       <div style="font-size:12px;color:var(--ink-muted);font-weight:600;margin-bottom:10px;">Outlet yang Dicover: <b style="color:var(--ink);">${eco.total}</b></div>
       ${eco.breakdownHtml || `<div style="font-size:11.5px;color:var(--ink-muted);">Belum ada data ECO untuk salesman ini.</div>`}
-      ${routeHtml}
+      ${bottomRowHtml}
     </div>`;
 }
 // Kotak "Pencapaian Hari Ini" di gambar share — dipakai ketiga KPI (sama seperti layar Ringkasan)
