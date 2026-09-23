@@ -1085,6 +1085,20 @@ details.info .info-body ul{margin:4px 0 0;padding-left:16px;}
 .eco-today-route-tile.belum{background:var(--danger-soft);}
 .eco-today-route-tile.belum .tlbl{color:var(--danger);}
 .eco-today-route-empty{font-size:11.5px;color:var(--ink-muted);font-weight:600;}
+/* Belum Transaksi Sama Sekali per Channel di layar Ringkasan (v27.0, 23 Sept 2026) -- basis SELURUH
+   outlet dicover (all), sama seperti versi di gambar share WhatsApp, TAPI ditumpuk full-width
+   vertikal (bukan 2 kolom sejajar) krn ini layar HP asli, bukan kartu gambar lebar 1080px. */
+.eco-channel-belum{margin-top:12px;padding-top:10px;border-top:1px dashed var(--border);}
+.eco-channel-belum-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;gap:8px;}
+.eco-channel-belum-head .lbl{font-size:11.5px;font-weight:700;color:var(--danger);}
+.eco-channel-belum-head .val{font-size:12.5px;font-weight:700;color:var(--danger);flex-shrink:0;}
+.eco-channel-belum-list{display:flex;flex-direction:column;gap:6px;}
+.eco-channel-belum-row{display:flex;justify-content:space-between;align-items:center;background:var(--danger-soft);border-radius:9px;padding:7px 10px;}
+.eco-channel-belum-row.zero{background:var(--surface-2);opacity:.6;}
+.eco-channel-belum-row .cn{font-size:11.5px;font-weight:600;color:var(--ink);}
+.eco-channel-belum-row .cc{font-size:13px;font-weight:800;color:var(--danger);font-variant-numeric:tabular-nums;}
+.eco-channel-belum-row.zero .cc{color:var(--ink-muted);}
+.eco-channel-belum-note{font-size:10px;color:var(--ink-muted);margin-top:7px;line-height:1.35;}
 
 /* ---------- Hygiene Factor Jasper (Syarat Pencairan Insentif) / Lainnya — TAHAP 3, 19 Sept 2026 ---------- */
 .lainnya-item-badge.ok{color:var(--success);}
@@ -1769,6 +1783,7 @@ details.info .info-body ul{margin:4px 0 0;padding-left:16px;}
         <span class="val" id="ecoSummaryTotalVal">0</span>
       </div>
       <div id="ecoSummaryBreakdown"></div>
+      <div class="eco-channel-belum" id="ecoSummaryChannelBelum" hidden></div>
       <div class="eco-today-route" id="ecoTodayRoute"></div>
       <button type="button" class="sku-cta-btn" id="ecoSummaryCta">🧾 Lihat Detail per Outlet ›</button>
     </div>
@@ -2824,7 +2839,7 @@ function getKalkState(){
 // Periode aktif app (bulan konfirmasi NPD yang sedang berjalan). TIDAK ikut tanggal HP —
 // pindah bulan hanya lewat rilis versi baru dari file update AASM (keputusan user 14 Sept 2026).
 const ACTIVE_PERIOD = "2026-09";
-const APP_BUILD = "v27.0";  // label versi, tampil kecil di header — naikkan tiap publish (rilis 23 Sept: gambar share ECO -- tambah box "Belum Transaksi Sama Sekali per Channel" (basis semua outlet dicover) sejajar dgn "Cakupan Rute Hari Ini" (tile ditumpuk vertikal), gantikan baris full-width lama)
+const APP_BUILD = "v27.1";  // label versi, tampil kecil di header — naikkan tiap publish (rilis 23 Sept: box "Belum Transaksi Sama Sekali per Channel" skrg JUGA tampil di layar Ringkasan (kartu ECO), bukan cuma gambar share WA -- basis sama, tampilan full-width ditumpuk krn ini layar HP)
 // Logo header gambar share WA (v109, 17 Sept 2026, permintaan user) — PNG asli
 // di-crop otomatis (buang padding transparan) + diperkecil tinggi 160px lewat
 // Pillow supaya ukuran base64 kecil (SONIK ~44KB, Unilever ~53KB teks base64).
@@ -6966,8 +6981,34 @@ function renderEcoSummaryCard(){
     psProgressBlockHtml("Sudah Lengkap (Semua BU)", lengkap, all.length) +
     psProgressBlockHtml("Belum Semua BU", sebagian, all.length) +
     psProgressBlockHtml("Belum Transaksi Sama Sekali", belum, all.length);
+  const chEl = document.getElementById("ecoSummaryChannelBelum");
+  if(chEl){
+    const chHtml = ecoChannelBelumHtml(all);
+    chEl.innerHTML = chHtml;
+    chEl.hidden = !chHtml;
+  }
   const routeEl = document.getElementById("ecoTodayRoute");
   if(routeEl) routeEl.innerHTML = ecoTodayRouteHtml(all);
+}
+// Breakdown "Belum Transaksi Sama Sekali" PER CHANNEL di layar Ringkasan (v27.0, 23 Sept 2026,
+// permintaan user setelah lihat versi di gambar share WA -- "boleh, tambahkan sekalian ke layar
+// Ringkasan juga"). Basis SELURUH outlet dicover (all), sama persis logika & urutannya dgn versi
+// di buildShareCardData(). Channel yg dicover salesman TETAP ditampilkan walau angkanya 0. Kalau
+// outlet2 salesman ini belum py data channel sama sekali (master_raw kolom Channel kosong), return
+// "" supaya section-nya otomatis disembunyikan (hidden) -- tidak nampilin kotak kosong.
+function ecoChannelBelumHtml(all){
+  const channels = Array.from(new Set(all.map(o=>o.channel).filter(c=>c)));
+  if(!channels.length) return "";
+  const rows = channels
+    .map(c=>({channel:c, count: all.filter(o=>o.channel===c && o.status==="BELUM").length}))
+    .sort((a,b)=> b.count - a.count || a.channel.localeCompare(b.channel,"id"));
+  const total = rows.reduce((s,r)=>s+r.count, 0);
+  return `
+    <div class="eco-channel-belum-head"><span class="lbl">❌ Belum Transaksi Sama Sekali — per Channel</span><span class="val">${total} outlet</span></div>
+    <div class="eco-channel-belum-list">
+      ${rows.map(r=>`<div class="eco-channel-belum-row${r.count>0?"":" zero"}"><span class="cn">${escapeHtml(r.channel)}</span><span class="cc">${r.count}</span></div>`).join("")}
+    </div>
+    <div class="eco-channel-belum-note">* Basis: seluruh ${all.length} outlet yang di-cover (bukan hanya rute hari ini).</div>`;
 }
 // "Cakupan Rute Hari Ini" versi ECO (17 Sept 2026, evaluasi user setelah lihat kartu Ringkasan
 // ECO) — outlet yg dijadwalkan PJP HARI INI, dipecah 3 kategori status. SENGAJA status di sini
