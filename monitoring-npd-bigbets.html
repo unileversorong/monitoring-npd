@@ -337,6 +337,11 @@ h1,h2,h3{
 .tag-badge.tag-cdfd{color:var(--brand);background:var(--brand-soft);}
 .tag-badge.tag-sticky{color:var(--potensi);background:var(--potensi-soft);}
 .tag-badge.tag-target{color:var(--ink-muted);background:var(--surface-2);font-weight:700;}
+/* v27.4: badge status konfirmasi per-salesman utk kriteria A outlet bersama (permintaan user:
+   warna harus mencolok — hijau = sudah, merah = belum, BUKAN abu2/kuning netral spt tag-regular/
+   tag-auto yg dipakai badge lain). tag-success baru; tag-unproven pakai lagi punya NPD (sudah
+   ada, warna sama persis yg diminta user). */
+.tag-badge.tag-success{color:var(--success);background:var(--success-soft);}
 /* Perfect Store: indikator bulat per kriteria Target AVD (hijau=tercapai,
    merah=belum) + label status Perfect, ditaruh menonjol di atas nama outlet
    (dikonfirmasi user: ini "kuncinya", perlu di-highlight lebih dari sekadar
@@ -1466,6 +1471,7 @@ details.info .info-body ul{margin:4px 0 0;padding-left:16px;}
       <button class="identity-change-btn" id="identityChangeBtn">GANTI</button>
     </div>
     <div id="dbBanner" class="db-banner" hidden><span id="dbBannerText">Tidak bisa terhubung ke database — centang disimpan di HP dan dikirim saat tersambung.</span><button type="button" id="dbRetryBtn">Coba lagi</button></div>
+    <div id="periodLockBanner" class="db-banner" hidden><span id="periodLockBannerText"></span></div>
   </div>
 </div>
 
@@ -1600,6 +1606,9 @@ details.info .info-body ul{margin:4px 0 0;padding-left:16px;}
 
     <div class="selector-row"><span class="lbl">Hari PJP</span><div class="chipwrap"><div class="chiprow" id="psDayChips"></div></div></div>
     <div class="selector-row"><span class="lbl">Sisa KPI</span><div class="chipwrap"><div class="chiprow" id="psRemainingChips"></div></div></div>
+    <!-- v27.5: baris ini HANYA muncul (row.hidden=false) utk salesman yg punya outlet bersama
+         (psMyPartners()) — lihat renderPsWaitingPartnerRow(). -->
+    <div class="selector-row" id="psWaitingPartnerRow" hidden><span class="lbl">Outlet Bersama</span><div class="chipwrap"><div class="chiprow" id="psWaitingPartnerChips"></div></div></div>
 
     <div class="progress-row">
       <div class="progress-track"><div class="progress-fill" id="psProgressFill" style="width:0%"></div></div>
@@ -2839,7 +2848,47 @@ function getKalkState(){
 // Periode aktif app (bulan konfirmasi NPD yang sedang berjalan). TIDAK ikut tanggal HP —
 // pindah bulan hanya lewat rilis versi baru dari file update AASM (keputusan user 14 Sept 2026).
 const ACTIVE_PERIOD = "2026-09";
-const APP_BUILD = "v27.1";  // label versi, tampil kecil di header — naikkan tiap publish (rilis 23 Sept: box "Belum Transaksi Sama Sekali per Channel" skrg JUGA tampil di layar Ringkasan (kartu ECO), bukan cuma gambar share WA -- basis sama, tampilan full-width ditumpuk krn ini layar HP)
+const APP_BUILD = "v27.8";  // label versi, tampil kecil di header — naikkan tiap publish (rilis 29 Sept: kunci form otomatis begitu bulan WIT sudah lewat dari ACTIVE_PERIOD, tanpa jeda, lihat isPeriodLocked di bawah)
+// v27.8 (29 Sept 2026, permintaan user; REVISI 29 Sept 2026 — jeda 9 hari DIHAPUS atas
+// permintaan user, langsung terkunci tanggal 1 tanpa masa tenggang): KUNCI OTOMATIS begitu
+// ACTIVE_PERIOD sudah "basi" — supaya salesman tidak terus mencentang ke periode BULAN LAMA
+// kalau AASM belum sempat rilis versi baru pas bulan berganti. Begitu tanggal (WIT) sudah masuk
+// bulan SETELAH ACTIVE_PERIOD — walau baru tanggal 1 — form langsung terkunci, tidak ada masa
+// tenggang sama sekali. Aturan ini SENGAJA general/berulang (bukan dihardcode ke Oktober doang)
+// — begitu AASM rilis versi baru dgn ACTIVE_PERIOD yg sudah disesuaikan, kondisi kunci otomatis
+// hilang lagi, siklus yg sama berlaku lagi bulan berikutnya. Perhitungan tanggal SELALU pakai
+// zona waktu WIT (Asia/Jayapura, UTC+9, sesuai lokasi user) lewat Intl.DateTimeFormat dgn
+// timeZone eksplisit — TIDAK bergantung pada zona waktu HP/browser salesman masing2 (yg bisa
+// saja beda-beda/salah setting), supaya konsisten dari HP manapun & tepat di jam 00:00 WIT tgl 1.
+function witNowParts(){
+  const fmt = new Intl.DateTimeFormat("en-CA", {timeZone:"Asia/Jayapura", year:"numeric", month:"2-digit", day:"2-digit"});
+  const parts = {};
+  fmt.formatToParts(new Date()).forEach(p=>{ if(p.type !== "literal") parts[p.type] = Number(p.value); });
+  return parts; // {year, month, day} — "month" 1-12, sudah dlm zona WIT
+}
+function isPeriodLocked(){
+  const [ay, am] = ACTIVE_PERIOD.split("-").map(Number);
+  const wit = witNowParts();
+  const monthDiff = (wit.year * 12 + wit.month) - (ay * 12 + am);
+  return monthDiff > 0; // bulan WIT sekarang sudah lewat dari ACTIVE_PERIOD -> terkunci, tanpa jeda
+}
+function periodLockLabel(){
+  // pakai bulan WIT SEKARANG (bukan sekadar "ACTIVE_PERIOD + 1 bulan") — supaya pesannya tetap
+  // akurat walau kelewat lebih dari 1 bulan (mis. ACTIVE_PERIOD masih Sept tapi sekarang Nov).
+  const wit = witNowParts();
+  return new Date(wit.year, wit.month - 1, 1).toLocaleDateString("id-ID", {month:"long", year:"numeric"});
+}
+function renderPeriodLockBanner(){
+  const b = document.getElementById("periodLockBanner");
+  if(!b) return;
+  if(isPeriodLocked()){
+    document.getElementById("periodLockBannerText").textContent =
+      "🔒 Periode " + periodLockLabel() + " sudah dimulai tapi form ini belum diupdate AASM. Centang NPD/COTC/Perfect Store untuk sementara DIKUNCI — tab Ringkasan tetap bisa dibuka. Tunggu rilis versi baru.";
+    b.hidden = false;
+  } else {
+    b.hidden = true;
+  }
+}
 // Logo header gambar share WA (v109, 17 Sept 2026, permintaan user) — PNG asli
 // di-crop otomatis (buang padding transparan) + diperkecil tinggi 160px lewat
 // Pillow supaya ukuran base64 kecil (SONIK ~44KB, Unilever ~53KB teks base64).
@@ -2932,6 +2981,10 @@ const state = {
   psDay: null, // null = "Semua Hari"
   psSortByShortfall: false, // urutkan outlet dari kekurangan assortment tersedikit (yg sudah tercapai turun ke bawah)
   psRemainingFilter: null, // null="Semua"; angka N = tampilkan outlet yg SISA N KPI (dari label target outlet itu sendiri) belum tercapai
+  // v27.5 (30 Sept 2026, permintaan user): filter "Menunggu <pasangan>" — outlet bersama yg
+  // porsi Assortment SAYA sendiri sudah, tapi pasangan (mis. Stefanus utk Dorteis) belum, jadi
+  // bisa dikejar/diingatkan. HANYA relevan utk salesman yg punya outlet bersama (psMyPartners()).
+  psWaitingPartner: false,
   // "Sticky" outlet di filter Sisa KPI (16 Sept 2026, revisi dari versi awal yg
   // sempat pakai psExpanded) — lihat catatan lengkap di renderPsList(). Beda dari
   // psExpanded: TIDAK butuh salesman ingat menutup checklist scr manual, krn
@@ -2996,6 +3049,7 @@ function fmtDateShort(iso){
 document.getElementById("todayLabel").textContent = fmtDateShort(state.today);
 document.getElementById("buildLabel").textContent = APP_BUILD;
 document.getElementById("periodLabel").textContent = "Periode " + new Date(Number(ACTIVE_PERIOD.slice(0,4)), Number(ACTIVE_PERIOD.slice(5,7))-1, 1).toLocaleDateString("id-ID",{month:"short",year:"numeric"});
+renderPeriodLockBanner();
 // Label "Data Sentral ... update s.d." (bukan "Data ... update s.d." polos) — sengaja
 // ditulis eksplisit supaya sales tidak salah kira ini termasuk centang manual mereka
 // sendiri (permintaan user 15 Sept 2026: "informasi data update ini ambigu takutnya
@@ -3105,6 +3159,7 @@ function resetPsSearchUI(){
   // "Sisa 2 KPI" trus cari nama outlet yg sisa KPI-nya beda, outlet "tidak
   // ditemukan" walau namanya cocok) — sekarang stash/restore PERSIS pola hari.
   state.psRemainingBeforeSearch = undefined;
+  state.psWaitingPartnerBeforeSearch = undefined; // v27.5, simetris dgn Hari/Sisa KPI di atas
   const input = document.getElementById("psSearch");
   if(input) input.value = "";
   const clearBtn = document.getElementById("psSearchClear");
@@ -3653,7 +3708,7 @@ function scheduleSync(){
   const delay = Math.max(1000, SYNC_INTERVAL_MS + jitter);
   dbState.syncTimer = setTimeout(()=>{ if(document.visibilityState === "visible") syncNow(); else scheduleSync(); }, delay);
 }
-document.addEventListener("visibilitychange", ()=>{ if(document.visibilityState === "visible"){ syncNow(); flushPending(); fetchEcoLive(); } });
+document.addEventListener("visibilitychange", ()=>{ if(document.visibilityState === "visible"){ syncNow(); flushPending(); fetchEcoLive(); renderPeriodLockBanner(); } });
 window.addEventListener("focus", ()=>{ syncNow(); flushPending(); fetchEcoLive(); });
 window.addEventListener("online", ()=>{ syncNow(); flushPending(); fetchEcoLive(); });
 document.getElementById("dbRetryBtn").addEventListener("click", async ()=>{
@@ -3767,6 +3822,10 @@ function initDb(){
 }
 async function toggleSku(kode, skuCode){
   if(state.viewOnly){ showIdentityToast("Mode Tamu — hanya melihat. Untuk mengisi, ketuk GANTI lalu SAYA SALESMAN"); return; }
+  // v27.8: form terkunci otomatis kalau ACTIVE_PERIOD sudah basi (lihat isPeriodLocked) — cegah
+  // centang baru kesasar tersimpan ke periode bulan lama. Tab Ringkasan tidak lewat jalur ini,
+  // jadi tetap bisa dibuka seperti biasa.
+  if(isPeriodLocked()){ showIdentityToast("🔒 Periode ini sudah berakhir — form terkunci menunggu update AASM. Tab Ringkasan tetap bisa dibuka."); return; }
   if(baselineFor(outletBaseline(kode), skuCode, currentPeriod())) return; // riwayat, terkunci
   const key = docKey(currentPeriod(), state.split);
   const cur = getDoc(currentPeriod(), state.split);
@@ -3794,6 +3853,10 @@ async function toggleSku(kode, skuCode){
 }
 async function toggleAllSkus(kode, skus, allDone){
   if(state.viewOnly){ showIdentityToast("Mode Tamu — hanya melihat. Untuk mengisi, ketuk GANTI lalu SAYA SALESMAN"); return; }
+  // v27.8: form terkunci otomatis kalau ACTIVE_PERIOD sudah basi (lihat isPeriodLocked) — cegah
+  // centang baru kesasar tersimpan ke periode bulan lama. Tab Ringkasan tidak lewat jalur ini,
+  // jadi tetap bisa dibuka seperti biasa.
+  if(isPeriodLocked()){ showIdentityToast("🔒 Periode ini sudah berakhir — form terkunci menunggu update AASM. Tab Ringkasan tetap bisa dibuka."); return; }
   const key = docKey(currentPeriod(), state.split);
   const cur = getDoc(currentPeriod(), state.split);
   const outlets = {...(cur.outlets||{})};
@@ -4757,6 +4820,10 @@ function cotcAssortInfo(outlet, docRec){
 }
 async function toggleCotcSku(kode, skuId){
   if(state.viewOnly){ showIdentityToast("Mode Tamu — hanya melihat. Untuk mengisi, ketuk GANTI lalu SAYA SALESMAN"); return; }
+  // v27.8: form terkunci otomatis kalau ACTIVE_PERIOD sudah basi (lihat isPeriodLocked) — cegah
+  // centang baru kesasar tersimpan ke periode bulan lama. Tab Ringkasan tidak lewat jalur ini,
+  // jadi tetap bisa dibuka seperti biasa.
+  if(isPeriodLocked()){ showIdentityToast("🔒 Periode ini sudah berakhir — form terkunci menunggu update AASM. Tab Ringkasan tetap bisa dibuka."); return; }
   const outlet = COTC_OUTLETS.find(o=>o.kode===kode && o.salesmanId===state.salesman);
   if(outlet && outlet.baseline && outlet.baseline[skuId]) return; // riwayat, tidak bisa diubah
   const key = docKey(currentPeriod(), "COTC");
@@ -4801,6 +4868,10 @@ async function toggleCotcSku(kode, skuId){
 }
 async function toggleAllCotcSkus(kode, outlet, allDone){
   if(state.viewOnly){ showIdentityToast("Mode Tamu — hanya melihat. Untuk mengisi, ketuk GANTI lalu SAYA SALESMAN"); return; }
+  // v27.8: form terkunci otomatis kalau ACTIVE_PERIOD sudah basi (lihat isPeriodLocked) — cegah
+  // centang baru kesasar tersimpan ke periode bulan lama. Tab Ringkasan tidak lewat jalur ini,
+  // jadi tetap bisa dibuka seperti biasa.
+  if(isPeriodLocked()){ showIdentityToast("🔒 Periode ini sudah berakhir — form terkunci menunggu update AASM. Tab Ringkasan tetap bisa dibuka."); return; }
   const key = docKey(currentPeriod(), "COTC");
   const cur = getDoc(currentPeriod(), "COTC");
   const outlets = {...(cur.outlets||{})};
@@ -5142,9 +5213,110 @@ function renderPsDayChips(){
     wrap.appendChild(btn);
   });
 }
+// ---------- 29 Sept 2026: PS disamakan dgn NPD - validasi akhir dari PS Raw ----------
+// Keputusan user ("harusnya disamakan dan validasi akhir adalah dari PS Raw yang saya
+// update"): centang manual Perfect Store (A/D/SE — bukan V yg memang selalu terkunci,
+// lihat psIsLocked) kini hanya berlaku SEMENTARA, sama persis pola NPD (lihat
+// tickUnproven()/skuAchieved() di atas). Begitu PS Raw (lewat psHistoryUntil(), tanggal
+// "Data Sentral Perfect Store update s.d. ...") sudah mencakup TANGGAL centang itu:
+//   - PS Raw membuktikan   -> sudah jadi Riwayat (outlet.baseline via psIsLocked),
+//     centang manual tak dipakai lagi, baseline yang menang;
+//   - tidak terbukti       -> centang "TIDAK TERBUKTI": tidak dihitung tercapai (psAchieved,
+//     jadi ikut tidak dihitung di psDoneCount/psIsPerfect/psRemainingCount/target Ringkasan),
+//     TIDAK dihapus (jejak riwayat tetap ada di data), TIDAK dikunci — kembali ke "tombol
+//     awal", boleh dicentang ulang bebas (lihat togglePsItem: ketukan berikutnya menulis
+//     klaim baru, menimpa bekas klaim lama yg tidak terbukti). Hanya PS Raw yang bisa
+//     memulihkan status tercapai permanen.
+// Tidak dinilai (dibiarkan spt semula, "menunggu") kalau psHistoryUntil() dari bulan lain
+// drpd periode dokumen, atau tanggal centang masih lebih baru dari psHistoryUntil().
+function psTickUnproven(rec, period){
+  if(!rec || !rec.confirmed) return false;
+  const until = psHistoryUntil();
+  if(!until || until.slice(0,7) !== (period || currentPeriod())) return false;
+  const td = tickLocalDate(rec);
+  return !!td && td <= until;
+}
+// ---------- 29 Sept 2026: Assortment outlet bersama - wajib KEDUA salesman konfirmasi ----------
+// Keputusan user: utk outlet yg dilayani BERSAMA oleh 2 salesman (mis. DORTEIS & STEFANUS di
+// Sorong, THEO & NEW di Nabire — lihat outlet.salesmanIds), target Assortment (kriteria "A")
+// di aplikasi RESMI Unilever milik masing2 salesman itu SUDAH TERBAGI per orang (porsi SKU
+// masing2), dan salah satu TIDAK TAHU apakah rekannya sudah capai porsi dia sendiri atau
+// belum. Kalau cuma salah satu yg centang (spt kriteria lain/pola lama), outlet langsung
+// tercatat tercapai walau porsi rekannya belum tentu tercapai -> pencapaian yg tercatat bisa
+// jauh dari kenyataan (ke arah manapun, tergantung siapa duluan centang, dan tidak diketahui
+// pasangannya krn tidak ada visibility lintas akun).
+// HANYA "A" yg diperlakukan begini (dikonfirmasi user) — "D" & "SE" TETAP pola lama (siapa pun
+// centang duluan berlaku utk keduanya), krn keduanya bukan porsi per-salesman spt assortment.
+// PENTING soal struktur penyimpanan: backend (Code.gs patch_()) MENGGABUNGKAN data per-ITEM
+// secara SHALLOW (Object.assign 1 level, bukan deep-merge) — kalau slot Dorteis & Stefanus
+// ditumpuk jadi SATU nested object di bawah key "A", tap salah satu bisa MENIMPA HABIS data
+// tersimpan milik satunya (race condition antar 2 HP, bukan cuma teori — device beda, tidak
+// selalu sinkron duluan). Makanya BUKAN dibuat nested — tiap salesman dapat KEY ITEM SENDIRI
+// yg datar, format "A__<salesmanId>" (mis. "A__DORTEIS", "A__STEFANUS"), persis pola item PS
+// lainnya ({confirmed,by,ts}). Dengan begini tiap tap cuma menyentuh 1 key milik sendiri, tidak
+// pernah bersinggungan dgn key rekannya — aman dari race condition TANPA perlu ubah Code.gs.
+function psIsSharedOutlet(outlet){
+  return !!(outlet && outlet.salesmanIds && outlet.salesmanIds.length > 1);
+}
+function psSharedItemKey(key, salesmanId){ return key + "__" + salesmanId; }
+// true hanya kalau SEMUA salesman yg ditugaskan sudah confirm porsinya masing2 (DAN belum
+// dianulir psTickUnproven per-orang — kalau salah satu porsi ternyata tidak terbukti di PS Raw,
+// keseluruhan outlet ikut kembali "belum", persis semangat validasi PS Raw sbg wasit akhir).
+function psSharedAAchieved(outlet, docRec){
+  return outlet.salesmanIds.every(id=>{
+    const sub = docRec && docRec[psSharedItemKey("A", id)];
+    return !!(sub && sub.confirmed && !psTickUnproven(sub));
+  });
+}
+// Dipakai render utk kasih tahu salesman status porsi masing2 pihak (atasi "tidak tahu apakah
+// rekan sudah capai") — {id, done}[] mengikuti urutan outlet.salesmanIds.
+function psSharedAStatus(outlet, docRec){
+  return outlet.salesmanIds.map(id=>{
+    const sub = docRec && docRec[psSharedItemKey("A", id)];
+    return { id, done: !!(sub && sub.confirmed && !psTickUnproven(sub)) };
+  });
+}
+// Status TAP milik salesman yg SEDANG LOGIN sendiri utk kriteria A outlet bersama (beda dari
+// psAchieved/psSharedAAchieved yg butuh KEDUANYA). Dipakai KHUSUS utk tampilan tombol baris A
+// (renderPsRow) — supaya tombolnya mencerminkan "sudah saya tandai atau belum", BUKAN status
+// gabungan outlet, karena kalau tombol ikut logika gabungan, salesman yg SUDAH tap tapi
+// rekannya belum akan melihat tombolnya balik ke "–" seolah tap-nya tidak tersimpan — beresiko
+// dia tap ULANG dan malah TIDAK SENGAJA membatalkan konfirmasi dia sendiri.
+function psMyOwnATick(outlet, docRec){
+  const sub = docRec && docRec[psSharedItemKey("A", state.salesman)];
+  return !!(sub && sub.confirmed && !psTickUnproven(sub));
+}
 function psAchieved(outlet, docRec, key){
   if(outlet.baseline && outlet.baseline[key]) return true;
-  return !!(docRec && docRec[key] && docRec[key].confirmed);
+  if(key === "A" && psIsSharedOutlet(outlet)) return psSharedAAchieved(outlet, docRec);
+  const rec = docRec && docRec[key];
+  return !!(rec && rec.confirmed && !psTickUnproven(rec));
+}
+// ---------- 30 Sept 2026: filter "Menunggu <pasangan>" ----------
+// Kumpulan salesman PASANGAN dari SEMUA outlet bersama milik salesman yg sedang login, dari
+// roster PENUH (outletsPsFor, bukan yg sedang difilter Hari/Cari) — biar konsisten dgn
+// psPerfectTargetInfo (basis roster penuh). Biasanya cuma 1 pasangan tetap (Dorteis<->Stefanus,
+// Theo<->Wahyu/"NEW"), tapi dibuat general (Set, bisa >1 nama) kalau suatu saat ada kombinasi
+// lebih dari 2 orang per outlet. Kosong = salesman ini tidak punya outlet bersama sama sekali
+// -> filter ini tidak relevan & disembunyikan total (lihat renderPsWaitingPartnerRow).
+function psMyPartners(){
+  const ids = new Set();
+  outletsPsFor(state.salesman).forEach(o=>{
+    if(psIsSharedOutlet(o)) o.salesmanIds.forEach(id=>{ if(id!==state.salesman) ids.add(id); });
+  });
+  return [...ids];
+}
+// true = outlet ini "PR" bagi salesman yg login utk dikejar ke pasangannya: outlet bersama,
+// porsi SAYA SENDIRI sudah confirm (& belum dianulir psTickUnproven — psMyOwnATick sudah
+// menghitung itu), TAPI status gabungan (psAchieved, butuh KEDUANYA) masih belum tercapai —
+// artinya pasangan belum menyusul (atau baru "menunggu" krn tanggalnya lebih baru dari
+// psHistoryUntil, tetap dihitung "PR" krn dari sisi SAYA memang belum kelihatan Perfect).
+// Begitu PS Raw sudah membuktikan (baseline true), psAchieved otomatis true -> outlet ini
+// otomatis KELUAR dari daftar "PR" (tidak ada lagi yg perlu dikejar, sesuai semangat baseline
+// sbg data gabungan final — lihat juga tampilan hijau-semua di renderPsRow utk kasus ini).
+function psIsWaitingPartner(outlet, docRec){
+  if(!psIsSharedOutlet(outlet)) return false;
+  return psMyOwnATick(outlet, docRec) && !psAchieved(outlet, docRec, "A");
 }
 function psDoneCount(outlet, docRec){
   return PS_ITEMS.filter(it=>psAchieved(outlet, docRec, it.key)).length;
@@ -5409,6 +5581,10 @@ function psIncentiveInfo(){
 // seperti Top 12 COTC. "by" tetap dicatat siapa yang menandai, untuk audit.
 async function togglePsItem(kode, key){
   if(state.viewOnly){ showIdentityToast("Mode Tamu — hanya melihat. Untuk mengisi, ketuk GANTI lalu SAYA SALESMAN"); return; }
+  // v27.8: form terkunci otomatis kalau ACTIVE_PERIOD sudah basi (lihat isPeriodLocked) — cegah
+  // centang baru kesasar tersimpan ke periode bulan lama. Tab Ringkasan tidak lewat jalur ini,
+  // jadi tetap bisa dibuka seperti biasa.
+  if(isPeriodLocked()){ showIdentityToast("🔒 Periode ini sudah berakhir — form terkunci menunggu update AASM. Tab Ringkasan tetap bisa dibuka."); return; }
   const outlet = PERFECT_STORE_OUTLETS.find(o=>o.kode===kode);
   if(outlet && psIsLocked(outlet, key)) return; // riwayat / V memang tidak bisa diubah manual
   const dkey = docKey(currentPeriod(), "PS");
@@ -5420,8 +5596,22 @@ async function togglePsItem(kode, key){
   const remainingBefore = outlet ? psRemainingCount(outlet, outlets[kode]) : null;
   const assortBefore = outlet ? psAssortInfo(outlet, outlets[kode]) : null;
   const outletItems = {...(outlets[kode]||{})};
-  const wasConfirmed = !!(outletItems[key] && outletItems[key].confirmed);
-  outletItems[key] = wasConfirmed
+  // v27.2 (29 Sept 2026, samakan dgn NPD/toggleSku): centang yang sudah dinilai tidak
+  // terbukti (psTickUnproven) BUKAN dikunci — dianggap kosong lagi ("kembali ke tombol
+  // awal") dan boleh dicentang ulang. Ketukan berikutnya menulis klaim baru yg segar,
+  // menimpa bekas klaim lama yg tidak terbukti itu.
+  // v27.3 (29 Sept 2026, permintaan user): kriteria "A" utk outlet BERSAMA 2 salesman —
+  // tap seorang salesman HANYA menulis slot dia sendiri (bySalesman[state.salesman]),
+  // TIDAK PERNAH menimpa/membatalkan slot rekannya. Outlet baru tercapai (psAchieved)
+  // kalau KEDUANYA sudah sama2 confirm — lihat psSharedAAchieved().
+  const isSharedA = key === "A" && psIsSharedOutlet(outlet);
+  // Kunci item yg BENAR2 ditulis ke dokumen: kalau kriteria A outlet bersama, tiap salesman
+  // punya key sendiri ("A__<id>") spy tidak pernah menimpa slot rekannya (lihat psSharedItemKey
+  // & catatan shallow-merge Code.gs di atas psIsSharedOutlet). Selain itu pola lama persis.
+  const itemKey = isSharedA ? psSharedItemKey("A", state.salesman) : key;
+  const prevRec = outletItems[itemKey];
+  const wasConfirmed = !!(prevRec && prevRec.confirmed) && !psTickUnproven(prevRec);
+  outletItems[itemKey] = wasConfirmed
     ? {confirmed:false}
     : {confirmed:true, by: state.salesman, ts: new Date().toISOString()};
   outlets[kode] = outletItems;
@@ -5462,6 +5652,19 @@ async function togglePsItem(kode, key){
       toastParts.push("urutan tidak berubah");
     }
   }
+  // v27.3: kalau kriteria A outlet bersama, kasih tahu status rekan (atasi "tidak tahu
+  // apakah rekan sudah capai porsinya") — supaya salesman paham kenapa outlet BELUM
+  // tercapai walau porsi dia sendiri sudah dicentang.
+  if(isSharedA && !wasConfirmed){
+    const partners = outlet.salesmanIds.filter(id=>id!==state.salesman);
+    const status = psSharedAStatus(outlet, outletItems);
+    const pending = status.filter(s=>partners.includes(s.id) && !s.done).map(s=>s.id);
+    if(pending.length){
+      toastParts.push("Menunggu konfirmasi " + pending.join(", ") + " utk porsinya sendiri");
+    } else if(partners.length){
+      toastParts.push("✓ " + partners.join(", ") + " juga sudah konfirmasi — Assortment tercapai");
+    }
+  }
   if(outlet){
     const itemLabel = (PS_ITEMS.find(it=>it.key===key)||{}).label || key;
     const msg = (wasConfirmed
@@ -5471,10 +5674,14 @@ async function togglePsItem(kode, key){
     showPsToast(msg, ()=>togglePsItem(kode, key));
   }
   renderPsList();
-  await persistConfirmation(dkey, next, {[kode]: {[key]: outletItems[key]}});
+  await persistConfirmation(dkey, next, {[kode]: {[itemKey]: outletItems[itemKey]}});
 }
 async function toggleAllPsItems(kode, outlet, allDone){
   if(state.viewOnly){ showIdentityToast("Mode Tamu — hanya melihat. Untuk mengisi, ketuk GANTI lalu SAYA SALESMAN"); return; }
+  // v27.8: form terkunci otomatis kalau ACTIVE_PERIOD sudah basi (lihat isPeriodLocked) — cegah
+  // centang baru kesasar tersimpan ke periode bulan lama. Tab Ringkasan tidak lewat jalur ini,
+  // jadi tetap bisa dibuka seperti biasa.
+  if(isPeriodLocked()){ showIdentityToast("🔒 Periode ini sudah berakhir — form terkunci menunggu update AASM. Tab Ringkasan tetap bisa dibuka."); return; }
   const dkey = docKey(currentPeriod(), "PS");
   const cur = getDoc(currentPeriod(), "PS");
   const outlets = {...(cur.outlets||{})};
@@ -5483,13 +5690,25 @@ async function toggleAllPsItems(kode, outlet, allDone){
   const outletItems = {...(outlets[kode]||{})};
   const ts = new Date().toISOString();
   const nextConfirmed = !allDone;
+  // v27.7 (29 Sept 2026, temuan review): tombol massal ini TIDAK PERNAH kasih tahu status
+  // pasangan utk kriteria A outlet bersama (beda dari togglePsItem yg sudah kasih tahu),
+  // padahal aksi massal ini jg bisa menyentuh porsi A milik sendiri. Siapkan datanya di sini,
+  // SEBELUM outletItems ditimpa forEach di bawah, spy tahu apakah porsi SAYA SENDIRI utk A
+  // baru pertama kali confirm lewat aksi ini (bukan sudah confirm dari sebelumnya, & bukan D/SE
+  // yg memang otomatis berlaku utk berdua begitu salah satu tap — cuma A yg perlu ditunggu).
+  const isSharedOutlet = psIsSharedOutlet(outlet);
+  const aTouched = !psIsLocked(outlet, "A");
+  const wasMyOwnAConfirmed = (isSharedOutlet && aTouched) ? psMyOwnATick(outlet, outletItems) : false;
   const patch = {};
   PS_ITEMS.forEach(it=>{
     if(psIsLocked(outlet, it.key)) return; // riwayat / V memang tidak bisa diubah manual
-    outletItems[it.key] = nextConfirmed
+    // v27.3: kriteria A outlet bersama — sentuh HANYA slot salesman yg sedang login sendiri
+    // (psSharedItemKey), jangan pernah slot rekannya. Lihat catatan lengkap di psIsSharedOutlet.
+    const itemKey = (it.key === "A" && psIsSharedOutlet(outlet)) ? psSharedItemKey("A", state.salesman) : it.key;
+    outletItems[itemKey] = nextConfirmed
       ? {confirmed:true, by: state.salesman, ts}
       : {confirmed:false};
-    patch[it.key] = outletItems[it.key];
+    patch[itemKey] = outletItems[itemKey];
   });
   outlets[kode] = outletItems;
   const next = {...cur, outlets, updatedAt: ts};
@@ -5518,6 +5737,22 @@ async function toggleAllPsItems(kode, outlet, allDone){
       toastParts.push("urutan tidak berubah");
     }
   }
+  // v27.7: baris status pasangan utk kriteria A — HANYA muncul kalau aksi ini
+  // (a) mengonfirmasi (bukan undo), (b) outletnya memang bersama & A tidak
+  // terkunci, (c) porsi SAYA SENDIRI utk A BARU pertama kali confirm lewat
+  // aksi ini (transisi baru — sama syarat dgn togglePsItem, supaya konsisten:
+  // kalau porsi saya sudah confirm dari sebelumnya & aksi massal ini cuma
+  // menyentuh sisa D/SE, tidak perlu diulang lagi).
+  if(nextConfirmed && isSharedOutlet && aTouched && !wasMyOwnAConfirmed){
+    const partners = outlet.salesmanIds.filter(id=>id!==state.salesman);
+    const status = psSharedAStatus(outlet, outletItems);
+    const pending = status.filter(s=>partners.includes(s.id) && !s.done).map(s=>s.id);
+    if(pending.length){
+      toastParts.push("Menunggu konfirmasi " + pending.join(", ") + " utk porsi Availability miliknya sendiri");
+    } else if(partners.length){
+      toastParts.push("✓ " + partners.join(", ") + " juga sudah konfirmasi porsi Availability — Assortment tercapai");
+    }
+  }
   // Toast SELALU muncul (16 Sept 2026, diluaskan — lihat catatan di
   // togglePsItem), bukan cuma saat toastParts terisi.
   const msg = (nextConfirmed
@@ -5541,7 +5776,7 @@ function renderPsList(){
   const docObj = getDoc(currentPeriod(), "PS");
   const psResetRow = document.getElementById("psFilterResetRow");
   // 22 Sept 2026 (feedback user poin 1): cakupan "Hapus Filter" sekarang termasuk toggle Urutkan.
-  if(psResetRow) psResetRow.hidden = !(state.psDay || state.psSearchQuery || state.psRemainingFilter != null || state.psSortByShortfall);
+  if(psResetRow) psResetRow.hidden = !(state.psDay || state.psSearchQuery || state.psRemainingFilter != null || state.psSortByShortfall || state.psWaitingPartner);
   // Filter chip "Sisa N KPI" (lihat psRemainingCount) — diterapkan SEBELUM sort
   // shortfall di bawah, supaya kedua filter bisa dipakai bersamaan.
   // "STICKY" outlet (16 Sept 2026, revisi ke-2 dari follow-up user): outlet yg
@@ -5572,6 +5807,15 @@ function renderPsList(){
     list = list.filter(o=>{
       const rec = docObj.outlets && docObj.outlets[o.kode];
       return psRemainingCount(o, rec) === state.psRemainingFilter || state.psStickyOutlets.has(o.kode);
+    });
+  }
+  // v27.5: filter "Menunggu <pasangan>" — DIRANTAI (AND) persis pola Sisa KPI di atas, sesudah
+  // Hari/Cari & Sisa KPI, sebelum Urutkan (yg cuma mengurutkan ULANG hasil filter, bukan
+  // menyaring) — jadi ketiganya bisa aktif bersamaan spt sudah dijelaskan ke user.
+  if(state.psWaitingPartner){
+    list = list.filter(o=>{
+      const rec = docObj.outlets && docObj.outlets[o.kode];
+      return psIsWaitingPartner(o, rec);
     });
   }
   // Toggle "Urutkan: Kekurangan Tersedikit" — outlet yg A-nya BELUM tercapai
@@ -5662,7 +5906,14 @@ function renderPsList(){
     const renderPsRow = (it)=>{
       const locked = psIsLocked(outlet, it.key);
       const isBaseline = !!(outlet.baseline && outlet.baseline[it.key]);
-      const isDone = psAchieved(outlet, docRec, it.key);
+      // v27.3: tombol baris A outlet bersama pakai status TAP SENDIRI (psMyOwnATick), bukan
+      // status gabungan psAchieved — lihat catatan lengkap di psMyOwnATick kenapa ini penting
+      // (hindari tombol "kembali kosong" walau sudah ditap, yg beresiko ke-toggle off sendiri).
+      // Status gabungan (butuh keduanya) tetap dipakai di tempat lain (pill X/N, badge Perfect,
+      // insentif) via psAchieved seperti biasa — tidak berubah.
+      const isDone = (it.key==="A" && !isBaseline && psIsSharedOutlet(outlet))
+        ? psMyOwnATick(outlet, docRec)
+        : psAchieved(outlet, docRec, it.key);
       const cls = "sku-row-toggle" + (isDone ? " done" : "") + (locked ? " locked" : "");
       // Bar "Assortment X/Y SKU" sudah ada di atas kartu outlet — di dalam baris
       // Perfect Availability ini sengaja HANYA sisakan info "kurang N SKU" (kalau
@@ -5674,11 +5925,34 @@ function renderPsList(){
       const nameWithTarget = (it.key==="A" && assort.shortfall>0)
         ? `${it.label} <span class="mono" style="color:var(--ink-muted);font-size:11px;">kurang ${assort.shortfall} SKU</span>`
         : it.label;
+      // v27.3/v27.4: kriteria A outlet bersama — tampilkan status konfirmasi TIAP salesman
+      // secara PERMANEN di baris ini (bukan cuma toast sesaat), supaya siapa pun yg buka app
+      // kapan pun (bukan cuma yg baru saja menandai) langsung tahu porsi siapa yg masih
+      // ditunggu. Ini langsung menjawab akar masalah user: "Dorteis tidak tahu apakah
+      // Stefanus sudah capai". Warna SENGAJA mencolok (permintaan user, evaluasi 29 Sept):
+      // hijau (tag-success) = sudah, merah (tag-unproven, dipakai lagi persis warna "tidak
+      // terbukti" NPD) = belum — bukan abu2/kuning netral spt badge lain.
+      // Kalau PS Raw SUDAH membuktikan (isBaseline true — baseline PS Raw memang data
+      // GABUNGAN keduanya, bukan per-orang), baris ini TETAP tampil tapi kedua kotak nama
+      // otomatis hijau semua (evaluasi user: "kotak nama ini akan hijau otomatis keduanya"),
+      // sementara tombol utama di kanan ikut biru (lihat cls/isDone di atas — psIsLocked
+      // true + isDone true -> class "locked done" -> warna --brand, sama pola "Riwayat"
+      // kriteria lain).
+      const sharedAStatusHtml = (it.key==="A" && psIsSharedOutlet(outlet)) ? (()=>{
+        const parts = outlet.salesmanIds.map(id=>{
+          const label = id===state.salesman ? "Anda" : salesmanLabelById(id);
+          const done = isBaseline || psSharedAStatus(outlet, docRec).find(s=>s.id===id).done;
+          return `<span class="tag-badge ${done?"tag-success":"tag-unproven"}">${done?"✓":"✗"} ${escapeHtml(label)}</span>`;
+        });
+        const note = isBaseline ? " (data PS Raw — gabungan keduanya)" : "";
+        return `<div class="ps-item-desc" style="margin-top:4px;">Porsi assortment per salesman${note}: <span class="row-badges">${parts.join("")}</span></div>`;
+      })() : "";
       return `
         <div class="sku-row">
           <div class="sku-row-info">
             <div class="sku-row-name">${nameWithTarget}</div>
             <div class="sku-row-moq"><span class="row-badges"><span class="ps-item-desc">${escapeHtml(it.desc)}</span>${isBaseline?`<span class="tag-badge tag-regular">Riwayat</span>`:""}${it.key==="V"?`<span class="tag-badge tag-auto">Otomatis dari data riwayat — tidak bisa dicentang manual</span>`:""}</span></div>
+            ${sharedAStatusHtml}
           </div>
           <button class="${cls}${it.key==="V"?" auto":""}" data-key="${it.key}" ${locked?"disabled":""} ${it.key==="V"?'title="Perfect Visibility hanya diperbarui dari data riwayat, bukan centang manual"':""}>${isDone?"✓":(it.key==="V"?"Auto":"–")}</button>
         </div>`;
@@ -5744,6 +6018,45 @@ function renderPsList(){
     ? "Tidak ada outlet Perfect Store yang ditugaskan untuk salesman ini."
     : `Ketuk outlet untuk buka kriterianya. Kotak "Syarat Utama" berisi kriteria yang menentukan status Perfect outlet itu (jumlahnya ikut label AVD-nya) — kotak "KPI Lainnya" tetap bisa dikejar tapi tidak ikut menentukan Perfect. Item bertanda "Riwayat" tidak bisa diubah karena sudah tercatat sebelumnya.`;
   renderPsRemainingChips();
+  renderPsWaitingPartnerRow();
+}
+// v27.5: chip TOGGLE TUNGGAL (pola sama persis psSortToggle — BUKAN grup chip spt Hari/Sisa
+// KPI, krn cuma 2 kondisi aktif/tidak), muncul HANYA utk salesman yg punya pasangan outlet
+// bersama. Label dinamis sebut nama pasangan + jumlah outlet yg masih "PR" (dari base yg SUDAH
+// ikut Hari/Cari yg lagi aktif, spt psRemainingChips).
+// CATATAN PENTING beda dari pola Hari/Sisa KPI (chip disembunyikan total kalau count=0): di
+// sini, kalau TOGGLE SEDANG AKTIF, chip TETAP ditampilkan walau count skrg 0 (mis. pasangan
+// baru saja menyusul konfirmasi selagi filter ini aktif) — supaya user SELALU punya cara
+// matikan toggle miliknya sendiri lewat chip-nya langsung, tanpa terpaksa pakai "Hapus Filter"
+// (yg mereset SEMUA filter lain sekalian). Kalau toggle SEDANG MATI, baru disembunyikan kalau
+// count=0 (tidak ada yg perlu dikejar skrg) — sama semangatnya dgn pola Hari/Sisa KPI.
+function renderPsWaitingPartnerRow(){
+  const row = document.getElementById("psWaitingPartnerRow");
+  if(!row) return;
+  const partners = psMyPartners();
+  if(!partners.length){
+    row.hidden = true;
+    state.psWaitingPartner = false; // jaga2: salesman tanpa pasangan tidak boleh nyangkut aktif
+    return;
+  }
+  const docObj = getDoc(currentPeriod(), "PS");
+  const base = visiblePsOutlets(); // ikut Hari/Cari yg lagi aktif, sama pola psRemainingChips
+  const count = base.filter(o=>psIsWaitingPartner(o, docObj.outlets && docObj.outlets[o.kode])).length;
+  if(!state.psWaitingPartner && count===0){ row.hidden = true; return; }
+  row.hidden = false;
+  const wrap = document.getElementById("psWaitingPartnerChips");
+  wrap.innerHTML = "";
+  const label = partners.length===1 ? salesmanLabelById(partners[0]) : partners.map(salesmanLabelById).join("/");
+  const btn = document.createElement("button");
+  btn.className = "chip" + (state.psWaitingPartner ? " active" : "");
+  btn.innerHTML = `⏳ Menunggu ${escapeHtml(label)}` + `<span class="n">${count}</span>`;
+  btn.addEventListener("click", ()=>{
+    state.psWaitingPartner = !state.psWaitingPartner;
+    state.psStickyOutlets.clear(); // ganti filter = ganti konteks, lihat catatan di renderPsList()
+    state.psStickySortAnchor = {};
+    renderPsList();
+  });
+  wrap.appendChild(btn);
 }
 // Chip filter "Sisa N KPI" — hitung dari psRemainingCount(outlet) yaitu jumlah
 // kriteria di LABEL TARGET outlet itu sendiri yg belum tercapai (lihat catatan
@@ -5805,6 +6118,11 @@ document.getElementById("psSearch").addEventListener("input", debounceSearch(e=>
     // pencarian nama outlet tidak "kejegal" filter Sisa KPI yg sedang aktif.
     state.psRemainingBeforeSearch = state.psRemainingFilter;
     state.psRemainingFilter = null;
+    // v27.5: "Menunggu <pasangan>" ikut disimpan+dimatikan simetris dgn Hari/Sisa KPI di atas,
+    // supaya kotak Cari benar2 mencari lintas segala kondisi lain, lalu balik lagi begitu
+    // pencarian dikosongkan.
+    state.psWaitingPartnerBeforeSearch = state.psWaitingPartner;
+    state.psWaitingPartner = false;
     state.psStickyOutlets.clear(); // mulai cari = ganti konteks, lihat catatan di renderPsList()
     state.psStickySortAnchor = {}; // ikut dibersihkan bareng psStickyOutlets, lihat state init
     renderPsDayChips();
@@ -5813,6 +6131,8 @@ document.getElementById("psSearch").addEventListener("input", debounceSearch(e=>
     state.psDayBeforeSearch = undefined;
     state.psRemainingFilter = state.psRemainingBeforeSearch !== undefined ? state.psRemainingBeforeSearch : state.psRemainingFilter;
     state.psRemainingBeforeSearch = undefined;
+    state.psWaitingPartner = state.psWaitingPartnerBeforeSearch !== undefined ? state.psWaitingPartnerBeforeSearch : state.psWaitingPartner;
+    state.psWaitingPartnerBeforeSearch = undefined;
     renderPsDayChips();
   }
   renderPsList();
@@ -5820,6 +6140,8 @@ document.getElementById("psSearch").addEventListener("input", debounceSearch(e=>
 document.getElementById("psSearchClear").addEventListener("click", ()=>{
   state.psDay = state.psDayBeforeSearch !== undefined ? state.psDayBeforeSearch : state.psDay;
   state.psRemainingFilter = state.psRemainingBeforeSearch !== undefined ? state.psRemainingBeforeSearch : state.psRemainingFilter;
+  state.psWaitingPartner = state.psWaitingPartnerBeforeSearch !== undefined ? state.psWaitingPartnerBeforeSearch : state.psWaitingPartner;
+  state.psWaitingPartnerBeforeSearch = undefined;
   state.psStickyOutlets.clear(); // batal cari = balik ke konteks filter sebelumnya, lihat catatan di renderPsList()
   state.psStickySortAnchor = {}; // ikut dibersihkan bareng psStickyOutlets, lihat state init
   resetPsSearchUI();
@@ -5829,9 +6151,11 @@ document.getElementById("psSearchClear").addEventListener("click", ()=>{
 // "Hapus Filter" (v80, evaluasi user): balikkan Hari PJP + Sisa KPI ke "Semua"
 // + kosongkan pencarian sekaligus dlm 1 ketukan (dulu 3 langkah terpisah).
 // REVISI 22 Sept 2026 (feedback user poin 1): sekarang ikut membalikkan toggle Urutkan ke default.
+// REVISI 30 Sept 2026: sekarang ikut mematikan toggle "Menunggu <pasangan>" (v27.5).
 document.getElementById("psFilterReset").addEventListener("click", ()=>{
   state.psDay = null;
   state.psRemainingFilter = null;
+  state.psWaitingPartner = false;
   state.psStickyOutlets.clear(); // reset filter = ganti konteks, lihat catatan di renderPsList()
   state.psStickySortAnchor = {}; // ikut dibersihkan bareng psStickyOutlets, lihat state init
   state.psSortByShortfall = false;
@@ -7365,13 +7689,23 @@ function renderCotcSummary(){
 // Sama pola dgn myTodayCount/myTodayBreakdown, tapi baca field key "A"/"V"/"D"/
 // "SE" (bukan skuId/skuCode). Baseline (fakta riwayat dari Excel) tidak punya
 // ts jadi tidak pernah ikut terhitung "hari ini".
+// v27.6 (29 Sept 2026, temuan review): utk kriteria A outlet bersama, tap disimpan
+// dgn key gabungan (psSharedItemKey, mis. "A__DORTEIS"), BUKAN lagi "A" polos --
+// kalau fungsi ini baca rec[it.key] langsung, tap hari ini oleh salesman yg login
+// jadi TIDAK PERNAH kehitung (rec["A"] selalu kosong utk outlet bersama). Statistik
+// "hari ini" ini sifatnya personal (sama spt bagian lain di Ringkasan/Laporan
+// Harian), jadi yg dihitung = tap milik SALESMAN YG LOGIN sendiri (psSharedItemKey
+// dgn state.salesman) -- persis pola psMyOwnATick, cuma general utk semua item.
+function psTodayItemKey(outlet, key){
+  return (key === "A" && psIsSharedOutlet(outlet)) ? psSharedItemKey("A", state.salesman) : key;
+}
 function psTodayCount(docObj, outlets, items){
   let outletsN = 0, marks = 0;
   outlets.forEach(o=>{
     const rec = docObj.outlets && docObj.outlets[o.kode];
     if(!rec) return;
     const n = items.filter(it=>{
-      const r = rec[it.key];
+      const r = rec[psTodayItemKey(o, it.key)];
       return r && r.confirmed && tickLocalDate(r) === state.today;
     }).length;
     if(n){ outletsN++; marks += n; }
@@ -7384,7 +7718,8 @@ function todayValHtml(t, what){
 function psTodayBreakdown(docObj, outlets, items){
   return items.map(it=>{
     const count = outlets.filter(o=>{
-      const rec = docObj.outlets && docObj.outlets[o.kode] && docObj.outlets[o.kode][it.key];
+      const outletRec = docObj.outlets && docObj.outlets[o.kode];
+      const rec = outletRec && outletRec[psTodayItemKey(o, it.key)];
       return rec && rec.confirmed && tickLocalDate(rec) === state.today;
     }).length;
     return {item:it, count};
